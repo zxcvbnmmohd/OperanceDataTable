@@ -1,0 +1,5 @@
+pre-commit:
+  commands:
+    sort-imports:
+      files: git diff --name-only --cached | grep ".*\.dart$"
+      run: fvm flutter pub run import_sorter:main {files} && git add {files}

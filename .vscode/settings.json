@@ -1,0 +1,35 @@
+{
+  // Dart and Flutter settings
+  "dart.flutterSdkPath": ".fvm/versions/3.24.3",
+  "dart.lineLength": 80,
+  "dart.enableSdkFormatter": true,
+  "dart.previewFlutterUiGuides": true,
+  "dart.previewFlutterUiGuidesCustomTracking": true,
+  "dart.showTodos": true,
+  "dart.completeFunctionCalls": true,
+  "dart.debugSdkLibraries": false,
+
+  // Editor settings
+  "editor.formatOnSave": true,
+  "editor.formatOnType": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll": "always"
+  },
+  "editor.tabSize": 2,
+  "editor.insertSpaces": true,
+  "editor.detectIndentation": false,
+
+  // Files settings
+  "files.autoSave": "afterDelay",
+  "files.autoSaveDelay": 1000,
+  "files.exclude": {
+    "**/.git": true,
+    "**/.DS_Store": true,
+    "**/build": true,
+    "**/.dart_tool": true
+  },
+
+  // Linter settings
+  "dart.analysisExcludedFolders": ["build", ".dart_tool"],
+  "dart.analysisServerFolding": true
+}

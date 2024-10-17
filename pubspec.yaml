@@ -1,0 +1,17 @@
+name: operance_datatable
+description: OperanceDataTable is a fully customizable data table with features like pagination, sorting, searching, expandable rows, infinite scrolling, selectable rows, and column reordering, plus extensive theming options.
+version: 1.0.4
+homepage: "https://github.com/zxcvbnmmohd/OperanceDataTable"
+
+environment:
+  sdk: ^3.5.3
+  flutter: ">=1.17.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_lints: ^5.0.0
+  flutter_test:
+    sdk: flutter
