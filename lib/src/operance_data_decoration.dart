@@ -183,7 +183,7 @@ class OperanceDataStyles {
       color: Color(0xFFE0E0E0),
     ),
     this.columnHeaderDecoration = const BoxDecoration(
-      color:  Color(0xFFF0F0F0),
+      color: Color(0xFFF0F0F0),
       border: Border(
         top: BorderSide(
           color: Color(0xFFBBC0C6),
