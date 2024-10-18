@@ -1,6 +1,6 @@
 name: operance_datatable
 description: "OperanceDataTable: A powerful, customizable data table widget for Flutter with features like sorting, searching, infinite scroll, row expansion, and keyboard navigation."
-version: 1.0.4
+version: 1.0.5
 homepage: "https://github.com/zxcvbnmmohd/OperanceDataTable"
 
 environment:
@@ -17,7 +17,6 @@ dev_dependencies:
     sdk: flutter
 
   import_sorter: ^4.6.0
-
 
 import_sorter:
   comments: true
