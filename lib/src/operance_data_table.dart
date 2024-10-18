@@ -15,15 +15,15 @@ class OperanceDataTable<T> extends StatefulWidget {
   /// Creates an instance of [OperanceDataTable].
   ///
   /// The [columns] parameter is required.
-  /// The [onFetch], [controller], [initialPage], [keyboardFocusNode],
-  /// [horizontalScrollController], [verticalScrollController],
-  /// [searchFieldController], [searchFieldFocusNode], [onSearchFieldChanged],
-  /// [header], [columnHeaderTrailingActions], [loadingStateBuilder],
-  /// [emptyStateBuilder], [expansionBuilder],[onRowPressed],
-  /// [onSelectionChanged], [decoration], [expandable], [selectable],
+  /// The [onFetch], [controller], [initialPage], [currentPageIndex],
+  /// [keyboardFocusNode], [horizontalScrollController],
+  /// [verticalScrollController], [searchFieldController],
+  /// [searchFieldFocusNode], [onSearchFieldChanged], [header],
+  /// [columnHeaderTrailingActions], [loadingStateBuilder], [emptyStateBuilder],
+  /// [expansionBuilder],[onRowPressed], [onSelectionChanged],
+  /// [onCurrentPageIndexChanged], [decoration], [expandable], [selectable],
   /// [searchable], [showHeader], [showEmptyRows], [showRowsPerPageOptions],
-  /// [infiniteScroll], and [allowColumnReorder]
-  /// parameters are optional.
+  /// [infiniteScroll] and [allowColumnReorder] parameters are optional.
   OperanceDataTable({
     required this.columns,
     this.onFetch,
@@ -41,8 +41,10 @@ class OperanceDataTable<T> extends StatefulWidget {
     this.expansionBuilder,
     this.onRowPressed,
     this.onSelectionChanged,
+    this.onCurrentPageIndexChanged,
     this.decoration = const OperanceDataDecoration(),
     this.initialPage = (const [], false),
+    this.currentPageIndex = 0,
     this.expandable = false,
     this.selectable = false,
     this.searchable = false,
@@ -96,6 +98,9 @@ class OperanceDataTable<T> extends StatefulWidget {
   /// Callback when the search field value changes.
   final ValueChanged<String?>? onSearchFieldChanged;
 
+  /// Callback when the current page index changes.
+  final ValueChanged<int>? onCurrentPageIndexChanged;
+
   /// List of widgets to be displayed in the header.
   final List<Widget>? header;
 
@@ -122,6 +127,9 @@ class OperanceDataTable<T> extends StatefulWidget {
 
   /// List of initial items to be displayed in the table.
   final PageData<T> initialPage;
+
+  /// The current page index.
+  final int currentPageIndex;
 
   /// Indicates whether the rows are expandable.
   final bool expandable;
@@ -164,6 +172,7 @@ class OperanceDataTableState<T> extends State<OperanceDataTable<T>> {
   late final TextEditingController _searchFieldController;
   late final FocusNode _searchFieldFocusNode;
   late final ValueChanged<String?>? _onSearchFieldChanged;
+  late final ValueChanged<int>? _onCurrentPageIndexChanged;
   late final List<Widget>? _header;
   late final List<Widget>? _columnHeaderTrailingActions;
   late final WidgetBuilder? _emptyStateBuilder;
@@ -173,6 +182,7 @@ class OperanceDataTableState<T> extends State<OperanceDataTable<T>> {
   late final ValueChanged<List<T>>? _onSelectionChanged;
   late final OperanceDataDecoration _decoration;
   late final PageData<T> _initialPage;
+  late final int _currentPageIndex;
   late final bool _expandable;
   late final bool _selectable;
   late final bool _searchable;
@@ -198,8 +208,10 @@ class OperanceDataTableState<T> extends State<OperanceDataTable<T>> {
     _expansionBuilder = widget.expansionBuilder;
     _onRowPressed = widget.onRowPressed;
     _onSelectionChanged = widget.onSelectionChanged;
+    _onCurrentPageIndexChanged = widget.onCurrentPageIndexChanged;
     _decoration = widget.decoration;
     _initialPage = widget.initialPage;
+    _currentPageIndex = widget.currentPageIndex;
     _expandable = widget.expandable;
     _selectable = widget.selectable;
     _searchable = widget.searchable;
@@ -213,8 +225,10 @@ class OperanceDataTableState<T> extends State<OperanceDataTable<T>> {
       ..initialize(
         columnOrder: List.generate(widget.columns.length, (index) => index),
         initialPage: _initialPage,
-        infiniteScroll: _infiniteScroll,
+        currentPageIndex: _currentPageIndex,
+        onCurrentPageIndexChanged: _onCurrentPageIndexChanged,
         rowsPerPage: _decoration.ui.rowsPerPageOptions.first,
+        infiniteScroll: _infiniteScroll,
         onFetch: _onFetch,
       )
       ..addListener(_controllerListener);
