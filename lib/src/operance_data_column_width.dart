@@ -9,7 +9,10 @@ class OperanceDataColumnWidth {
   const OperanceDataColumnWidth({
     this.size,
     this.factor = 0.15,
-  }) : assert(factor > 0 && factor <= 1, 'Factor must be between 0 and 1',);
+  }) : assert(
+          factor > 0 && factor <= 1,
+          'Factor must be between 0 and 1',
+        );
 
   /// The factor to calculate the column width if [size] is not provided.
   ///
