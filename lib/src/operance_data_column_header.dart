@@ -8,7 +8,7 @@ import 'package:operance_datatable/src/operance_data_decoration.dart';
 
 /// A widget that represents the header of a data column in the Operance data
 /// table.
-class OperanceDataColumnHeader<T> extends StatelessWidget {
+class OperanceDataColumnHeader<T extends Object> extends StatelessWidget {
   /// Creates an instance of [OperanceDataColumnHeader].
   ///
   /// The [columnOrder], [columns] and [tableWidth] parameters are required.
@@ -150,7 +150,7 @@ class OperanceDataColumnHeader<T> extends StatelessWidget {
 }
 
 /// A widget that represents a draggable column header in the OperanceDataTable.
-class _Draggable<T> extends StatelessWidget {
+class _Draggable<T extends Object> extends StatelessWidget {
   /// Creates an instance of [_Draggable].
   ///
   /// The [column] and [index] parameters are required.
@@ -222,7 +222,7 @@ class _Draggable<T> extends StatelessWidget {
 }
 
 /// A widget that represents a column header in the OperanceDataTable.
-class _ColumnHeader<T> extends StatelessWidget {
+class _ColumnHeader<T extends Object> extends StatelessWidget {
   /// Creates an instance of [_ColumnHeader].
   ///
   /// The [decoration] and [column] parameters are required.

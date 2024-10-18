@@ -7,7 +7,7 @@ import 'package:operance_datatable/src/operance_data_column.dart';
 import 'package:operance_datatable/src/operance_data_decoration.dart';
 
 /// A widget that represents a row in the OperanceDataTable.
-class OperanceDataRow<T> extends StatelessWidget {
+class OperanceDataRow<T extends Object> extends StatelessWidget {
   /// Creates an instance of [OperanceDataRow].
   ///
   /// The [columnOrder], [columns], [row], [index] and [tableWidth] parameters
