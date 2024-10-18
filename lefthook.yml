@@ -1,5 +1,35 @@
 pre-commit:
+  parallel: true
   commands:
     sort-imports:
       files: git diff --name-only --cached | grep ".*\.dart$"
-      run: fvm flutter pub run import_sorter:main {files} && git add {files}
+      run: fvm dart run import_sorter:main {files} && git add {files}
+    lint:
+      files: git diff --name-only --cached | grep ".*\.dart$"
+      run: fvm flutter analyze {files}
+    format:
+      files: git diff --name-only --cached | grep ".*\.dart$"
+      run: fvm dart format {files} && git add {files}
+    pubspec-check:
+      run: fvm flutter pub get
+    unit-tests:
+      run: fvm flutter test
+
+pre-push:
+  commands:
+    full-lint:
+      run: fvm flutter analyze
+    full-test:
+      run: fvm flutter test
+    check-branch-name:
+      run: |
+        branch_name=$(git rev-parse --abbrev-ref HEAD)
+        valid_pattern="^(feature|bugfix|hotfix|release|chore)/[a-z0-9-]+$"
+        if ! [[ $branch_name =~ $valid_pattern ]]; then
+          echo "ERROR: Branch name '$branch_name' is not valid."
+          echo "Branch names should follow the pattern: <type>/<description>"
+          echo "Where <type> is one of: feature, bugfix, hotfix, release, chore"
+          echo "And <description> uses only lowercase letters, numbers, and hyphens."
+          echo "Example: feature/add-user-authentication"
+          exit 1
+        fi
