@@ -11,7 +11,7 @@ import 'package:operance_datatable/src/operance_data_decoration.dart';
 import 'package:operance_datatable/src/operance_data_row.dart';
 
 /// The OperanceDataTable widget
-class OperanceDataTable<T> extends StatefulWidget {
+class OperanceDataTable<T extends Object> extends StatefulWidget {
   /// Creates an instance of [OperanceDataTable].
   ///
   /// The [columns] parameter is required.
@@ -159,7 +159,8 @@ class OperanceDataTable<T> extends StatefulWidget {
   OperanceDataTableState<T> createState() => OperanceDataTableState<T>();
 }
 
-class OperanceDataTableState<T> extends State<OperanceDataTable<T>> {
+class OperanceDataTableState<T extends Object>
+    extends State<OperanceDataTable<T>> {
   static const _expansionWidth = 50.0;
   static const _selectionWidth = 50.0;
 
