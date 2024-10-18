@@ -41,13 +41,16 @@ class OperanceDataController<T> extends ChangeNotifier {
   var _rowsPerPage = 25;
 
   /// The current page index.
-  var _currentPage = 0;
+  var _currentPageIndex = 0;
 
   /// Indicates if data is being loaded.
   var _isLoading = false;
 
   /// The function to fetch data.
   OnFetch<T>? _onFetch;
+
+  /// The callback to execute when the current page index changes.
+  ValueChanged<int>? _onCurrentPageIndexChanged;
 
   /// The index of the hovered row.
   int? _hoveredRowIndex;
@@ -78,7 +81,11 @@ class OperanceDataController<T> extends ChangeNotifier {
     if (_infinityScroll) {
       return List<T>.unmodifiable(allRows);
     } else {
-      return List<T>.unmodifiable(_pages[_currentPage]);
+      if (_currentPageIndex >= _pages.length) {
+        return <T>[];
+      }
+
+      return List<T>.unmodifiable(_pages[_currentPageIndex]);
     }
   }
 
@@ -100,7 +107,7 @@ class OperanceDataController<T> extends ChangeNotifier {
   int get rowsPerPage => _rowsPerPage;
 
   /// Gets the current page index.
-  int get currentPage => _currentPage;
+  int get currentPageIndex => _currentPageIndex;
 
   /// Gets the loading state.
   bool get isLoading => _isLoading;
@@ -109,31 +116,35 @@ class OperanceDataController<T> extends ChangeNotifier {
   int? get hoveredRowIndex => _hoveredRowIndex;
 
   /// Indicates if the next page can be navigated to.
-  bool get canGoNext => _currentPage < _pages.length - 1;
+  bool get canGoNext => _currentPageIndex < _pages.length - 1;
 
   /// Indicates if the next page can be fetched.
-  bool get canFetchNext => _currentPage == _pages.length - 1 && _hasMore;
+  bool get canFetchNext => _currentPageIndex == _pages.length - 1 && _hasMore;
 
   /// Indicates if the previous page can be navigated to.
-  bool get canGoPrevious => _currentPage > 0;
+  bool get canGoPrevious => _currentPageIndex > 0;
 
   /// Initializes the controller with the given parameters.
   Future<void> initialize({
     List<int> columnOrder = const <int>[],
     PageData<T> initialPage = (const [], false),
+    int currentPageIndex = 0,
     int rowsPerPage = 25,
     bool infiniteScroll = false,
+    ValueChanged<int>? onCurrentPageIndexChanged,
     OnFetch<T>? onFetch,
   }) async {
     _columnOrder
       ..clear()
       ..addAll(columnOrder);
+    _currentPageIndex = currentPageIndex;
     _rowsPerPage = rowsPerPage;
     _infinityScroll = infiniteScroll;
+    _onCurrentPageIndexChanged = onCurrentPageIndexChanged;
     _onFetch = onFetch;
 
     if (initialPage.$1.isEmpty) {
-      await _fetchData(isInitial: true, clearExisting: true);
+      await _fetchData(isInitial: true);
     } else {
       final rows = initialPage.$1;
 
@@ -156,7 +167,8 @@ class OperanceDataController<T> extends ChangeNotifier {
     }
 
     if (canGoNext) {
-      _currentPage++;
+      _currentPageIndex++;
+      _onCurrentPageIndexChanged?.call(_currentPageIndex);
       notifyListeners();
 
       return;
@@ -169,13 +181,16 @@ class OperanceDataController<T> extends ChangeNotifier {
 
   /// Resets the data and fetches the initial page.
   Future<void> _resetData() async {
-    await _fetchData(isInitial: true, clearExisting: true);
+    _pages.clear();
+    _currentPageIndex = 0;
+    _onCurrentPageIndexChanged?.call(_currentPageIndex);
+
+    await _fetchData(isInitial: true);
   }
 
   /// Fetches the data.
   Future<void> _fetchData({
     bool isInitial = false,
-    bool clearExisting = false,
   }) async {
     if (_isLoading || _onFetch == null) {
       return;
@@ -193,16 +208,18 @@ class OperanceDataController<T> extends ChangeNotifier {
     final rows = pageData.$1;
     _hasMore = pageData.$2;
 
-    if (clearExisting) {
-      _pages.clear();
-      _currentPage = 0;
-    }
-
     if (rows.isNotEmpty) {
-      _pages.add(rows);
-
-      if (!isInitial) {
-        _currentPage++;
+      if (isInitial) {
+        _pages
+          ..clear()
+          ..addAll(<List<T>>[
+            for (int i = 0; i < rows.length; i += rowsPerPage)
+              rows.skip(i).take(rowsPerPage).toList()
+          ]);
+      } else {
+        _pages.add(rows);
+        _currentPageIndex++;
+        _onCurrentPageIndexChanged?.call(_currentPageIndex);
       }
     } else if (_pages.isEmpty) {
       _pages.add(<T>[]);
@@ -215,7 +232,8 @@ class OperanceDataController<T> extends ChangeNotifier {
   /// Navigates to the previous page.
   void previousPage() {
     if (canGoPrevious) {
-      _currentPage--;
+      _currentPageIndex--;
+      _onCurrentPageIndexChanged?.call(_currentPageIndex);
       notifyListeners();
     }
   }
