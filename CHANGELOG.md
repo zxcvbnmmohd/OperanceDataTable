@@ -1,5 +1,37 @@
 # Changelog
 
+## `1.0.5` - 2024-10-18
+
+### Added
+
+- Integrated `lefthook` for Git hooks automation.
+- Added `pre-commit` hooks:
+  - `sort-imports`: Sorts Dart imports using `import_sorter` and stages the changes.
+  - `lint`: Analyzes the Dart files for linting issues.
+  - `format`: Formats Dart files and stages the changes.
+  - `pubspec-check`: Runs `flutter pub get` to ensure dependencies are up to date.
+  - `unit-tests`: Runs unit tests using `flutter test`.
+- Added `pre-push` hooks:
+  - `full-lint`: Analyzes the entire project for linting issues.
+  - `full-test`: Runs all unit tests.
+  - `check-branch-name`: Validates the branch name against a predefined pattern to ensure it
+     follows the naming convention.
+- Added `currentPageIndex` and `onCurrentPageIndexChanged` properties to the `OperanceDataTable`
+  widget to manage the current page index.
+- Added an assertion to the `OperanceDataColumnWidth` class to ensure that the `factor` parameter is
+  between 1 and 0.
+
+### Changed
+
+- Renamed _currentPage to _currentPageIndex in the OperanceDataController class.
+- Updated the value function in the `OperanceDataColumnWidth` to be more concise and readable.
+- Updated `pubspec.yaml` description to be shorter
+
+### Removed
+
+- Unused import in `OperanceDataColumnWidth` class.
+- Extra space in `operance_data_decoration.dart` file.
+
 ## `1.0.4` - 2024-10-17
 
 ### Added
