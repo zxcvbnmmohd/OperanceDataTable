@@ -1,6 +1,3 @@
-// 🐦 Flutter imports:
-
-
 /// A class representing the width of a column in the OperanceDataTable.
 class OperanceDataColumnWidth {
   /// Creates an instance of [OperanceDataColumnWidth].
@@ -12,7 +9,7 @@ class OperanceDataColumnWidth {
   const OperanceDataColumnWidth({
     this.size,
     this.factor = 0.15,
-  }) : assert(factor > 0 && factor <= 1, 'Factor must be between 0 and 1');
+  }) : assert(factor > 0 && factor <= 1, 'Factor must be between 0 and 1',);
 
   /// The factor to calculate the column width if [size] is not provided.
   ///
@@ -29,6 +26,5 @@ class OperanceDataColumnWidth {
   /// If [size] is provided, it returns the [size].
   /// Otherwise, it calculates the width based on the [factor] and the
   /// available [width].
-  double value(double width) =>
-      size ?? width * factor;
+  double value(double width) => size ?? width * factor;
 }
