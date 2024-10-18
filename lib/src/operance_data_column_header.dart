@@ -101,39 +101,45 @@ class OperanceDataColumnHeader<T> extends StatelessWidget {
                 onChanged: onChecked,
               ),
             ),
-          ...columnOrder.map((index) {
-            final column = columns[index];
+          for (final index in columnOrder)
+            Builder(
+              builder: (context) {
+                final column = columns[index];
+                final columnWidth = column.width.value(tableWidth);
 
-            return allowColumnReorder
-                ? _Draggable<T>(
-                    column: column,
-                    index: index,
-                    tableWidth: tableWidth,
-                    decoration: decoration,
-                    onColumnDragged: (details) {
-                      final fromIndex = details.data;
-                      final toIndex = index;
+                return allowColumnReorder
+                    ? _Draggable<T>(
+                        column: column,
+                        index: index,
+                        tableWidth: tableWidth,
+                        columnWidth: columnWidth,
+                        decoration: decoration,
+                        onColumnDragged: (details) {
+                          final fromIndex = details.data;
+                          final toIndex = index;
 
-                      if (fromIndex != toIndex) {
-                        final newOrder = List<int>.from(columnOrder);
-                        final movedColumn = newOrder.removeAt(fromIndex);
-                        newOrder.insert(toIndex, movedColumn);
+                          if (fromIndex != toIndex) {
+                            final newOrder = List<int>.from(columnOrder);
+                            final movedColumn = newOrder.removeAt(fromIndex);
+                            newOrder.insert(toIndex, movedColumn);
 
-                        onColumnDragged!(fromIndex, toIndex);
-                      }
-                    },
-                    onSort: onSort,
-                    sorts: sorts,
-                  )
-                : _ColumnHeader<T>(
-                    decoration: decoration,
-                    column: column,
-                    tableWidth: tableWidth,
-                    dragging: true,
-                    onSort: onSort,
-                    sorts: sorts,
-                  );
-          }),
+                            onColumnDragged!(fromIndex, toIndex);
+                          }
+                        },
+                        onSort: onSort,
+                        sorts: sorts,
+                      )
+                    : _ColumnHeader<T>(
+                        decoration: decoration,
+                        column: column,
+                        tableWidth: tableWidth,
+                        columnWidth: columnWidth,
+                        onSort: onSort,
+                        sorts: sorts,
+                        dragging: true,
+                      );
+              },
+            ),
           if (trailing != null)
             ...trailing!.map((child) {
               return Container(
@@ -160,6 +166,7 @@ class _Draggable<T> extends StatelessWidget {
     required this.column,
     required this.index,
     required this.tableWidth,
+    required this.columnWidth,
     this.onColumnDragged,
     this.onSort,
     this.sorts = const {},
@@ -187,6 +194,8 @@ class _Draggable<T> extends StatelessWidget {
   /// Callback when a column is sorted.
   final void Function(String, SortDirection?)? onSort;
 
+  final double columnWidth;
+
   @override
   Widget build(BuildContext context) {
     return Draggable<int>(
@@ -197,12 +206,14 @@ class _Draggable<T> extends StatelessWidget {
           decoration: decoration,
           column: column,
           tableWidth: tableWidth,
+          columnWidth: columnWidth,
         ),
       ),
       childWhenDragging: _ColumnHeader(
         decoration: decoration,
         column: column,
         tableWidth: tableWidth,
+        columnWidth: columnWidth,
       ),
       child: DragTarget<int>(
         onAcceptWithDetails: onColumnDragged,
@@ -211,6 +222,7 @@ class _Draggable<T> extends StatelessWidget {
             decoration: decoration,
             column: column,
             tableWidth: tableWidth,
+            columnWidth: columnWidth,
             onSort: onSort,
             sorts: sorts,
             dragging: true,
@@ -231,6 +243,7 @@ class _ColumnHeader<T> extends StatelessWidget {
     required this.decoration,
     required this.column,
     required this.tableWidth,
+    required this.columnWidth,
     this.onSort,
     this.sorts = const {},
     this.dragging = false,
@@ -255,65 +268,69 @@ class _ColumnHeader<T> extends StatelessWidget {
   /// Indicates whether the column is being dragged.
   final bool dragging;
 
+  final double columnWidth;
+
   @override
   Widget build(BuildContext context) {
     final colors = decoration.colors;
     final icons = decoration.icons;
     final styles = decoration.styles;
 
-    return Container(
-      alignment: Alignment.centerLeft,
-      padding: EdgeInsets.symmetric(horizontal: 8.0),
-      decoration: styles.columnHeaderDecoration.copyWith(
-        color: dragging
-            ? styles.columnHeaderDecoration.color
-            : styles.columnHeaderDecoration.color!.withOpacity(0.5),
-      ),
-      width: column.width.value(tableWidth),
-      height: decoration.sizes.columnHeaderHeight,
-      child: Row(
-        children: <Widget>[
-          column.columnHeader,
-          decoration.ui.columnHeaderSortIconSpaced
-              ? const Spacer()
-              : const SizedBox(width: 12.0),
-          if (column.sortable)
-            Builder(
-              builder: (context) {
-                final columnName = column.name;
-                final sortIndex = sorts.keys.toList().indexOf(columnName);
-                final direction =
-                    sortIndex != -1 ? sorts.values.toList()[sortIndex] : null;
+    final sortIconBuilder = column.sortable
+        ? Builder(
+            builder: (context) {
+              final columnName = column.name;
+              final sortIndex = sorts.keys.toList().indexOf(columnName);
+              final direction =
+                  sortIndex != -1 ? sorts.values.toList()[sortIndex] : null;
 
-                return MouseRegion(
-                  cursor: SystemMouseCursors.click,
-                  child: GestureDetector(
-                    onTap: onSort != null
-                        ? () {
-                            onSort!(
-                              columnName,
-                              sortIndex == -1
-                                  ? SortDirection.ascending
-                                  : direction == SortDirection.ascending
-                                      ? SortDirection.descending
-                                      : null,
-                            );
-                          }
-                        : null,
-                    child: Icon(
-                      direction == SortDirection.ascending
-                          ? icons.columnHeaderSortAscendingIcon
-                          : icons.columnHeaderSortDescendingIcon,
-                      color: sortIndex != -1
-                          ? colors.columnHeaderSortIconEnabledColor
-                          : colors.columnHeaderSortIconDisabledColor,
-                      size: decoration.sizes.columnHeaderSortIconSize,
-                    ),
+              return MouseRegion(
+                cursor: SystemMouseCursors.click,
+                child: GestureDetector(
+                  onTap: onSort != null
+                      ? () {
+                          onSort!(
+                            columnName,
+                            sortIndex == -1
+                                ? SortDirection.ascending
+                                : direction == SortDirection.ascending
+                                    ? SortDirection.descending
+                                    : null,
+                          );
+                        }
+                      : null,
+                  child: Icon(
+                    direction == SortDirection.ascending
+                        ? icons.columnHeaderSortAscendingIcon
+                        : icons.columnHeaderSortDescendingIcon,
+                    color: sortIndex != -1
+                        ? colors.columnHeaderSortIconEnabledColor
+                        : colors.columnHeaderSortIconDisabledColor,
+                    size: decoration.sizes.columnHeaderSortIconSize,
                   ),
-                );
-              },
-            )
-        ],
+                ),
+              );
+            },
+          )
+        : null;
+
+    return RepaintBoundary(
+      child: Container(
+        alignment: Alignment.centerLeft,
+        padding: EdgeInsets.symmetric(horizontal: 8.0),
+        decoration: styles.columnHeaderDecoration.copyWith(
+          color: dragging
+              ? styles.columnHeaderDecoration.color
+              : styles.columnHeaderDecoration.color!.withOpacity(0.5),
+        ),
+        width: columnWidth,
+        height: decoration.sizes.columnHeaderHeight,
+        child: Row(
+          children: <Widget>[
+            Expanded(child: column.columnHeader),
+            if (sortIconBuilder != null) sortIconBuilder,
+          ],
+        ),
       ),
     );
   }
