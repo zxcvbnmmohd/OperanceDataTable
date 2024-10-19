@@ -55,6 +55,12 @@ class OperanceDataController<T> extends ChangeNotifier {
   /// The index of the hovered row.
   int? _hoveredRowIndex;
 
+  /// The function to fetch expanded row data.
+  Future<T> Function(T)? _expandedRowFetcher;
+
+  /// The map of expanded row data.
+  final _expandedRowData = <int, Future<T>>{};
+
   /// Gets the order of the columns.
   List<int> get columnOrder => List<int>.unmodifiable(_columnOrder);
 
@@ -133,6 +139,7 @@ class OperanceDataController<T> extends ChangeNotifier {
     bool infiniteScroll = false,
     ValueChanged<int>? onCurrentPageIndexChanged,
     OnFetch<T>? onFetch,
+    Future<T> Function(T)? expandedRowFetcher,
   }) async {
     _columnOrder
       ..clear()
@@ -157,6 +164,8 @@ class OperanceDataController<T> extends ChangeNotifier {
       _hasMore = initialPage.$2;
       notifyListeners();
     }
+
+    _expandedRowFetcher = expandedRowFetcher;
   }
 
   /// Navigates to the next page. If the next page is not available, it fetches
@@ -310,10 +319,30 @@ class OperanceDataController<T> extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Toggles the expansion of a row.
-  void toggleExpandedRow(int index) {
-    _expandedRows[index] = !(_expandedRows[index] ?? false);
+  /// Toggle the expansion of a row and fetch its data if needed
+  Future<void> toggleExpandedRow(int index) async {
+    final isExpanded = _expandedRows[index] ?? false;
+    _expandedRows[index] = !isExpanded;
+
+    if (!isExpanded && _expandedRowFetcher != null) {
+      if (!_expandedRowData.containsKey(index)) {
+        try {
+          _expandedRowData[index] = Future.value(
+            await _expandedRowFetcher!(allRows[index]),
+          );
+        } on Exception {
+          _expandedRows[index] = false;
+          _expandedRowData.remove(index);
+        }
+      }
+    }
+
     notifyListeners();
+  }
+
+  /// Get expanded row data
+  Future<T>? getExpandedRowData(int index) {
+    return _expandedRows[index] == true ? _expandedRowData[index] : null;
   }
 
   /// Sets the sort direction for a column.
@@ -358,5 +387,9 @@ class OperanceDataController<T> extends ChangeNotifier {
       _pages[pageIndex][rowIndex] = row;
       notifyListeners();
     }
+  }
+
+  void clearUnusedExpandedData() {
+    _expandedRowData.removeWhere((index, _) => _expandedRows[index] != true);
   }
 }
