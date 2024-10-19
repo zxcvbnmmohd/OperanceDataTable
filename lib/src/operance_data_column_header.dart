@@ -194,6 +194,7 @@ class _Draggable<T> extends StatelessWidget {
   /// Callback when a column is sorted.
   final void Function(String, SortDirection?)? onSort;
 
+  /// The width of the column.
   final double columnWidth;
 
   @override
@@ -268,6 +269,7 @@ class _ColumnHeader<T> extends StatelessWidget {
   /// Indicates whether the column is being dragged.
   final bool dragging;
 
+  /// The width of the column.
   final double columnWidth;
 
   @override
@@ -275,44 +277,6 @@ class _ColumnHeader<T> extends StatelessWidget {
     final colors = decoration.colors;
     final icons = decoration.icons;
     final styles = decoration.styles;
-
-    final sortIconBuilder = column.sortable
-        ? Builder(
-            builder: (context) {
-              final columnName = column.name;
-              final sortIndex = sorts.keys.toList().indexOf(columnName);
-              final direction =
-                  sortIndex != -1 ? sorts.values.toList()[sortIndex] : null;
-
-              return MouseRegion(
-                cursor: SystemMouseCursors.click,
-                child: GestureDetector(
-                  onTap: onSort != null
-                      ? () {
-                          onSort!(
-                            columnName,
-                            sortIndex == -1
-                                ? SortDirection.ascending
-                                : direction == SortDirection.ascending
-                                    ? SortDirection.descending
-                                    : null,
-                          );
-                        }
-                      : null,
-                  child: Icon(
-                    direction == SortDirection.ascending
-                        ? icons.columnHeaderSortAscendingIcon
-                        : icons.columnHeaderSortDescendingIcon,
-                    color: sortIndex != -1
-                        ? colors.columnHeaderSortIconEnabledColor
-                        : colors.columnHeaderSortIconDisabledColor,
-                    size: decoration.sizes.columnHeaderSortIconSize,
-                  ),
-                ),
-              );
-            },
-          )
-        : null;
 
     return RepaintBoundary(
       child: Container(
@@ -326,9 +290,44 @@ class _ColumnHeader<T> extends StatelessWidget {
         width: columnWidth,
         height: decoration.sizes.columnHeaderHeight,
         child: Row(
-          children: <Widget>[
+          children: [
             Expanded(child: column.columnHeader),
-            if (sortIconBuilder != null) sortIconBuilder,
+            if (column.sortable)
+              Builder(
+                builder: (context) {
+                  final columnName = column.name;
+                  final sortIndex = sorts.keys.toList().indexOf(columnName);
+                  final direction =
+                      sortIndex != -1 ? sorts.values.toList()[sortIndex] : null;
+
+                  return MouseRegion(
+                    cursor: SystemMouseCursors.click,
+                    child: GestureDetector(
+                      onTap: onSort != null
+                          ? () {
+                              onSort!(
+                                columnName,
+                                sortIndex == -1
+                                    ? SortDirection.ascending
+                                    : direction == SortDirection.ascending
+                                        ? SortDirection.descending
+                                        : null,
+                              );
+                            }
+                          : null,
+                      child: Icon(
+                        direction == SortDirection.ascending
+                            ? icons.columnHeaderSortAscendingIcon
+                            : icons.columnHeaderSortDescendingIcon,
+                        color: sortIndex != -1
+                            ? colors.columnHeaderSortIconEnabledColor
+                            : colors.columnHeaderSortIconDisabledColor,
+                        size: decoration.sizes.columnHeaderSortIconSize,
+                      ),
+                    ),
+                  );
+                },
+              ),
           ],
         ),
       ),
