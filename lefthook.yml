@@ -13,14 +13,19 @@ pre-commit:
     pubspec-check:
       run: fvm flutter pub get
     unit-tests:
-      run: fvm flutter test
+      run: |
+        fvm flutter test --coverage
+        genhtml coverage/lcov.info -o coverage/html
+        open coverage/html/index.html
+        coverage_percentage=$(lcov --summary coverage/lcov.info | grep -Po '\d+(?=%)' | head -1)
+        if [ "$coverage_percentage" -ne 100 ]; then
+          echo "ERROR: Test coverage is not 100%. Current coverage is $coverage_percentage%."
+          exit 1
+        fi
+        git add .
 
 pre-push:
   commands:
-    full-lint:
-      run: fvm flutter analyze
-    full-test:
-      run: fvm flutter test
     check-branch-name:
       run: |
         branch_name=$(git rev-parse --abbrev-ref HEAD)
