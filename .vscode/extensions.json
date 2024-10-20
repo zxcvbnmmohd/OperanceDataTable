@@ -9,6 +9,8 @@
     "eamodio.gitlens",
     "esbenp.prettier-vscode",
     "christian-kohler.path-intellisense",
-    "Gruntfuggly.todo-tree"
+    "Gruntfuggly.todo-tree",
+    "Flutterando.flutter-coverage",
+    "ryanluker.vscode-coverage-gutters"
   ]
 }
