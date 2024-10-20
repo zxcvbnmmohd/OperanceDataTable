@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2024-10-21 19:18:01</td>
+            <td class="headerValue">2024-10-20 13:13:35</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -68,7 +68,7 @@
 <span id="L6"><span class="lineNum">       6</span>              :   /// If [size] is provided, it will be used as the fixed column width.</span>
 <span id="L7"><span class="lineNum">       7</span>              :   /// If [size] is not provided, the width will be calculated based on the</span>
 <span id="L8"><span class="lineNum">       8</span>              :   /// [factor], which defaults to 0.15 (15% of the available width).</span>
-<span id="L9"><span class="lineNum">       9</span> <span class="tlaGNC tlaBgGNC">           5 :   const OperanceDataColumnWidth({</span></span>
+<span id="L9"><span class="lineNum">       9</span> <span class="tlaGNC tlaBgGNC">           2 :   const OperanceDataColumnWidth({</span></span>
 <span id="L10"><span class="lineNum">      10</span>              :     this.size,</span>
 <span id="L11"><span class="lineNum">      11</span>              :     this.factor = 0.15,</span>
 <span id="L12"><span class="lineNum">      12</span>              :   }) : assert(</span>
@@ -91,7 +91,7 @@
 <span id="L29"><span class="lineNum">      29</span>              :   /// If [size] is provided, it returns the [size].</span>
 <span id="L30"><span class="lineNum">      30</span>              :   /// Otherwise, it calculates the width based on the [factor] and the</span>
 <span id="L31"><span class="lineNum">      31</span>              :   /// available [width].</span>
-<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           6 :   double value(double width) =&gt; size ?? width * factor;</span></span>
+<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           4 :   double value(double width) =&gt; size ?? width * factor;</span></span>
 <span id="L33"><span class="lineNum">      33</span>              : }</span>
         </pre>
               </td>
