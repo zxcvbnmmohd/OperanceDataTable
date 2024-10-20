@@ -1,7 +1,12 @@
 SF:lib/src/operance_data_column_width.dart
-DA:9,2
+DA:9,4
 DA:13,3
-DA:32,4
+DA:32,6
 LF:3
 LH:3
+end_of_record
+SF:lib/src/operance_data_column.dart
+DA:15,1
+LF:1
+LH:1
 end_of_record
