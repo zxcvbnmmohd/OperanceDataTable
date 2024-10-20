@@ -26,6 +26,8 @@ requests:
 ## Setting Up Lefthook
 We use `lefthook` to manage Git hooks. To set it up, follow these steps:
 
+For Mac OS Users:
+
 1. Install `lefthook` globally:
     ```shell
     brew install lefthook
@@ -35,6 +37,19 @@ We use `lefthook` to manage Git hooks. To set it up, follow these steps:
     ```shell
     lefthook install
     ```
+
+For Windows Users:
+
+1. Install `scope`:
+   ```shell
+   Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
+   iwr -useb get.scoop.sh | iex
+   ```
+
+2. Run the `lefthook` install command:
+   ```shell
+   scoop install lefthook
+   ```
 
 This will ensure that the necessary Git hooks are in place and will run automatically when you
 commit changes.
