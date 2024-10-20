@@ -26,7 +26,7 @@ requests:
 ## Setting Up Lefthook
 We use `lefthook` to manage Git hooks. To set it up, follow these steps:
 
-For Mac OS Users:
+### For Mac OS Users:
 
 1. Install `lefthook` globally:
     ```shell
@@ -38,7 +38,7 @@ For Mac OS Users:
     lefthook install
     ```
 
-For Windows Users:
+### For Windows Users:
 
 1. Install `scope`:
    ```shell
