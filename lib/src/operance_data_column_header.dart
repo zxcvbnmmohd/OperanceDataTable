@@ -136,7 +136,7 @@ class OperanceDataColumnHeader<T> extends StatelessWidget {
                         columnWidth: columnWidth,
                         onSort: onSort,
                         sorts: sorts,
-                        dragging: true,
+                        active: true,
                       );
               },
             ),
@@ -208,6 +208,7 @@ class _Draggable<T> extends StatelessWidget {
           column: column,
           tableWidth: tableWidth,
           columnWidth: columnWidth,
+          active: true,
         ),
       ),
       childWhenDragging: _ColumnHeader(
@@ -215,6 +216,7 @@ class _Draggable<T> extends StatelessWidget {
         column: column,
         tableWidth: tableWidth,
         columnWidth: columnWidth,
+        active: false,
       ),
       child: DragTarget<int>(
         onAcceptWithDetails: onColumnDragged,
@@ -226,7 +228,7 @@ class _Draggable<T> extends StatelessWidget {
             columnWidth: columnWidth,
             onSort: onSort,
             sorts: sorts,
-            dragging: true,
+            active: true,
           );
         },
       ),
@@ -247,7 +249,7 @@ class _ColumnHeader<T> extends StatelessWidget {
     required this.columnWidth,
     this.onSort,
     this.sorts = const {},
-    this.dragging = false,
+    this.active = false,
     super.key,
   });
 
@@ -266,8 +268,8 @@ class _ColumnHeader<T> extends StatelessWidget {
   /// The current sort directions for the columns.
   final Map<String, SortDirection> sorts;
 
-  /// Indicates whether the column is being dragged.
-  final bool dragging;
+  /// Indicates whether the column is in an active state.
+  final bool active;
 
   /// The width of the column.
   final double columnWidth;
@@ -283,14 +285,14 @@ class _ColumnHeader<T> extends StatelessWidget {
         alignment: Alignment.centerLeft,
         padding: EdgeInsets.symmetric(horizontal: 8.0),
         decoration: styles.columnHeaderDecoration.copyWith(
-          color: dragging
+          color: active
               ? styles.columnHeaderDecoration.color
               : styles.columnHeaderDecoration.color!.withOpacity(0.5),
         ),
         width: columnWidth,
         height: decoration.sizes.columnHeaderHeight,
         child: Row(
-          children: [
+          children: <Widget>[
             Expanded(child: column.columnHeader),
             if (column.sortable)
               Builder(
