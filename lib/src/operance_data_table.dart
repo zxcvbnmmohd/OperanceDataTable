@@ -15,15 +15,16 @@ class OperanceDataTable<T> extends StatefulWidget {
   /// Creates an instance of [OperanceDataTable].
   ///
   /// The [columns] parameter is required.
-  /// The [onFetch], [controller], [initialPage], [currentPageIndex],
-  /// [keyboardFocusNode], [horizontalScrollController],
-  /// [verticalScrollController], [searchFieldController],
-  /// [searchFieldFocusNode], [onSearchFieldChanged], [header],
-  /// [columnHeaderTrailingActions], [loadingStateBuilder], [emptyStateBuilder],
-  /// [expansionBuilder],[onRowPressed], [onSelectionChanged],
-  /// [onCurrentPageIndexChanged], [decoration], [expandable], [selectable],
-  /// [searchable], [showHeader], [showEmptyRows], [showRowsPerPageOptions],
-  /// [infiniteScroll] and [allowColumnReorder] parameters are optional.
+  /// The [onFetch], [controller], [keyboardFocusNode],
+  /// [horizontalScrollController], [verticalScrollController],
+  /// [searchFieldController], [searchFieldFocusNode], [onSearchFieldChanged],
+  /// [loadingStateBuilder], [emptyStateBuilder], [expansionBuilder],
+  /// [onRowPressed], [onSelectionChanged], [onCurrentPageIndexChanged],
+  /// [decoration], [initialPage], [currentPageIndex], [header],
+  /// [columnHeaderTrailingActions], [expandable], [selectable], [searchable],
+  /// [showHeader], [showColumnHeader], [showFooter], [showEmptyRows],
+  /// [showRowsPerPageOptions], [infiniteScroll] and [allowColumnReorder]
+  /// parameters are optional.
   OperanceDataTable({
     required this.columns,
     this.onFetch,

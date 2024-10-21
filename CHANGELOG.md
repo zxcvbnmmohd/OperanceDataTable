@@ -1,5 +1,30 @@
 # Changelog
 
+## `1.0.6` - 2024-10-21
+
+### Added
+
+- Added helpful extensions for VSCode for testing: `Flutterando.flutter-coverage` and
+  `ryanluker.vscode-coverage-gutters`
+- Implemented options to hide the `OperanceDataColumnHeader` and `OperanceDataTable` footer
+- Added full test coverage for `OperanceDataColumnWidth`, `OperanceDataColumn`,
+  `OperanceDataDecoration`, `OperanceDataRow`, and `OperanceDataColumnHeader`
+- Added new showcase image
+
+### Changed
+
+- Updated `lefthook` configuration to include checks for for test coverage
+- Updated assert message for `OperanceDataColumnWidth` to be lowercase
+- Updated `CONTRIBUTING.md` to include Windows setup for `lefthook`
+- Renamed `dragging` to `active` for better clarity in `_ColumnHeader`
+- Optimized the `OperanceDataColumnHeader`'s column handling for better performance
+- Changed `header` and `columnHeaderTrailingActions` from optional parameters to default to an empty
+  list
+
+### Removed
+
+- Removed deprecated VSCode extension: `CoenraadS.bracket-pair-colorizer-2`
+
 ## `1.0.5` - 2024-10-18
 
 ### Added
