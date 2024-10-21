@@ -19,11 +19,11 @@ class OperanceDataColumnHeader<T> extends StatelessWidget {
     required this.columnOrder,
     required this.columns,
     required this.tableWidth,
-    this.trailing,
     this.onChecked,
     this.onColumnDragged,
     this.onSort,
     this.sorts = const {},
+    this.trailing = const [],
     this.currentRows = const [],
     this.selectedRows = const {},
     this.decoration = const OperanceDataDecoration(),
@@ -42,9 +42,6 @@ class OperanceDataColumnHeader<T> extends StatelessWidget {
   /// The width of the table.
   final double tableWidth;
 
-  /// List of widgets to be displayed at the end of the last column.
-  final List<Widget>? trailing;
-
   /// Callback when the checkbox is checked or unchecked.
   final ValueChanged<bool?>? onChecked;
 
@@ -56,6 +53,9 @@ class OperanceDataColumnHeader<T> extends StatelessWidget {
 
   /// The current sort directions for the columns.
   final Map<String, SortDirection> sorts;
+
+  /// List of widgets to be displayed at the end of the last column.
+  final List<Widget> trailing;
 
   /// The current rows in the table.
   final List<T> currentRows;
@@ -80,122 +80,193 @@ class OperanceDataColumnHeader<T> extends StatelessWidget {
     final sizes = decoration.sizes;
     final styles = decoration.styles;
 
-    return SizedBox(
-      height: sizes.columnHeaderHeight,
-      child: Row(
-        children: <Widget>[
-          if (expandable)
-            Container(
-              decoration: styles.columnHeaderDecoration,
-              width: 50.0,
-              height: sizes.columnHeaderHeight,
-            ),
-          if (selectable)
-            Container(
-              decoration: styles.columnHeaderDecoration,
-              width: 50,
-              height: sizes.columnHeaderHeight,
-              child: Checkbox(
-                value: selectedRows.isNotEmpty &&
-                    selectedRows.length == currentRows.length,
-                onChanged: onChecked,
+    return RepaintBoundary(
+      child: SizedBox(
+        height: sizes.columnHeaderHeight,
+        child: Row(
+          children: <Widget>[
+            if (expandable)
+              Container(
+                decoration: styles.columnHeaderDecoration,
+                width: 50.0,
+                height: sizes.columnHeaderHeight,
               ),
-            ),
-          for (final index in columnOrder)
-            Builder(
-              builder: (context) {
-                final column = columns[index];
-                final columnWidth = column.width.value(tableWidth);
-
-                return allowColumnReorder
-                    ? _Draggable<T>(
-                        column: column,
-                        index: index,
-                        tableWidth: tableWidth,
-                        columnWidth: columnWidth,
-                        decoration: decoration,
-                        onColumnDragged: (details) {
-                          final fromIndex = details.data;
-                          final toIndex = index;
-
-                          if (fromIndex != toIndex) {
-                            final newOrder = List<int>.from(columnOrder);
-                            final movedColumn = newOrder.removeAt(fromIndex);
-                            newOrder.insert(toIndex, movedColumn);
-
-                            onColumnDragged!(fromIndex, toIndex);
-                          }
-                        },
-                        onSort: onSort,
-                        sorts: sorts,
-                      )
-                    : _ColumnHeader<T>(
-                        decoration: decoration,
-                        column: column,
-                        tableWidth: tableWidth,
-                        columnWidth: columnWidth,
-                        onSort: onSort,
-                        sorts: sorts,
-                        active: true,
-                      );
-              },
-            ),
-          if (trailing != null)
-            ...trailing!.map((child) {
-              return Container(
+            if (selectable)
+              SizedBox(
+                width: 50,
+                height: sizes.columnHeaderHeight,
+                child: _SelectableCheckbox(
+                  decoration: decoration,
+                  selectedRows: selectedRows,
+                  currentRows: currentRows,
+                  onChecked: onChecked,
+                ),
+              ),
+            for (final index in columnOrder)
+              _ColumnHeaderCell<T>(
+                key: ValueKey('column_$index'),
+                column: columns[index],
+                tableWidth: tableWidth,
+                decoration: decoration,
+                onSort: onSort,
+                sorts: sorts,
+                allowColumnReorder: allowColumnReorder,
+                onColumnDragged: onColumnDragged != null
+                    ? (fromIndex) => onColumnDragged!(fromIndex, index)
+                    : null,
+                columnOrder: columnOrder,
+                index: index,
+              ),
+            for (final child in trailing)
+              Container(
                 decoration: styles.columnHeaderDecoration,
                 width: 50.0,
                 height: sizes.columnHeaderHeight,
                 child: child,
-              );
-            })
-        ],
+              ),
+          ],
+        ),
       ),
     );
   }
 }
 
-/// A widget that represents a draggable column header in the OperanceDataTable.
-class _Draggable<T> extends StatelessWidget {
-  /// Creates an instance of [_Draggable].
+/// A widget that represents a selectable checkbox in the OperanceDataTable.
+class _SelectableCheckbox extends StatelessWidget {
+  /// Creates an instance of [_SelectableCheckbox].
   ///
-  /// The [column] and [index] parameters are required.
-  /// The [onColumnDragged], [onSort], [sorts], and [decoration] parameters are
-  /// optional.
-  const _Draggable({
-    required this.column,
-    required this.index,
-    required this.tableWidth,
-    required this.columnWidth,
-    this.onColumnDragged,
-    this.onSort,
-    this.sorts = const {},
-    this.decoration = const OperanceDataDecoration(),
+  /// The [decoration], [selectedRows], [currentRows], and [onChecked]
+  /// parameters are required.
+  const _SelectableCheckbox({
+    required this.decoration,
+    required this.selectedRows,
+    required this.currentRows,
+    required this.onChecked,
   });
-
-  /// The column to be displayed.
-  final OperanceDataColumn<T> column;
-
-  /// The index of the column.
-  final int index;
-
-  /// The width of the table.
-  final double tableWidth;
-
-  /// The current sort directions for the columns.
-  final Map<String, SortDirection> sorts;
 
   /// The decoration settings for the data table.
   final OperanceDataDecoration decoration;
 
-  /// Callback when a column is dragged.
-  final DragTargetAcceptWithDetails<int>? onColumnDragged;
+  /// The selected rows in the table.
+  final Set<dynamic> selectedRows;
+
+  /// The current rows in the table.
+  final List<dynamic> currentRows;
+
+  /// Callback when the checkbox is checked or unchecked.
+  final ValueChanged<bool?>? onChecked;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: decoration.styles.columnHeaderDecoration,
+      child: Checkbox(
+        value: selectedRows.isNotEmpty &&
+            selectedRows.length == currentRows.length,
+        onChanged: onChecked,
+      ),
+    );
+  }
+}
+
+/// A widget that represents a column header cell in the OperanceDataTable.
+class _ColumnHeaderCell<T> extends StatelessWidget {
+  /// Creates an instance of [_ColumnHeaderCell].
+  ///
+  /// The [column], [tableWidth], [decoration], [onSort], [sorts],
+  /// [allowColumnReorder], [onColumnDragged], [columnOrder], and [index]
+  /// parameters are required.
+  const _ColumnHeaderCell({
+    required this.column,
+    required this.tableWidth,
+    required this.decoration,
+    required this.onSort,
+    required this.sorts,
+    required this.allowColumnReorder,
+    required this.onColumnDragged,
+    required this.columnOrder,
+    required this.index,
+    super.key,
+  });
+
+  /// The column data.
+  final OperanceDataColumn<T> column;
+
+  /// The width of the table.
+  final double tableWidth;
+
+  /// The decoration settings for the data table.
+  final OperanceDataDecoration decoration;
 
   /// Callback when a column is sorted.
   final void Function(String, SortDirection?)? onSort;
 
-  /// The width of the column.
-  final double columnWidth;
+  /// The current sort directions for the columns.
+  final Map<String, SortDirection> sorts;
+
+  /// Whether column reordering is allowed.
+  final bool allowColumnReorder;
+
+  /// Callback when a column is dragged.
+  final void Function(int)? onColumnDragged;
+
+  /// The order of the columns.
+  final List<int> columnOrder;
+
+  /// The index of the column.
+  final int index;
+
+  @override
+  Widget build(BuildContext context) {
+    final columnWidth = column.width.value(tableWidth);
+    final Widget headerContent = _ColumnHeader<T>(
+      key: ValueKey('header_${column.name}'),
+      decoration: decoration,
+      column: column,
+      tableWidth: tableWidth,
+      columnWidth: columnWidth,
+      onSort: onSort,
+      sorts: sorts,
+    );
+
+    return allowColumnReorder
+        ? _Draggable<T>(
+            key: ValueKey('draggable_${column.name}'),
+            columnName: column.name,
+            index: index,
+            onColumnDragged: onColumnDragged,
+            child: headerContent,
+          )
+        : headerContent;
+  }
+}
+
+/// A widget that represents a draggable column header cell in the
+/// OperanceDataTable.
+class _Draggable<T> extends StatelessWidget {
+  /// Creates an instance of [_Draggable].
+  ///
+  /// The [child], [columnName], [index], and [onColumnDragged] parameters are
+  /// required.
+  const _Draggable({
+    required this.child,
+    required this.columnName,
+    required this.index,
+    required this.onColumnDragged,
+    super.key,
+  });
+
+  /// The child widget to be displayed.
+  final Widget child;
+
+  /// The name of the column.
+  final String columnName;
+
+  /// The index of the column.
+  final int index;
+
+  /// Callback when a column is dragged.
+  final void Function(int)? onColumnDragged;
 
   @override
   Widget build(BuildContext context) {
@@ -203,64 +274,48 @@ class _Draggable<T> extends StatelessWidget {
       data: index,
       feedback: Material(
         elevation: 5.0,
-        child: _ColumnHeader(
-          decoration: decoration,
-          column: column,
-          tableWidth: tableWidth,
-          columnWidth: columnWidth,
-          active: true,
-        ),
+        child: child,
       ),
-      childWhenDragging: _ColumnHeader(
-        decoration: decoration,
-        column: column,
-        tableWidth: tableWidth,
-        columnWidth: columnWidth,
-        active: false,
+      childWhenDragging: Opacity(
+        opacity: 0.5,
+        child: child,
       ),
       child: DragTarget<int>(
-        onAcceptWithDetails: onColumnDragged,
-        builder: (context, _, __) {
-          return _ColumnHeader(
-            decoration: decoration,
-            column: column,
-            tableWidth: tableWidth,
-            columnWidth: columnWidth,
-            onSort: onSort,
-            sorts: sorts,
-            active: true,
-          );
-        },
+        onAcceptWithDetails: (details) => onColumnDragged?.call(details.data),
+        builder: (context, _, __) => child,
       ),
     );
   }
 }
 
-/// A widget that represents a column header in the OperanceDataTable.
+/// A widget that represents the content of a column header in the
+/// OperanceDataTable.
 class _ColumnHeader<T> extends StatelessWidget {
   /// Creates an instance of [_ColumnHeader].
   ///
-  /// The [decoration] and [column] parameters are required.
-  /// The [onSort], [sorts], and [dragging] parameters are optional.
+  /// The [decoration], [column], [tableWidth], [columnWidth], [onSort], and
+  /// [sorts] parameters are required.
   const _ColumnHeader({
     required this.decoration,
     required this.column,
     required this.tableWidth,
     required this.columnWidth,
-    this.onSort,
-    this.sorts = const {},
-    this.active = false,
+    required this.onSort,
+    required this.sorts,
     super.key,
   });
 
   /// The decoration settings for the data table.
   final OperanceDataDecoration decoration;
 
-  /// The column to be displayed.
+  /// The column data.
   final OperanceDataColumn<T> column;
 
   /// The width of the table.
   final double tableWidth;
+
+  /// The width of the column.
+  final double columnWidth;
 
   /// Callback when a column is sorted.
   final void Function(String, SortDirection?)? onSort;
@@ -268,69 +323,100 @@ class _ColumnHeader<T> extends StatelessWidget {
   /// The current sort directions for the columns.
   final Map<String, SortDirection> sorts;
 
-  /// Indicates whether the column is in an active state.
-  final bool active;
-
-  /// The width of the column.
-  final double columnWidth;
-
   @override
   Widget build(BuildContext context) {
     final colors = decoration.colors;
     final icons = decoration.icons;
     final styles = decoration.styles;
 
-    return RepaintBoundary(
-      child: Container(
-        alignment: Alignment.centerLeft,
-        padding: EdgeInsets.symmetric(horizontal: 8.0),
-        decoration: styles.columnHeaderDecoration.copyWith(
-          color: active
-              ? styles.columnHeaderDecoration.color
-              : styles.columnHeaderDecoration.color!.withOpacity(0.5),
-        ),
-        width: columnWidth,
-        height: decoration.sizes.columnHeaderHeight,
-        child: Row(
-          children: <Widget>[
-            Expanded(child: column.columnHeader),
-            if (column.sortable)
-              Builder(
-                builder: (context) {
-                  final columnName = column.name;
-                  final sortIndex = sorts.keys.toList().indexOf(columnName);
-                  final direction =
-                      sortIndex != -1 ? sorts.values.toList()[sortIndex] : null;
+    return Container(
+      alignment: Alignment.centerLeft,
+      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+      decoration: styles.columnHeaderDecoration,
+      width: columnWidth,
+      height: decoration.sizes.columnHeaderHeight,
+      child: Row(
+        children: <Widget>[
+          Expanded(child: column.columnHeader),
+          if (column.sortable)
+            _SortIcon(
+              key: ValueKey('sort_${column.name}'),
+              columnName: column.name,
+              sorts: sorts,
+              onSort: onSort,
+              icons: icons,
+              colors: colors,
+              size: decoration.sizes.columnHeaderSortIconSize,
+            ),
+        ],
+      ),
+    );
+  }
+}
 
-                  return MouseRegion(
-                    cursor: SystemMouseCursors.click,
-                    child: GestureDetector(
-                      onTap: onSort != null
-                          ? () {
-                              onSort!(
-                                columnName,
-                                sortIndex == -1
-                                    ? SortDirection.ascending
-                                    : direction == SortDirection.ascending
-                                        ? SortDirection.descending
-                                        : null,
-                              );
-                            }
+/// A widget that represents the sort icon in a column header in the
+/// OperanceDataTable.
+class _SortIcon extends StatelessWidget {
+  /// Creates an instance of [_SortIcon].
+  ///
+  /// The [columnName], [sorts], [onSort], [icons], [colors], and [size]
+  /// parameters are required.
+  const _SortIcon({
+    required this.columnName,
+    required this.sorts,
+    required this.onSort,
+    required this.icons,
+    required this.colors,
+    required this.size,
+    super.key,
+  });
+
+  /// The name of the column.
+  final String columnName;
+
+  /// The current sort directions for the columns.
+  final Map<String, SortDirection> sorts;
+
+  /// Callback when a column is sorted.
+  final void Function(String, SortDirection?)? onSort;
+
+  /// The icons used in the data table.
+  final OperanceDataIcons icons;
+
+  /// The colors used in the data table.
+  final OperanceDataColors colors;
+
+  /// The size of the sort icon.
+  final double size;
+
+  @override
+  Widget build(BuildContext context) {
+    final sortIndex = sorts.keys.toList().indexOf(columnName);
+    final direction = sortIndex != -1 ? sorts.values.toList()[sortIndex] : null;
+
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
+        onTap: onSort != null
+            ? () {
+                onSort!(
+                  columnName,
+                  sortIndex == -1
+                      ? SortDirection.ascending
+                      : direction == SortDirection.ascending
+                          ? SortDirection.descending
                           : null,
-                      child: Icon(
-                        direction == SortDirection.ascending
-                            ? icons.columnHeaderSortAscendingIcon
-                            : icons.columnHeaderSortDescendingIcon,
-                        color: sortIndex != -1
-                            ? colors.columnHeaderSortIconEnabledColor
-                            : colors.columnHeaderSortIconDisabledColor,
-                        size: decoration.sizes.columnHeaderSortIconSize,
-                      ),
-                    ),
-                  );
-                },
-              ),
-          ],
+                );
+              }
+            : null,
+        child: Icon(
+          direction == SortDirection.ascending
+              ? icons.columnHeaderSortAscendingIcon
+              : icons.columnHeaderSortDescendingIcon,
+          color: sortIndex != -1
+              ? colors.columnHeaderSortIconEnabledColor
+              : colors.columnHeaderSortIconDisabledColor,
+          size: size,
         ),
       ),
     );

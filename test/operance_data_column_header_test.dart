@@ -67,7 +67,7 @@ void main() {
                   columnOrder: columnOrder,
                   columns: columns,
                   tableWidth: 500.0,
-                  trailing: <Widget>[Icon(Icons.more_vert)],
+                  trailing: const <Widget>[Icon(Icons.more_vert)],
                   onChecked: (value) {
                     checkedCalled = true;
                   },
@@ -77,11 +77,11 @@ void main() {
                   onSort: (columnName, direction) {
                     sortCalled = true;
                   },
-                  sorts: <String, SortDirection>{
+                  sorts: const <String, SortDirection>{
                     'name': SortDirection.ascending,
                   },
-                  currentRows: <String>['Row1', 'Row2'],
-                  selectedRows: <String>{'Row1'},
+                  currentRows: const <String>['Row1', 'Row2'],
+                  selectedRows: const <String>{'Row1'},
                   decoration: const OperanceDataDecoration(),
                   allowColumnReorder: true,
                   expandable: true,
@@ -92,30 +92,30 @@ void main() {
           );
 
           expect(find.text('Name'), findsOneWidget);
+          expect(find.text('Age'), findsOneWidget);
           expect(find.byIcon(Icons.more_vert), findsOneWidget);
 
-          // Test the onChecked callback
-          await tester.tap(find.byType(Checkbox).first);
+          await tester.tap(find.byType(Checkbox));
           await tester.pumpAndSettle();
+
           expect(checkedCalled, isTrue);
 
-          // Test the onColumnDragged callback
-          final firstLocation = tester.getCenter(find.text('Name'));
-          final gesture = await tester.startGesture(firstLocation);
-          await tester.pump();
-
-          final secondLocation = firstLocation + const Offset(300.0, 0.0);
-          await gesture.moveTo(secondLocation);
-          await tester.pump();
-
-          await gesture.up();
+          final sortIconFinder = find.byKey(const ValueKey('sort_name'));
+          await tester.tap(sortIconFinder);
           await tester.pumpAndSettle();
-          expect(columnDraggedCalled, isTrue);
 
-          // Test the onSort callback
-          await tester.tap(find.byKey(Key('sort_icon_name')));
-          await tester.pumpAndSettle();
           expect(sortCalled, isTrue);
+
+          final draggableFinder = find.byKey(const ValueKey('draggable_name'));
+          final dropTargetFinder = find.byKey(const ValueKey('draggable_age'));
+
+          await tester.drag(
+              draggableFinder,
+              tester.getCenter(dropTargetFinder) -
+                  tester.getCenter(draggableFinder));
+          await tester.pumpAndSettle();
+
+          expect(columnDraggedCalled, isTrue);
         },
       );
     });
@@ -139,10 +139,8 @@ void main() {
 
           expect(find.text('Name'), findsOneWidget);
 
-          // Test that dragging does not work
           await tester.drag(find.text('Name'), const Offset(50.0, 0.0));
           await tester.pumpAndSettle();
-          // No assertion for columnDraggedCalled as it should not be called
         },
       );
     });
@@ -165,7 +163,6 @@ void main() {
           );
 
           expect(find.text('Name'), findsOneWidget);
-          // No expandable icon should be present
           expect(find.byIcon(Icons.expand_more), findsNothing);
         },
       );
@@ -189,7 +186,6 @@ void main() {
           );
 
           expect(find.text('Name'), findsOneWidget);
-          // No checkbox should be present
           expect(find.byType(Checkbox), findsNothing);
         },
       );
