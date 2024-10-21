@@ -50,5 +50,51 @@ void main() {
         expect(column.width.value(500.0), 100.0);
       });
     });
+
+    group('When testing getSearchableValue', () {
+      test('Then it should return the correct searchable value', () {
+        final column = OperanceDataColumn<String>(
+          name: 'name',
+          columnHeader: const Text('Header'),
+          cellBuilder: (context, item) => Text(item),
+          getSearchableValue: (item) => item,
+        );
+
+        expect(column.getSearchableValue?.call('test'), 'test');
+      });
+
+      test('Then it should handle null values', () {
+        final column = OperanceDataColumn<String?>(
+          name: 'name',
+          columnHeader: const Text('Header'),
+          cellBuilder: (context, item) => Text(item ?? ''),
+          getSearchableValue: (item) => item ?? '',
+        );
+
+        expect(column.getSearchableValue?.call(null), '');
+      });
+
+      test('Then it should handle empty strings', () {
+        final column = OperanceDataColumn<String>(
+          name: 'name',
+          columnHeader: const Text('Header'),
+          cellBuilder: (context, item) => Text(item),
+          getSearchableValue: (item) => item,
+        );
+
+        expect(column.getSearchableValue?.call(''), '');
+      });
+
+      test('Then it should handle special characters', () {
+        final column = OperanceDataColumn<String>(
+          name: 'name',
+          columnHeader: const Text('Header'),
+          cellBuilder: (context, item) => Text(item),
+          getSearchableValue: (item) => item,
+        );
+
+        expect(column.getSearchableValue?.call('!@#\$%^&*()'), '!@#\$%^&*()');
+      });
+    });
   });
 }
