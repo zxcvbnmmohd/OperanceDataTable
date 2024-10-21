@@ -1,5 +1,15 @@
 # OperanceDataTable
 
+[![GitHub Stars](https://img.shields.io/github/stars/zxcvbnmmohd/OperanceDataTable.svg?logo=github)](https://github.com/zxcvbnmmohd/OperanceDataTable/stargazers)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/zxcvbnmmohd/OperanceDataTable/raw/main/LICENSE)
+![Coverage](https://github.com/zxcvbnmmohd/OperanceDataTable/raw/main/coverage_badge.svg?sanitize=true)
+
+[![Package](https://img.shields.io/pub/v/operance_datatable.svg?logo=flutter)](https://pub.dartlang.org/packages/operance_datatable)
+[![Platform](https://img.shields.io/badge/platform-all-brightgreen.svg?logo=flutter)](https://img.shields.io/badge/platform-android%20|%20ios%20|%20linux%20|%20macos%20|%20web%20|%20windows-green.svg)
+[![Likes](https://img.shields.io/pub/likes/operance_datatable?logo=flutter)](https://pub.dev/packages/operance_datatable/score)
+[![Points](https://img.shields.io/pub/points/operance_datatable?logo=flutter)](https://pub.dev/packages/operance_datatable/score)
+[![Popularity](https://img.shields.io/pub/popularity/operance_datatable?logo=flutter)](https://pub.dev/packages/operance_datatable/score)
+
 OperanceDataTable is a powerful, flexible, and highly customizable data table widget for Flutter applications. It provides a rich set of features that make displaying and interacting with tabular data a breeze, while offering an exceptional developer experience.
 
 ![Screenshot of OperanceDataTable](https://github.com/zxcvbnmmohd/OperanceDataTable/raw/main/screenshot.png)
@@ -17,17 +27,24 @@ OperanceDataTable is a powerful, flexible, and highly customizable data table wi
 - **Keyboard Navigation**: Enhance accessibility with built-in keyboard navigation support.
 - **Theming Support**: Easily integrate with your app's theme for a cohesive look and feel.
 
+To see example of the following OperanceDataTable on a device or simulator:
+
+```shell
+cd example/
+flutter run --release
+```
+
 ## Installation
 
 Add this to your package's `pubspec.yaml` file:
 
 ```yaml
 dependencies:
-  operance_datatable: ^1.0.0
+  operance_datatable: ^1.0.6
 ```
 
 Then run:
-![alt text](https://file%2B.vscode-resource.vscode-cdn.net/Users/mohd/Developer/repos/Operance/OperanceDataTable/screenshot.png)
+
 ```shell
 flutter pub get
 ```
