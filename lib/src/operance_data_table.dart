@@ -49,6 +49,8 @@ class OperanceDataTable<T> extends StatefulWidget {
     this.selectable = false,
     this.searchable = false,
     this.showHeader = false,
+    this.showColumnHeader = true,
+    this.showFooter = true,
     this.showEmptyRows = false,
     this.showRowsPerPageOptions = false,
     this.infiniteScroll = false,
@@ -143,6 +145,12 @@ class OperanceDataTable<T> extends StatefulWidget {
   /// Indicates whether the header is shown.
   final bool showHeader;
 
+  /// Indicates whether the column header is shown.
+  final bool showColumnHeader;
+
+  /// Indicates whether the column header trailing actions are shown.
+  final bool showFooter;
+
   /// Indicates whether empty rows are shown.
   final bool showEmptyRows;
 
@@ -187,6 +195,8 @@ class OperanceDataTableState<T> extends State<OperanceDataTable<T>> {
   late final bool _selectable;
   late final bool _searchable;
   late final bool _showHeader;
+  late final bool _showColumnHeader;
+  late final bool _showFooter;
   late final bool _showEmptyRows;
   late final bool _showRowsPerPageOptions;
   late final bool _infiniteScroll;
@@ -216,6 +226,8 @@ class OperanceDataTableState<T> extends State<OperanceDataTable<T>> {
     _selectable = widget.selectable;
     _searchable = widget.searchable;
     _showHeader = widget.showHeader;
+    _showColumnHeader = widget.showColumnHeader;
+    _showFooter = widget.showFooter;
     _showEmptyRows = widget.showEmptyRows;
     _showRowsPerPageOptions = widget.showRowsPerPageOptions;
     _infiniteScroll = widget.infiniteScroll;
@@ -348,25 +360,27 @@ class OperanceDataTableState<T> extends State<OperanceDataTable<T>> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: <Widget>[
-                      OperanceDataColumnHeader<T>(
-                        columnOrder: _columnOrder,
-                        columns: _columns,
-                        tableWidth: availableWidth,
-                        trailing: _columnHeaderTrailingActions,
-                        onChecked: (value) {
-                          _controller.toggleAllSelectedRows(isSelected: value);
-                          _onSelectionChanged?.call(_selectedRows.toList());
-                        },
-                        onColumnDragged: _controller.reOrderColumn,
-                        onSort: _controller.setSort,
-                        sorts: _controller.sorts,
-                        currentRows: _currentRows,
-                        selectedRows: _selectedRows,
-                        decoration: _decoration,
-                        allowColumnReorder: _allowColumnReorder,
-                        expandable: _expandable,
-                        selectable: _selectable,
-                      ),
+                      if (_showColumnHeader)
+                        OperanceDataColumnHeader<T>(
+                          columnOrder: _columnOrder,
+                          columns: _columns,
+                          tableWidth: availableWidth,
+                          trailing: _columnHeaderTrailingActions,
+                          onChecked: (value) {
+                            _controller.toggleAllSelectedRows(
+                                isSelected: value);
+                            _onSelectionChanged?.call(_selectedRows.toList());
+                          },
+                          onColumnDragged: _controller.reOrderColumn,
+                          onSort: _controller.setSort,
+                          sorts: _controller.sorts,
+                          currentRows: _currentRows,
+                          selectedRows: _selectedRows,
+                          decoration: _decoration,
+                          allowColumnReorder: _allowColumnReorder,
+                          expandable: _expandable,
+                          selectable: _selectable,
+                        ),
                       Expanded(
                         child: ConstrainedBox(
                           constraints: BoxConstraints(
@@ -480,7 +494,7 @@ class OperanceDataTableState<T> extends State<OperanceDataTable<T>> {
               ),
             ),
             // ------------------------------ Footer ---------------------------
-            if (!_infiniteScroll)
+            if (_showFooter && !_infiniteScroll)
               Container(
                 padding: EdgeInsets.symmetric(
                   horizontal: sizes.footerHorizontalPadding,
