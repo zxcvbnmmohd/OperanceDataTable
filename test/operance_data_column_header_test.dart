@@ -18,12 +18,14 @@ void main() {
         name: 'name',
         columnHeader: const Text('Name'),
         cellBuilder: (context, item) => Text(item),
+        sortable: true,
         width: OperanceDataColumnWidth(size: 100.0),
       ),
       OperanceDataColumn<String>(
         name: 'age',
         columnHeader: const Text('Age'),
         cellBuilder: (context, item) => Text(item),
+        sortable: true,
         width: OperanceDataColumnWidth(size: 100.0),
       ),
     ];
@@ -111,7 +113,7 @@ void main() {
           expect(columnDraggedCalled, isTrue);
 
           // Test the onSort callback
-          await tester.tap(find.text('Name'));
+          await tester.tap(find.byKey(Key('sort_icon_name')));
           await tester.pumpAndSettle();
           expect(sortCalled, isTrue);
         },

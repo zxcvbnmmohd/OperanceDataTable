@@ -31,13 +31,13 @@
             <td class="headerValue">lcov.info</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">74.3&nbsp;%</td>
+            <td class="headerCovTableEntryMed">89.5&nbsp;%</td>
             <td class="headerCovTableEntry">105</td>
-            <td class="headerCovTableEntry">78</td>
+            <td class="headerCovTableEntry">94</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2024-10-21 16:28:55</td>
+            <td class="headerValue">2024-10-21 19:58:03</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -340,18 +340,18 @@
 <span id="L278"><span class="lineNum">     278</span>              :               ? const Spacer()</span>
 <span id="L279"><span class="lineNum">     279</span>              :               : const SizedBox(width: 12.0),</span>
 <span id="L280"><span class="lineNum">     280</span> <span class="tlaGNC">           2 :           if (column.sortable)</span></span>
-<span id="L281"><span class="lineNum">     281</span> <span class="tlaUNC tlaBgUNC">           0 :             Builder(</span></span>
-<span id="L282"><span class="lineNum">     282</span> <span class="tlaUNC">           0 :               builder: (context) {</span></span>
-<span id="L283"><span class="lineNum">     283</span> <span class="tlaUNC">           0 :                 final columnName = column.name;</span></span>
-<span id="L284"><span class="lineNum">     284</span> <span class="tlaUNC">           0 :                 final sortIndex = sorts.keys.toList().indexOf(columnName);</span></span>
+<span id="L281"><span class="lineNum">     281</span> <span class="tlaGNC">           1 :             Builder(</span></span>
+<span id="L282"><span class="lineNum">     282</span> <span class="tlaGNC">           1 :               builder: (context) {</span></span>
+<span id="L283"><span class="lineNum">     283</span> <span class="tlaGNC">           2 :                 final columnName = column.name;</span></span>
+<span id="L284"><span class="lineNum">     284</span> <span class="tlaGNC">           4 :                 final sortIndex = sorts.keys.toList().indexOf(columnName);</span></span>
 <span id="L285"><span class="lineNum">     285</span>              :                 final direction =</span>
-<span id="L286"><span class="lineNum">     286</span> <span class="tlaUNC">           0 :                     sortIndex != -1 ? sorts.values.toList()[sortIndex] : null;</span></span>
+<span id="L286"><span class="lineNum">     286</span> <span class="tlaGNC">           6 :                     sortIndex != -1 ? sorts.values.toList()[sortIndex] : null;</span></span>
 <span id="L287"><span class="lineNum">     287</span>              : </span>
-<span id="L288"><span class="lineNum">     288</span> <span class="tlaUNC">           0 :                 return MouseRegion(</span></span>
+<span id="L288"><span class="lineNum">     288</span> <span class="tlaGNC">           1 :                 return MouseRegion(</span></span>
 <span id="L289"><span class="lineNum">     289</span>              :                   cursor: SystemMouseCursors.click,</span>
-<span id="L290"><span class="lineNum">     290</span> <span class="tlaUNC">           0 :                   child: GestureDetector(</span></span>
-<span id="L291"><span class="lineNum">     291</span> <span class="tlaUNC">           0 :                     onTap: onSort != null</span></span>
-<span id="L292"><span class="lineNum">     292</span> <span class="tlaUNC">           0 :                         ? () {</span></span>
+<span id="L290"><span class="lineNum">     290</span> <span class="tlaGNC">           1 :                   child: GestureDetector(</span></span>
+<span id="L291"><span class="lineNum">     291</span> <span class="tlaGNC">           1 :                     onTap: onSort != null</span></span>
+<span id="L292"><span class="lineNum">     292</span> <span class="tlaUNC tlaBgUNC">           0 :                         ? () {</span></span>
 <span id="L293"><span class="lineNum">     293</span> <span class="tlaUNC">           0 :                             onSort!(</span></span>
 <span id="L294"><span class="lineNum">     294</span>              :                               columnName,</span>
 <span id="L295"><span class="lineNum">     295</span> <span class="tlaUNC">           0 :                               sortIndex == -1</span></span>
@@ -362,14 +362,14 @@
 <span id="L300"><span class="lineNum">     300</span>              :                             );</span>
 <span id="L301"><span class="lineNum">     301</span>              :                           }</span>
 <span id="L302"><span class="lineNum">     302</span>              :                         : null,</span>
-<span id="L303"><span class="lineNum">     303</span> <span class="tlaUNC">           0 :                     child: Icon(</span></span>
-<span id="L304"><span class="lineNum">     304</span> <span class="tlaUNC">           0 :                       direction == SortDirection.ascending</span></span>
-<span id="L305"><span class="lineNum">     305</span> <span class="tlaUNC">           0 :                           ? icons.columnHeaderSortAscendingIcon</span></span>
-<span id="L306"><span class="lineNum">     306</span> <span class="tlaUNC">           0 :                           : icons.columnHeaderSortDescendingIcon,</span></span>
-<span id="L307"><span class="lineNum">     307</span> <span class="tlaUNC">           0 :                       color: sortIndex != -1</span></span>
-<span id="L308"><span class="lineNum">     308</span> <span class="tlaUNC">           0 :                           ? colors.columnHeaderSortIconEnabledColor</span></span>
-<span id="L309"><span class="lineNum">     309</span> <span class="tlaUNC">           0 :                           : colors.columnHeaderSortIconDisabledColor,</span></span>
-<span id="L310"><span class="lineNum">     310</span> <span class="tlaUNC">           0 :                       size: decoration.sizes.columnHeaderSortIconSize,</span></span>
+<span id="L303"><span class="lineNum">     303</span> <span class="tlaGNC tlaBgGNC">           1 :                     child: Icon(</span></span>
+<span id="L304"><span class="lineNum">     304</span> <span class="tlaGNC">           1 :                       direction == SortDirection.ascending</span></span>
+<span id="L305"><span class="lineNum">     305</span> <span class="tlaGNC">           1 :                           ? icons.columnHeaderSortAscendingIcon</span></span>
+<span id="L306"><span class="lineNum">     306</span> <span class="tlaGNC">           1 :                           : icons.columnHeaderSortDescendingIcon,</span></span>
+<span id="L307"><span class="lineNum">     307</span> <span class="tlaGNC">           2 :                       color: sortIndex != -1</span></span>
+<span id="L308"><span class="lineNum">     308</span> <span class="tlaGNC">           1 :                           ? colors.columnHeaderSortIconEnabledColor</span></span>
+<span id="L309"><span class="lineNum">     309</span> <span class="tlaGNC">           1 :                           : colors.columnHeaderSortIconDisabledColor,</span></span>
+<span id="L310"><span class="lineNum">     310</span> <span class="tlaGNC">           3 :                       size: decoration.sizes.columnHeaderSortIconSize,</span></span>
 <span id="L311"><span class="lineNum">     311</span>              :                     ),</span>
 <span id="L312"><span class="lineNum">     312</span>              :                   ),</span>
 <span id="L313"><span class="lineNum">     313</span>              :                 );</span>
