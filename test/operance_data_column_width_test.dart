@@ -12,6 +12,18 @@ void main() {
 
         expect(columnWidth.value(500.0), 100.0);
       });
+
+      test('Then it should handle very large fixed size', () {
+        const columnWidth = OperanceDataColumnWidth(size: 1000000.0);
+
+        expect(columnWidth.value(500.0), 1000000.0);
+      });
+
+      test('Then it should handle very small fixed size', () {
+        const columnWidth = OperanceDataColumnWidth(size: 0.1);
+
+        expect(columnWidth.value(500.0), 0.1);
+      });
     });
 
     group('When a factor is provided and size is not provided', () {
@@ -19,6 +31,18 @@ void main() {
         const columnWidth = OperanceDataColumnWidth(factor: 0.2);
 
         expect(columnWidth.value(500.0), 100.0);
+      });
+
+      test('Then it should handle factor of 1', () {
+        const columnWidth = OperanceDataColumnWidth(factor: 1.0);
+
+        expect(columnWidth.value(500.0), 500.0);
+      });
+
+      test('Then it should handle factor close to 0', () {
+        const columnWidth = OperanceDataColumnWidth(factor: 0.0001);
+
+        expect(columnWidth.value(500.0), 0.05);
       });
     });
 
