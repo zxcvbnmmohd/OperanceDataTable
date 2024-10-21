@@ -18,16 +18,53 @@ void main() {
         cellBuilder: (context, item) => Text(item),
       ),
     ];
+    final columnOrder = List.generate(columns.length, (index) => index);
+
+    Future<void> pumpOperanceDataRow(
+      WidgetTester tester, {
+      required bool isExpanded,
+      required bool showExpansionIcon,
+      required bool showCheckbox,
+      void Function(int)? onExpanded,
+      Widget Function(String)? expansionBuilder,
+      void Function(int, {bool? isSelected})? onChecked,
+    }) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: OperanceDataRow<String>(
+              columnOrder: columnOrder,
+              columns: columns,
+              row: 'Test Row',
+              index: 0,
+              tableWidth: 500.0,
+              onEnter: (_) {},
+              onExit: (_) {},
+              onExpanded: onExpanded,
+              expansionBuilder: expansionBuilder,
+              onChecked: onChecked,
+              onRowPressed: (_) {},
+              decoration: const OperanceDataDecoration(),
+              isHovered: true,
+              isSelected: true,
+              isExpanded: isExpanded,
+              showExpansionIcon: showExpansionIcon,
+              showCheckbox: showCheckbox,
+            ),
+          ),
+        ),
+      );
+    }
 
     group('When all required parameters are provided', () {
       testWidgets(
-        'Then it should create an instance with default values',
+        'Then it should display the row with default values',
         (tester) async {
           await tester.pumpWidget(
             MaterialApp(
               home: Scaffold(
                 body: OperanceDataRow<String>(
-                  columnOrder: [0],
+                  columnOrder: columnOrder,
                   columns: columns,
                   row: 'Test Row',
                   index: 0,
@@ -44,35 +81,19 @@ void main() {
 
     group('When optional parameters are provided and row is expanded', () {
       testWidgets(
-        'Then it should create an instance with the provided values',
+        'Then it should display the row with expansion and checkbox',
         (tester) async {
           var expandedCalled = false;
           var checkedCalled = false;
 
-          await tester.pumpWidget(
-            MaterialApp(
-              home: Scaffold(
-                body: OperanceDataRow<String>(
-                  columnOrder: [0],
-                  columns: columns,
-                  row: 'Test Row',
-                  index: 0,
-                  tableWidth: 500.0,
-                  onEnter: (_) {},
-                  onExit: (_) {},
-                  onExpanded: (_) => expandedCalled = true,
-                  expansionBuilder: (item) => Text('Expanded $item'),
-                  onChecked: (_, {isSelected}) => checkedCalled = true,
-                  onRowPressed: (_) {},
-                  decoration: const OperanceDataDecoration(),
-                  isHovered: true,
-                  isSelected: true,
-                  isExpanded: true,
-                  showExpansionIcon: true,
-                  showCheckbox: true,
-                ),
-              ),
-            ),
+          await pumpOperanceDataRow(
+            tester,
+            isExpanded: true,
+            showExpansionIcon: true,
+            showCheckbox: true,
+            onExpanded: (_) => expandedCalled = true,
+            expansionBuilder: (item) => Text('Expanded $item'),
+            onChecked: (_, {isSelected}) => checkedCalled = true,
           );
 
           expect(find.text('Test Row'), findsOneWidget);
@@ -95,35 +116,19 @@ void main() {
 
     group('When optional parameters are provided and row is not expanded', () {
       testWidgets(
-        'Then it should create an instance with the provided values',
+        'Then it should display the row with collapsed state and checkbox',
         (tester) async {
           var expandedCalled = false;
           var checkedCalled = false;
 
-          await tester.pumpWidget(
-            MaterialApp(
-              home: Scaffold(
-                body: OperanceDataRow<String>(
-                  columnOrder: [0],
-                  columns: columns,
-                  row: 'Test Row',
-                  index: 0,
-                  tableWidth: 500.0,
-                  onEnter: (_) {},
-                  onExit: (_) {},
-                  onExpanded: (_) => expandedCalled = true,
-                  expansionBuilder: (item) => Text('Expanded $item'),
-                  onChecked: (_, {isSelected}) => checkedCalled = true,
-                  onRowPressed: (_) {},
-                  decoration: const OperanceDataDecoration(),
-                  isHovered: true,
-                  isSelected: true,
-                  isExpanded: false,
-                  showExpansionIcon: true,
-                  showCheckbox: true,
-                ),
-              ),
-            ),
+          await pumpOperanceDataRow(
+            tester,
+            isExpanded: false,
+            showExpansionIcon: true,
+            showCheckbox: true,
+            onExpanded: (_) => expandedCalled = true,
+            expansionBuilder: (item) => Text('Expanded $item'),
+            onChecked: (_, {isSelected}) => checkedCalled = true,
           );
 
           expect(find.text('Test Row'), findsOneWidget);
@@ -146,10 +151,10 @@ void main() {
     group(
         'When showExpansionIcon is true but onExpanded or expansionBuilder is '
         'null', () {
-      test('Then it should assert', () {
+      test('Then it should throw an assertion error', () {
         expect(
           () => OperanceDataRow<String>(
-            columnOrder: [0],
+            columnOrder: columnOrder,
             columns: columns,
             row: 'Test Row',
             index: 0,
@@ -162,10 +167,10 @@ void main() {
     });
 
     group('When showCheckbox is true but onChecked is null', () {
-      test('Then it should assert', () {
+      test('Then it should throw an assertion error', () {
         expect(
           () => OperanceDataRow<String>(
-            columnOrder: [0],
+            columnOrder: columnOrder,
             columns: columns,
             row: 'Test Row',
             index: 0,
@@ -173,6 +178,54 @@ void main() {
             showCheckbox: true,
           ),
           throwsAssertionError,
+        );
+      });
+    });
+
+    group('Given edge cases', () {
+      group('When row is empty', () {
+        testWidgets(
+          'Then it should display an empty row',
+          (tester) async {
+            await tester.pumpWidget(
+              MaterialApp(
+                home: Scaffold(
+                  body: OperanceDataRow<String>(
+                    columnOrder: columnOrder,
+                    columns: columns,
+                    row: '',
+                    index: 0,
+                    tableWidth: 500.0,
+                  ),
+                ),
+              ),
+            );
+
+            expect(find.text(''), findsOneWidget);
+          },
+        );
+      });
+
+      group('When tableWidth is zero', () {
+        testWidgets(
+          'Then it should handle gracefully and display the row',
+          (tester) async {
+            await tester.pumpWidget(
+              MaterialApp(
+                home: Scaffold(
+                  body: OperanceDataRow<String>(
+                    columnOrder: columnOrder,
+                    columns: columns,
+                    row: 'Test Row',
+                    index: 0,
+                    tableWidth: 0.0,
+                  ),
+                ),
+              ),
+            );
+
+            expect(find.text('Test Row'), findsOneWidget);
+          },
         );
       });
     });
