@@ -12,7 +12,7 @@
 
 OperanceDataTable is a powerful, flexible, and highly customizable data table widget for Flutter applications. It provides a rich set of features that make displaying and interacting with tabular data a breeze, while offering an exceptional developer experience.
 
-![Screenshot of OperanceDataTable](https://github.com/zxcvbnmmohd/OperanceDataTable/raw/main/screenshot.png)
+![Screenshot of OperanceDataTable](https://github.com/zxcvbnmmohd/OperanceDataTable/raw/main/showcase.png)
 
 ## Features
 
