@@ -34,8 +34,6 @@ class OperanceDataTable<T> extends StatefulWidget {
     this.searchFieldController,
     this.searchFieldFocusNode,
     this.onSearchFieldChanged,
-    this.header,
-    this.columnHeaderTrailingActions,
     this.loadingStateBuilder,
     this.emptyStateBuilder,
     this.expansionBuilder,
@@ -45,6 +43,8 @@ class OperanceDataTable<T> extends StatefulWidget {
     this.decoration = const OperanceDataDecoration(),
     this.initialPage = (const [], false),
     this.currentPageIndex = 0,
+    this.header = const [],
+    this.columnHeaderTrailingActions = const [],
     this.expandable = false,
     this.selectable = false,
     this.searchable = false,
@@ -69,7 +69,7 @@ class OperanceDataTable<T> extends StatefulWidget {
           'showHeader must be true if searchable is true',
         ),
         assert(
-          !(header != null && showHeader == false),
+          !(header.isNotEmpty && showHeader == false),
           'showHeader must be true if header is provided',
         );
 
@@ -103,12 +103,6 @@ class OperanceDataTable<T> extends StatefulWidget {
   /// Callback when the current page index changes.
   final ValueChanged<int>? onCurrentPageIndexChanged;
 
-  /// List of widgets to be displayed in the header.
-  final List<Widget>? header;
-
-  /// List of widgets to be displayed at the end of the last column.
-  final List<Widget>? columnHeaderTrailingActions;
-
   /// Builder for the empty state of the table.
   final WidgetBuilder? emptyStateBuilder;
 
@@ -132,6 +126,12 @@ class OperanceDataTable<T> extends StatefulWidget {
 
   /// The current page index.
   final int currentPageIndex;
+
+  /// List of widgets to be displayed in the header.
+  final List<Widget> header;
+
+  /// List of widgets to be displayed at the end of the last column.
+  final List<Widget> columnHeaderTrailingActions;
 
   /// Indicates whether the rows are expandable.
   final bool expandable;
@@ -181,8 +181,6 @@ class OperanceDataTableState<T> extends State<OperanceDataTable<T>> {
   late final FocusNode _searchFieldFocusNode;
   late final ValueChanged<String?>? _onSearchFieldChanged;
   late final ValueChanged<int>? _onCurrentPageIndexChanged;
-  late final List<Widget>? _header;
-  late final List<Widget>? _columnHeaderTrailingActions;
   late final WidgetBuilder? _emptyStateBuilder;
   late final WidgetBuilder? _loadingStateBuilder;
   late final Widget Function(T)? _expansionBuilder;
@@ -191,6 +189,8 @@ class OperanceDataTableState<T> extends State<OperanceDataTable<T>> {
   late final OperanceDataDecoration _decoration;
   late final PageData<T> _initialPage;
   late final int _currentPageIndex;
+  late final List<Widget> _header;
+  late final List<Widget> _columnHeaderTrailingActions;
   late final bool _expandable;
   late final bool _selectable;
   late final bool _searchable;
@@ -211,8 +211,6 @@ class OperanceDataTableState<T> extends State<OperanceDataTable<T>> {
     _columns = widget.columns;
     _onFetch = widget.onFetch;
     _onSearchFieldChanged = widget.onSearchFieldChanged;
-    _header = widget.header;
-    _columnHeaderTrailingActions = widget.columnHeaderTrailingActions;
     _emptyStateBuilder = widget.emptyStateBuilder;
     _loadingStateBuilder = widget.loadingStateBuilder;
     _expansionBuilder = widget.expansionBuilder;
@@ -222,6 +220,8 @@ class OperanceDataTableState<T> extends State<OperanceDataTable<T>> {
     _decoration = widget.decoration;
     _initialPage = widget.initialPage;
     _currentPageIndex = widget.currentPageIndex;
+    _header = widget.header;
+    _columnHeaderTrailingActions = widget.columnHeaderTrailingActions;
     _expandable = widget.expandable;
     _selectable = widget.selectable;
     _searchable = widget.searchable;
@@ -333,7 +333,7 @@ class OperanceDataTableState<T> extends State<OperanceDataTable<T>> {
                         focusNode: _searchFieldFocusNode,
                         onChanged: _onSearchFieldChanged,
                       ),
-                    if (_header != null) ..._header,
+                    ..._header,
                     if (_searchable &&
                         searchPosition == SearchPosition.right) ...<Widget>[
                       const Spacer(),
@@ -601,9 +601,7 @@ class OperanceDataTableState<T> extends State<OperanceDataTable<T>> {
   double get _extrasWidth {
     return (_expandable ? _expansionWidth : 0.0) +
         (_selectable ? _selectionWidth : 0.0) +
-        (_columnHeaderTrailingActions != null
-            ? _columnHeaderTrailingActions.length * 50.0
-            : 0.0);
+        (_columnHeaderTrailingActions.length * 50.0);
   }
 
   /// Checks if a row is selected.
