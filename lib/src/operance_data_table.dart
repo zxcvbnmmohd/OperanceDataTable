@@ -1,4 +1,5 @@
 // 🐦 Flutter imports:
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -305,9 +306,11 @@ class OperanceDataTableState<T> extends State<OperanceDataTable<T>> {
     final searchPosition = ui.searchPosition;
 
     return LayoutBuilder(builder: (context, constraints) {
-      final tableWidth = constraints.maxWidth > constraints.maxHeight
+      final tableWidth = kIsWeb
           ? constraints.maxWidth
-          : constraints.maxHeight;
+          : constraints.maxWidth > constraints.maxHeight
+              ? constraints.maxWidth
+              : constraints.maxHeight;
       final availableWidth = tableWidth - _extrasWidth;
       final tableHeight = constraints.maxHeight;
 
