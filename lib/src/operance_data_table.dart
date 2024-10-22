@@ -310,7 +310,6 @@ class OperanceDataTableState<T> extends State<OperanceDataTable<T>> {
           (defaultTargetPlatform == TargetPlatform.macOS ||
               defaultTargetPlatform == TargetPlatform.windows ||
               defaultTargetPlatform == TargetPlatform.linux);
-
       final tableWidth = isDesktopPlatform
           ? constraints.maxWidth
           : constraints.maxWidth > constraints.maxHeight

@@ -1,5 +1,11 @@
 # Changelog
 
+## `1.0.7` - 2024-10-22
+
+### Changed
+
+- Updated `tableWidth` logic to just use `maxWidth` if is a `isDesktopPlatform`
+
 ## `1.0.6` - 2024-10-21
 
 ### Added
