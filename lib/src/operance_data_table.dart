@@ -306,7 +306,12 @@ class OperanceDataTableState<T> extends State<OperanceDataTable<T>> {
     final searchPosition = ui.searchPosition;
 
     return LayoutBuilder(builder: (context, constraints) {
-      final tableWidth = kIsWeb
+      final isDesktopPlatform = kIsWeb &&
+          (defaultTargetPlatform == TargetPlatform.macOS ||
+              defaultTargetPlatform == TargetPlatform.windows ||
+              defaultTargetPlatform == TargetPlatform.linux);
+
+      final tableWidth = isDesktopPlatform
           ? constraints.maxWidth
           : constraints.maxWidth > constraints.maxHeight
               ? constraints.maxWidth
