@@ -1,6 +1,7 @@
 // 🐦 Flutter imports:
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/foundation.dart';
 
 // 🌎 Project imports:
 import 'package:operance_datatable/src/misc.dart';
@@ -292,9 +293,16 @@ class OperanceDataTableState<T> extends State<OperanceDataTable<T>> {
     final searchPosition = ui.searchPosition;
 
     return LayoutBuilder(builder: (context, constraints) {
-      final tableWidth = constraints.maxWidth > constraints.maxHeight
+      final bool isKLSWeb = kIsWeb && (defaultTargetPlatform == TargetPlatform.macOS ||
+          defaultTargetPlatform == TargetPlatform.windows ||
+          defaultTargetPlatform == TargetPlatform.linux);
+
+      final double tableWidth = isKLSWeb
           ? constraints.maxWidth
-          : constraints.maxHeight;
+          : constraints.maxWidth > constraints.maxHeight
+              ? constraints.maxWidth
+              : constraints.maxHeight;
+      
       final availableWidth = tableWidth - _extrasWidth;
       final tableHeight = constraints.maxHeight;
 
