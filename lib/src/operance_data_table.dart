@@ -342,6 +342,13 @@ class OperanceDataTableState<T> extends State<OperanceDataTable<T>> {
                         onChanged: _onSearchFieldChanged,
                       ),
                     ..._header,
+                    // Add filter controls here
+                    _FilterControls(
+                      onFilterChanged: (filters) {
+                        // Handle filter changes
+                        _controller.combineFilters(filters);
+                      },
+                    ),
                     if (_searchable &&
                         searchPosition == SearchPosition.right) ...<Widget>[
                       const Spacer(),
@@ -740,6 +747,30 @@ class _SearchField extends StatelessWidget {
         decoration: decoration.styles.searchDecoration,
         onChanged: onChanged,
       ),
+    );
+  }
+}
+
+// New widget for filter controls
+class _FilterControls extends StatelessWidget {
+  final ValueChanged<Map<String, dynamic>> onFilterChanged;
+
+  const _FilterControls({required this.onFilterChanged});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        // Example filter button
+        IconButton(
+          icon: Icon(Icons.filter_list),
+          onPressed: () {
+            // Show filter dialog or menu
+            // Call onFilterChanged with the selected filters
+          },
+        ),
+        // Add more filter controls as needed
+      ],
     );
   }
 }
