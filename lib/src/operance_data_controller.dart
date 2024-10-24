@@ -401,7 +401,35 @@ class OperanceDataController<T> extends ChangeNotifier {
 
   /// Applies the current filters to the data.
   void _applyFilters() {
-    // Implement your filtering logic here.
-    // This could involve filtering _pages or _searchedRows based on _filters.
+    // Clear the current searched rows
+    _searchedRows.clear();
+
+    // Iterate over all rows and apply filters
+    for (final page in _pages) {
+      for (final row in page) {
+        var matchesAllFilters = true;
+
+        // Check each filter
+        _filters.forEach((key, value) {
+          // Implement your filtering logic here
+          // For example, if the row is a map and the filter is a simple
+          // equality check
+          if (row is Map<String, dynamic>) {
+            if (row[key] != value) {
+              matchesAllFilters = false;
+            }
+          }
+          // Add more conditions for different data types and filter types
+        });
+
+        // If the row matches all filters, add it to the searched rows
+        if (matchesAllFilters) {
+          _searchedRows.add(row);
+        }
+      }
+    }
+
+    // Notify listeners about the change
+    notifyListeners();
   }
 }
