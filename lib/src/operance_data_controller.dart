@@ -55,6 +55,9 @@ class OperanceDataController<T> extends ChangeNotifier {
   /// The index of the hovered row.
   int? _hoveredRowIndex;
 
+  /// The map of filters applied to the data.
+  final _filters = <String, dynamic>{};
+
   /// Gets the order of the columns.
   List<int> get columnOrder => List<int>.unmodifiable(_columnOrder);
 
@@ -358,5 +361,47 @@ class OperanceDataController<T> extends ChangeNotifier {
       _pages[pageIndex][rowIndex] = row;
       notifyListeners();
     }
+  }
+
+  /// Gets the map of filters.
+  Map<String, dynamic> get filters => 
+      Map<String, dynamic>.unmodifiable(_filters);
+
+  /// Applies a filter to the data.
+  void applyFilter(String key, dynamic value) {
+    _filters[key] = value;
+    _applyFilters();
+    notifyListeners();
+  }
+
+  /// Clears a specific filter.
+  void clearFilter(String key) {
+    if (_filters.containsKey(key)) {
+      _filters.remove(key);
+      _applyFilters();
+      notifyListeners();
+    }
+  }
+
+  /// Clears all filters.
+  void clearAllFilters() {
+    if (_filters.isNotEmpty) {
+      _filters.clear();
+      _applyFilters();
+      notifyListeners();
+    }
+  }
+
+  /// Combines multiple filters.
+  void combineFilters(Map<String, dynamic> newFilters) {
+    _filters.addAll(newFilters);
+    _applyFilters();
+    notifyListeners();
+  }
+
+  /// Applies the current filters to the data.
+  void _applyFilters() {
+    // Implement your filtering logic here.
+    // This could involve filtering _pages or _searchedRows based on _filters.
   }
 }
