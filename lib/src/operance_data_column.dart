@@ -19,6 +19,9 @@ class OperanceDataColumn<T> {
     this.getSearchableValue,
     this.numeric = false,
     this.sortable = false,
+    this.filterable = false,
+    this.filterType,
+    this.filterOptions = const [],
     this.width = const OperanceDataColumnWidth(),
   });
 
@@ -49,6 +52,21 @@ class OperanceDataColumn<T> {
   ///
   /// Defaults to `false`.
   final bool sortable;
+
+  /// Indicates whether the column is filterable.
+  ///
+  /// Defaults to `false`.
+  final bool filterable;
+
+  /// The type of filter to apply to the column.
+  ///
+  /// This could be an enum or a string representing the filter type.
+  final String? filterType;
+
+  /// The options available for filtering the column.
+  ///
+  /// This could be a list of values that the column can be filtered by.
+  final List<dynamic> filterOptions;
 
   /// The width of the column.
   ///

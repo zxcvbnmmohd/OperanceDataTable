@@ -364,7 +364,7 @@ class OperanceDataController<T> extends ChangeNotifier {
   }
 
   /// Gets the map of filters.
-  Map<String, dynamic> get filters => 
+  Map<String, dynamic> get filters =>
       Map<String, dynamic>.unmodifiable(_filters);
 
   /// Applies a filter to the data.
