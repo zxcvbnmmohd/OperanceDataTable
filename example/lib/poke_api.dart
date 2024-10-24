@@ -25,9 +25,11 @@ class PokeApi implements IPokeApi {
   Future<(List<Pokemon>, bool)> fetchPokemon({
     required int limit,
     Map<String, bool>? sort,
+    Map<String, dynamic>? filters, // Added filters parameter
   }) async {
+    final filterQuery = _buildFilterQuery(filters);
     final response = await http.get(
-      Uri.parse('$_baseUrl/pokemon?offset=$offset&limit=$limit'),
+      Uri.parse('$_baseUrl/pokemon?offset=$offset&limit=$limit$filterQuery'),
     );
 
     if (response.statusCode != 200) {
@@ -160,5 +162,17 @@ class PokeApi implements IPokeApi {
     });
 
     return sortedPokemon;
+  }
+
+  String _buildFilterQuery(Map<String, dynamic>? filters) {
+    if (filters == null || filters.isEmpty) {
+      return '';
+    }
+
+    final filterParams = filters.entries.map((entry) {
+      return '${entry.key}=${entry.value}';
+    }).join('&');
+
+    return '&$filterParams';
   }
 }

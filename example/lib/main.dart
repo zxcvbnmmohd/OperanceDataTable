@@ -58,7 +58,9 @@ class _MyHomePageState extends State<MyHomePage> {
           _buildFilterChips(),
           Expanded(
             child: OperanceDataTable<Pokemon>(
-              onFetch: (limit, sort, {bool isInitial = true}) async {
+              onFetch: (limit, sort,
+                  {bool isInitial = true,
+                  Map<String, dynamic>? filters}) async {
                 if (isInitial) {
                   return await _pokeApi.fetchPokemon(
                     limit: limit,
@@ -70,6 +72,7 @@ class _MyHomePageState extends State<MyHomePage> {
                             );
                           })
                         : null,
+                    filters: filters, // Pass filters to fetchPokemon
                   );
                 }
 

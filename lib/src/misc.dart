@@ -13,6 +13,7 @@ typedef PageData<T> = (List<T>, bool);
 ///    direction for each field.
 /// - `isInitial` (bool): An optional named parameter indicating if this is the
 ///    initial fetch.
+/// - `filters` (Map<String, dynamic>?): An optional map specifying filters.
 ///
 /// The function returns a `Future` that completes with a tuple containing:
 /// - A list of fetched items.
@@ -21,6 +22,7 @@ typedef OnFetch<T> = Future<PageData<T>> Function(
   int limit,
   Map<String, SortDirection> sort, {
   bool isInitial,
+  Map<String, dynamic>? filters,
 });
 
 /// An enum representing the sort direction.
