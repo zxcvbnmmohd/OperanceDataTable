@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 // 🌎 Project imports:
 import 'package:operance_datatable/src/operance_data_column_width.dart';
+import 'package:operance_datatable/src/filter.dart';
 
 /// A class representing a column in the OperanceDataTable.
 class OperanceDataColumn<T> {
@@ -20,7 +21,7 @@ class OperanceDataColumn<T> {
     this.numeric = false,
     this.sortable = false,
     this.filterable = false,
-    this.filterType,
+    this.filterType = FilterType.text,
     this.filterOptions = const [],
     this.width = const OperanceDataColumnWidth(),
   });
@@ -61,7 +62,7 @@ class OperanceDataColumn<T> {
   /// The type of filter to apply to the column.
   ///
   /// This could be an enum or a string representing the filter type.
-  final String? filterType;
+  final FilterType filterType;
 
   /// The options available for filtering the column.
   ///

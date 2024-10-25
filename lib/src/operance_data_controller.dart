@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 // 🌎 Project imports:
 import 'package:operance_datatable/src/misc.dart';
+import 'package:operance_datatable/src/filter.dart';
 
 /// A controller class for managing the state and behavior of the
 /// OperanceDataTable.
@@ -368,8 +369,8 @@ class OperanceDataController<T> extends ChangeNotifier {
       Map<String, dynamic>.unmodifiable(_filters);
 
   /// Applies a filter to the data.
-  void applyFilter(String key, dynamic value) {
-    _filters[key] = value;
+  void applyFilter(String key, Filter filter) {
+    _filters[key] = filter;
     _applyFilters();
     notifyListeners();
   }
@@ -393,7 +394,7 @@ class OperanceDataController<T> extends ChangeNotifier {
   }
 
   /// Combines multiple filters.
-  void combineFilters(Map<String, dynamic> newFilters) {
+  void combineFilters(Map<String, Filter> newFilters) {
     _filters.addAll(newFilters);
     _applyFilters();
     notifyListeners();
@@ -401,35 +402,36 @@ class OperanceDataController<T> extends ChangeNotifier {
 
   /// Applies the current filters to the data.
   void _applyFilters() {
-    // Clear the current searched rows
     _searchedRows.clear();
 
-    // Iterate over all rows and apply filters
     for (final page in _pages) {
       for (final row in page) {
         var matchesAllFilters = true;
 
-        // Check each filter
-        _filters.forEach((key, value) {
-          // Implement your filtering logic here
-          // For example, if the row is a map and the filter is a simple
-          // equality check
-          if (row is Map<String, dynamic>) {
-            if (row[key] != value) {
+        for (final filter in _filters.values) {
+          if (filter is Filter) {
+            final fieldValue = _getFieldValue(row, filter.field);
+            if (!filter.apply(fieldValue)) {
               matchesAllFilters = false;
+              break;
             }
           }
-          // Add more conditions for different data types and filter types
-        });
+        }
 
-        // If the row matches all filters, add it to the searched rows
         if (matchesAllFilters) {
           _searchedRows.add(row);
         }
       }
     }
 
-    // Notify listeners about the change
     notifyListeners();
+  }
+
+  dynamic _getFieldValue(T row, String field) {
+    if (row is Map) {
+      return row[field];
+    }
+    // Add reflection or other methods to get field value from objects
+    return null;
   }
 }

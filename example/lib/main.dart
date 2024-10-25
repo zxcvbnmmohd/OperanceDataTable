@@ -2,6 +2,8 @@ import 'package:example/poke_api.dart';
 import 'package:example/pokemon.dart';
 import 'package:flutter/material.dart';
 import 'package:operance_datatable/operance_datatable.dart';
+import 'package:operance_datatable/src/filter.dart';
+import 'package:operance_datatable/src/filter_dialog.dart';
 
 void main() {
   runApp(const MyApp());
@@ -40,6 +42,11 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   final _pokeApi = PokeApi();
   final _activeFilters = <String, dynamic>{};
+  final TextEditingController _controller = TextEditingController();
+  final InputDecoration _decoration = InputDecoration(
+    hintText: 'Active Filters',
+    border: OutlineInputBorder(),
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -56,6 +63,10 @@ class _MyHomePageState extends State<MyHomePage> {
       body: Column(
         children: [
           _buildFilterChips(),
+          _ActiveFilters(
+            controller: _controller,
+            decoration: _decoration,
+          ),
           Expanded(
             child: OperanceDataTable<Pokemon>(
               onFetch: (limit, sort,
@@ -82,8 +93,9 @@ class _MyHomePageState extends State<MyHomePage> {
                 OperanceDataColumn<Pokemon>(
                   name: 'id',
                   sortable: true,
-                  columnHeader:
-                      _buildFilterableHeader('ID', 'id', columnHeaderStyle),
+                  filterType: FilterType.numeric, // Specify filter type
+                  columnHeader: _buildFilterableHeader(
+                      'ID', 'id', columnHeaderStyle, FilterType.numeric),
                   cellBuilder: (context, item) {
                     return Text(item.id.toString());
                   },
@@ -93,8 +105,9 @@ class _MyHomePageState extends State<MyHomePage> {
                 OperanceDataColumn<Pokemon>(
                   name: 'name',
                   sortable: true,
-                  columnHeader:
-                      _buildFilterableHeader('Name', 'name', columnHeaderStyle),
+                  filterType: FilterType.text, // Specify filter type
+                  columnHeader: _buildFilterableHeader(
+                      'Name', 'name', columnHeaderStyle, FilterType.text),
                   cellBuilder: (context, item) {
                     return Text(item.name);
                   },
@@ -207,8 +220,8 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  Widget _buildFilterableHeader(
-      String title, String columnName, TextStyle? style) {
+  Widget _buildFilterableHeader(String title, String columnName,
+      TextStyle? style, FilterType filterType) {
     return Row(
       children: [
         Text(title, style: style),
@@ -217,38 +230,27 @@ class _MyHomePageState extends State<MyHomePage> {
           icon: const Icon(Icons.filter_list, color: Colors.blueAccent),
           tooltip: 'Filter $title',
           onPressed: () {
-            _showFilterDialog(columnName);
+            _showFilterDialog(columnName, filterType);
           },
         ),
       ],
     );
   }
 
-  void _showFilterDialog(String columnName) {
+  void _showFilterDialog(String columnName, FilterType filterType) {
     showDialog(
       context: context,
       builder: (context) {
-        return AlertDialog(
-          title: Text('Filter $columnName'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: ['Option 1', 'Option 2', 'Option 3'].map((option) {
-              return CheckboxListTile(
-                title: Text(option),
-                value: _activeFilters[columnName] == option,
-                onChanged: (selected) {
-                  setState(() {
-                    if (selected == true) {
-                      _activeFilters[columnName] = option;
-                    } else {
-                      _activeFilters.remove(columnName);
-                    }
-                  });
-                  Navigator.of(context).pop();
-                },
-              );
-            }).toList(),
-          ),
+        return FilterDialog(
+          columnName: columnName,
+          filterType: filterType,
+          currentFilter: _activeFilters[columnName] as Filter?,
+          onApply: (filter) {
+            setState(() {
+              _activeFilters[columnName] = filter;
+            });
+            Navigator.of(context).pop();
+          },
         );
       },
     );
@@ -272,6 +274,26 @@ class _MyHomePageState extends State<MyHomePage> {
           );
         }).toList(),
       ),
+    );
+  }
+}
+
+class _ActiveFilters extends StatelessWidget {
+  final TextEditingController controller;
+  final InputDecoration decoration;
+
+  const _ActiveFilters({
+    super.key,
+    required this.controller,
+    required this.decoration,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    // Implement your widget's UI here
+    return TextField(
+      controller: controller,
+      decoration: decoration,
     );
   }
 }

@@ -49,6 +49,9 @@ class OperanceDataColors {
     this.rowDividerColor = const Color(0xFFE0E0E0),
     this.rowSelectedColor = const Color(0xFFE6E6E6),
     this.rowExpansionIconColor = const Color(0xFF000000),
+    this.activeFilterColor = const Color(0xFF2196F3), // Material Blue
+    this.inactiveFilterColor = const Color(0xFF9E9E9E), // Material Grey
+    this.filterChipBackground = const Color(0xFFE0E0E0), // Light Grey
   });
 
   /// The background color while loading.
@@ -77,6 +80,15 @@ class OperanceDataColors {
 
   /// The color of the row expansion icon.
   final Color rowExpansionIconColor;
+
+  /// The color for active filter icons
+  final Color activeFilterColor;
+
+  /// The color for inactive filter icons
+  final Color inactiveFilterColor;
+
+  /// The background color for filter chips
+  final Color filterChipBackground;
 }
 
 /// A class representing the icon settings for the OperanceDataTable.
@@ -211,6 +223,10 @@ class OperanceDataStyles {
     this.footerDecoration = const BoxDecoration(
       color: Color(0xFFE0E0E0),
     ),
+    this.filterChipLabel = const TextStyle(
+      fontSize: 12,
+      color: Colors.black87,
+    ),
   });
 
   /// The decoration for the header.
@@ -236,6 +252,9 @@ class OperanceDataStyles {
 
   /// The decoration for the footer.
   final BoxDecoration footerDecoration;
+
+  /// The text style for filter chips
+  final TextStyle filterChipLabel;
 }
 
 /// A class representing the UI settings for the OperanceDataTable.

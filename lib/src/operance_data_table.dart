@@ -10,6 +10,8 @@ import 'package:operance_datatable/src/operance_data_column_header.dart';
 import 'package:operance_datatable/src/operance_data_controller.dart';
 import 'package:operance_datatable/src/operance_data_decoration.dart';
 import 'package:operance_datatable/src/operance_data_row.dart';
+import 'package:operance_datatable/src/filter_dialog.dart';
+import 'package:operance_datatable/src/filter.dart';
 
 /// The OperanceDataTable widget
 class OperanceDataTable<T> extends StatefulWidget {
@@ -344,10 +346,9 @@ class OperanceDataTableState<T> extends State<OperanceDataTable<T>> {
                     ..._header,
                     // Add filter controls here
                     _FilterControls(
-                      onFilterChanged: (filters) {
-                        // Handle filter changes
-                        _controller.combineFilters(filters);
-                      },
+                      columns: _columns,
+                      controller: _controller,
+                      decoration: _decoration,
                     ),
                     if (_searchable &&
                         searchPosition == SearchPosition.right) ...<Widget>[
@@ -753,24 +754,135 @@ class _SearchField extends StatelessWidget {
 
 // New widget for filter controls
 class _FilterControls extends StatelessWidget {
-  final ValueChanged<Map<String, dynamic>> onFilterChanged;
+  final List<OperanceDataColumn<dynamic>> columns;
+  final OperanceDataController<dynamic> controller;
+  final OperanceDataDecoration decoration;
 
-  const _FilterControls({required this.onFilterChanged});
+  const _FilterControls({
+    required this.columns,
+    required this.controller,
+    required this.decoration,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Row(
+    return Wrap(
+      spacing: 8.0,
       children: [
-        // Example filter button
-        IconButton(
-          icon: Icon(Icons.filter_list),
-          onPressed: () {
-            // Show filter dialog or menu
-            // Call onFilterChanged with the selected filters
-          },
-        ),
-        // Add more filter controls as needed
+        ...columns
+            .where((column) => column.filterType != null)
+            .map((column) => Tooltip(
+                  message: 'Filter ${column.name}',
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(4),
+                    onTap: () => _showFilterDialog(context, column),
+                    child: Padding(
+                      padding: const EdgeInsets.all(4.0),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.filter_list,
+                            size: 20,
+                            color: controller.filters.containsKey(column.name)
+                                ? decoration.colors.activeFilterColor
+                                : decoration.colors.inactiveFilterColor,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            column.name,
+                            style: TextStyle(
+                              color: controller.filters.containsKey(column.name)
+                                  ? decoration.colors.activeFilterColor
+                                  : decoration.colors.inactiveFilterColor,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                )),
+        if (controller.filters.isNotEmpty)
+          Tooltip(
+            message: 'Clear all filters',
+            child: InkWell(
+              borderRadius: BorderRadius.circular(4),
+              onTap: controller.clearAllFilters,
+              child: const Padding(
+                padding: EdgeInsets.all(4.0),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.clear_all, size: 20),
+                    SizedBox(width: 4),
+                    Text('Clear All'),
+                  ],
+                ),
+              ),
+            ),
+          ),
       ],
+    );
+  }
+
+  void _showFilterDialog(BuildContext context, OperanceDataColumn column) {
+    showDialog(
+      context: context,
+      builder: (context) => FilterDialog(
+        columnName: column.name,
+        filterType: column.filterType,
+        currentFilter: controller.filters[column.name] as Filter?,
+        onApply: (filter) {
+          controller.applyFilter(column.name, filter);
+          Navigator.of(context).pop(); // Close the dialog after applying
+        },
+      ),
+    );
+  }
+}
+
+class _ActiveFilters extends StatelessWidget {
+  final OperanceDataController<dynamic> controller; // Update type
+  final OperanceDataDecoration decoration;
+
+  const _ActiveFilters({
+    required this.controller,
+    required this.decoration,
+    super.key,
+  });
+
+  String _formatFilterValue(Filter filter) {
+    switch (filter.type) {
+      case FilterType.text:
+        return filter.value as String;
+      case FilterType.numeric:
+        return (filter.value as num).toString();
+      case FilterType.date:
+        return (filter.value as DateTime).toLocal().toString().split(' ')[0];
+      case FilterType.boolean:
+        return (filter.value as bool) ? 'True' : 'False';
+      case FilterType.list:
+        return (filter.value as List<String>).join(', ');
+      default:
+        return filter.value.toString();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Wrap(
+      spacing: 8.0,
+      runSpacing: 4.0,
+      children: controller.filters.entries.map((entry) {
+        final filter = entry.value;
+        return Chip(
+          label: Text('${entry.key}: ${_formatFilterValue(filter)}'),
+          deleteIcon: const Icon(Icons.close, size: 18),
+          onDeleted: () => controller.clearFilter(entry.key),
+          backgroundColor: decoration.colors.filterChipBackground,
+          labelStyle: decoration.styles.filterChipLabel,
+        );
+      }).toList(),
     );
   }
 }
