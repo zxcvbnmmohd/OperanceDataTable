@@ -61,6 +61,9 @@ class OperanceDataController<T> extends ChangeNotifier {
   /// Gets the hidden columns.
   Set<int> get hiddenColumns => Set<int>.unmodifiable(_hiddenColumns);
 
+  /// Gets the pages of data.
+  List<List<T>> get pages => List<List<T>>.unmodifiable(_pages);
+
   /// Gets the visible columns.
   Set<int> get visibleColumns {
     return Set<int>.unmodifiable(
@@ -221,8 +224,6 @@ class OperanceDataController<T> extends ChangeNotifier {
         _currentPageIndex++;
         _onCurrentPageIndexChanged?.call(_currentPageIndex);
       }
-    } else if (_pages.isEmpty) {
-      _pages.add(<T>[]);
     }
 
     _isLoading = false;
