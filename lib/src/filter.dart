@@ -14,17 +14,69 @@ class Filter {
   });
 
   bool apply(dynamic fieldValue) {
-    switch (type) {
-      case FilterType.text:
-        return _applyTextFilter(fieldValue);
-      case FilterType.numeric:
-        return _applyNumericFilter(fieldValue);
-      case FilterType.date:
-        return _applyDateFilter(fieldValue);
-      case FilterType.boolean:
-        return fieldValue == value;
-      case FilterType.list:
-        return (value as List).contains(fieldValue);
+    try {
+      print('Applying filter: type=$type, operator=$operator');
+      print(
+          'Comparing fieldValue: "$fieldValue" (${fieldValue.runtimeType}) with filterValue: "$value" (${value.runtimeType})');
+
+      if (fieldValue == null) {
+        print('Field value is null, returning false');
+        return false;
+      }
+
+      switch (type) {
+        case FilterType.text:
+          final stringValue = fieldValue.toString().toLowerCase();
+          final filterValue = (value as String).toLowerCase();
+
+          switch (operator) {
+            case 'contains':
+              return stringValue.contains(filterValue);
+            case 'equals':
+              return stringValue == filterValue;
+            case 'startsWith':
+              return stringValue.startsWith(filterValue);
+            case 'endsWith':
+              return stringValue.endsWith(filterValue);
+            default:
+              print('Unknown text operator: $operator');
+              return false;
+          }
+
+        case FilterType.numeric:
+          final numValue = num.tryParse(fieldValue.toString());
+          final filterNum = num.tryParse(value.toString());
+
+          if (numValue == null || filterNum == null) {
+            print('Could not parse numeric values');
+            return false;
+          }
+
+          switch (operator) {
+            case '=':
+              return numValue == filterNum;
+            case '>':
+              return numValue > filterNum;
+            case '>=':
+              return numValue >= filterNum;
+            case '<':
+              return numValue < filterNum;
+            case '<=':
+              return numValue <= filterNum;
+            case '!=':
+              return numValue != filterNum;
+            default:
+              print('Unknown numeric operator: $operator');
+              return false;
+          }
+
+        default:
+          print('Unsupported filter type: $type');
+          return false;
+      }
+    } catch (e) {
+      print('Error in filter.apply: $e');
+      return false;
     }
   }
 

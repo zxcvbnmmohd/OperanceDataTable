@@ -185,11 +185,33 @@ class OperanceDataController<T> extends ChangeNotifier {
 
   /// Resets the data and fetches the initial page.
   Future<void> _resetData() async {
-    _pages.clear();
-    _currentPageIndex = 0;
-    _onCurrentPageIndexChanged?.call(_currentPageIndex);
+    try {
+      final oldPages = List<List<T>>.from(_pages);
+      final oldCurrentPageIndex = _currentPageIndex;
 
-    await _fetchData(isInitial: true);
+      _pages.clear();
+      _currentPageIndex = 0;
+      _onCurrentPageIndexChanged?.call(_currentPageIndex);
+
+      await _fetchData(isInitial: true);
+
+      if (_pages.isEmpty || _pages.first.isEmpty) {
+        // Restore previous state if no data was fetched
+        _pages
+          ..clear()
+          ..addAll(oldPages);
+        _currentPageIndex = oldCurrentPageIndex;
+        _onCurrentPageIndexChanged?.call(_currentPageIndex);
+        notifyListeners();
+      }
+    } catch (e) {
+      debugPrint('Error resetting data: $e');
+      // Ensure we always have at least an empty page
+      if (_pages.isEmpty) {
+        _pages.add(<T>[]);
+      }
+      notifyListeners();
+    }
   }
 
   /// Fetches the data.
@@ -203,34 +225,37 @@ class OperanceDataController<T> extends ChangeNotifier {
     _isLoading = true;
     notifyListeners();
 
-    final pageData = await _onFetch!(
-      _rowsPerPage,
-      _sorts,
-      isInitial: isInitial,
-    );
+    try {
+      final pageData = await _onFetch!(
+        _rowsPerPage,
+        _sorts,
+        filters: _filters, // Pass the filters to the fetch callback
+        isInitial: isInitial,
+      );
 
-    final rows = pageData.$1;
-    _hasMore = pageData.$2;
+      final rows = pageData.$1;
+      _hasMore = pageData.$2;
 
-    if (rows.isNotEmpty) {
-      if (isInitial) {
-        _pages
-          ..clear()
-          ..addAll(<List<T>>[
-            for (int i = 0; i < rows.length; i += rowsPerPage)
-              rows.skip(i).take(rowsPerPage).toList()
-          ]);
-      } else {
-        _pages.add(rows);
-        _currentPageIndex++;
-        _onCurrentPageIndexChanged?.call(_currentPageIndex);
+      if (rows.isNotEmpty) {
+        if (isInitial) {
+          _pages
+            ..clear()
+            ..addAll(<List<T>>[
+              for (int i = 0; i < rows.length; i += _rowsPerPage)
+                rows.skip(i).take(_rowsPerPage).toList()
+            ]);
+        } else {
+          _pages.add(rows);
+          _currentPageIndex++;
+          _onCurrentPageIndexChanged?.call(_currentPageIndex);
+        }
+      } else if (_pages.isEmpty) {
+        _pages.add(<T>[]);
       }
-    } else if (_pages.isEmpty) {
-      _pages.add(<T>[]);
+    } finally {
+      _isLoading = false;
+      notifyListeners();
     }
-
-    _isLoading = false;
-    notifyListeners();
   }
 
   /// Navigates to the previous page.
@@ -369,10 +394,16 @@ class OperanceDataController<T> extends ChangeNotifier {
       Map<String, dynamic>.unmodifiable(_filters);
 
   /// Applies a filter to the data.
-  void applyFilter(String key, Filter filter) {
-    _filters[key] = filter;
-    _applyFilters();
-    notifyListeners();
+  Future<void> applyFilter(String key, Filter filter) async {
+    try {
+      _filters[key] = filter;
+      await _resetData(); // This will trigger a new data fetch with filters
+    } catch (e) {
+      debugPrint('Error applying filter: $e');
+      // Restore previous state
+      _filters.remove(key);
+      notifyListeners();
+    }
   }
 
   /// Clears a specific filter.
@@ -402,36 +433,47 @@ class OperanceDataController<T> extends ChangeNotifier {
 
   /// Applies the current filters to the data.
   void _applyFilters() {
-    _searchedRows.clear();
+    if (_filters.isEmpty) {
+      _searchedRows
+        ..clear()
+        ..addAll(_pages.expand((page) => page));
+      notifyListeners();
+      return;
+    }
 
-    for (final page in _pages) {
-      for (final row in page) {
-        var matchesAllFilters = true;
-
-        for (final filter in _filters.values) {
-          if (filter is Filter) {
+    try {
+      _searchedRows
+        ..clear()
+        ..addAll(_pages.expand((page) => page).where((row) {
+          return _filters.entries.every((entry) {
+            if (entry.value is! Filter) return true;
+            final filter = entry.value as Filter;
             final fieldValue = _getFieldValue(row, filter.field);
-            if (!filter.apply(fieldValue)) {
-              matchesAllFilters = false;
-              break;
-            }
-          }
-        }
-
-        if (matchesAllFilters) {
-          _searchedRows.add(row);
-        }
-      }
+            return filter.apply(fieldValue);
+          });
+        }));
+    } catch (e) {
+      debugPrint('Error applying filters: $e');
+      _searchedRows.clear();
     }
 
     notifyListeners();
   }
 
   dynamic _getFieldValue(T row, String field) {
-    if (row is Map) {
-      return row[field];
+    if (row == null) return null;
+
+    try {
+      if (row is Map) {
+        return row[field];
+      } else {
+        // Access the property dynamically if available
+        final value = (row as dynamic)[field];
+        return value;
+      }
+    } catch (e) {
+      debugPrint('Error getting field value: $e');
+      return null;
     }
-    // Add reflection or other methods to get field value from objects
-    return null;
   }
 }

@@ -2,16 +2,16 @@ import 'package:flutter/material.dart';
 
 class TextFilterWidget extends StatefulWidget {
   final String? initialValue;
-  final String initialOperator;
+  final String? initialOperator;
+  final List<String> operators;
   final void Function(String operator, String value) onApply;
-  final VoidCallback onClear;
 
   const TextFilterWidget({
-    required this.initialOperator,
+    required this.operators,
     required this.onApply,
-    required this.onClear,
-    super.key,
     this.initialValue,
+    this.initialOperator,
+    super.key,
   });
 
   @override
@@ -25,28 +25,25 @@ class _TextFilterWidgetState extends State<TextFilterWidget> {
   @override
   void initState() {
     super.initState();
-    _selectedOperator = widget.initialOperator;
+    _selectedOperator = widget.initialOperator ?? widget.operators.first;
     _controller = TextEditingController(text: widget.initialValue);
   }
 
   @override
   Widget build(BuildContext context) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
       children: [
         DropdownButtonFormField<String>(
           value: _selectedOperator,
           decoration: const InputDecoration(labelText: 'Operator'),
-          items: const [
-            DropdownMenuItem(value: 'contains', child: Text('Contains')),
-            DropdownMenuItem(value: 'equals', child: Text('Equals')),
-            DropdownMenuItem(value: 'startsWith', child: Text('Starts With')),
-            DropdownMenuItem(value: 'endsWith', child: Text('Ends With')),
-          ],
+          items: widget.operators
+              .map((op) => DropdownMenuItem(value: op, child: Text(op)))
+              .toList(),
           onChanged: (value) {
-            setState(() {
-              _selectedOperator = value!;
-            });
+            if (value != null) {
+              setState(() => _selectedOperator = value);
+            }
           },
         ),
         const SizedBox(height: 16),
@@ -54,31 +51,29 @@ class _TextFilterWidgetState extends State<TextFilterWidget> {
           controller: _controller,
           decoration: const InputDecoration(
             labelText: 'Value',
-            hintText: 'Enter text',
+            border: OutlineInputBorder(),
           ),
         ),
         const SizedBox(height: 16),
         Row(
+          mainAxisAlignment: MainAxisAlignment.end,
           children: [
             ElevatedButton(
               onPressed: () {
-                if (_controller.text.trim().isNotEmpty) {
-                  widget.onApply(_selectedOperator, _controller.text.trim());
-                }
+                widget.onApply(_selectedOperator, _controller.text);
               },
               child: const Text('Apply'),
-            ),
-            const SizedBox(width: 8),
-            TextButton(
-              onPressed: () {
-                widget.onClear();
-              },
-              child: const Text('Clear'),
             ),
           ],
         ),
       ],
     );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
   }
 }
 
@@ -114,6 +109,7 @@ class NumericFilterWidgetState extends State<NumericFilterWidget> {
   @override
   Widget build(BuildContext context) {
     return Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
         DropdownButtonFormField<String>(
           value: _selectedOperator,
@@ -126,9 +122,9 @@ class NumericFilterWidgetState extends State<NumericFilterWidget> {
             DropdownMenuItem(value: '<=', child: Text('Less Than or Equal')),
           ],
           onChanged: (value) {
-            setState(() {
-              _selectedOperator = value!;
-            });
+            if (value != null) {
+              setState(() => _selectedOperator = value);
+            }
           },
         ),
         const SizedBox(height: 16),
@@ -137,23 +133,38 @@ class NumericFilterWidgetState extends State<NumericFilterWidget> {
           decoration: const InputDecoration(
             labelText: 'Value',
             hintText: 'Enter number',
+            border: OutlineInputBorder(),
           ),
           keyboardType: TextInputType.number,
+        ),
+        const SizedBox(height: 16),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            ElevatedButton(
+              onPressed: () {
+                final value = num.tryParse(_controller.text);
+                if (value != null) {
+                  widget.onApply(_selectedOperator, value);
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                        content: Text('Please enter a valid number')),
+                  );
+                }
+              },
+              child: const Text('Apply'),
+            ),
+          ],
         ),
       ],
     );
   }
 
-  void apply() {
-    final value = num.tryParse(_controller.text);
-    if (value != null) {
-      widget.onApply(_selectedOperator, value);
-    } else {
-      // Optionally handle invalid input
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter a valid number')),
-      );
-    }
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
   }
 }
 

@@ -766,76 +766,121 @@ class _FilterControls extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Wrap(
-      spacing: 8.0,
+    return Row(
+      mainAxisSize: MainAxisSize.min,
       children: [
-        ...columns
-            .where((column) => column.filterType != null)
-            .map((column) => Tooltip(
-                  message: 'Filter ${column.name}',
-                  child: InkWell(
-                    borderRadius: BorderRadius.circular(4),
-                    onTap: () => _showFilterDialog(context, column),
-                    child: Padding(
-                      padding: const EdgeInsets.all(4.0),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            Icons.filter_list,
-                            size: 20,
-                            color: controller.filters.containsKey(column.name)
-                                ? decoration.colors.activeFilterColor
-                                : decoration.colors.inactiveFilterColor,
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            column.name,
-                            style: TextStyle(
+        if (columns.any((column) => column.filterType != null)) ...[
+          const SizedBox(width: 8),
+          PopupMenuButton<String>(
+            tooltip: 'Filter columns',
+            icon: Icon(
+              Icons.filter_list,
+              color: controller.filters.isEmpty
+                  ? decoration.colors.inactiveFilterColor
+                  : decoration.colors.activeFilterColor,
+            ),
+            itemBuilder: (context) => [
+              ...columns
+                  .where((column) => column.filterType != null)
+                  .map((column) => PopupMenuItem<String>(
+                        value: column.name,
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.filter_alt,
+                              size: 18,
                               color: controller.filters.containsKey(column.name)
                                   ? decoration.colors.activeFilterColor
                                   : decoration.colors.inactiveFilterColor,
                             ),
-                          ),
-                        ],
-                      ),
-                    ),
+                            const SizedBox(width: 8),
+                            Text(column.name),
+                          ],
+                        ),
+                      )),
+              if (controller.filters.isNotEmpty) ...[
+                const PopupMenuDivider(),
+                PopupMenuItem<String>(
+                  value: '_clear_all',
+                  child: Row(
+                    children: [
+                      Icon(Icons.clear_all,
+                          color: decoration.colors.inactiveFilterColor),
+                      const SizedBox(width: 8),
+                      const Text('Clear all filters'),
+                    ],
                   ),
-                )),
-        if (controller.filters.isNotEmpty)
-          Tooltip(
-            message: 'Clear all filters',
-            child: InkWell(
-              borderRadius: BorderRadius.circular(4),
-              onTap: controller.clearAllFilters,
-              child: const Padding(
-                padding: EdgeInsets.all(4.0),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.clear_all, size: 20),
-                    SizedBox(width: 4),
-                    Text('Clear All'),
-                  ],
                 ),
-              ),
-            ),
+              ],
+            ],
+            onSelected: (value) {
+              if (value == '_clear_all') {
+                controller.clearAllFilters();
+              } else {
+                final column = columns.firstWhere((col) => col.name == value);
+                _showFilterDialog(context, column);
+              }
+            },
           ),
+          if (controller.filters.isNotEmpty) ...[
+            const SizedBox(width: 8),
+            Wrap(
+              spacing: 4,
+              children: controller.filters.entries.map((entry) {
+                return Chip(
+                  label: Text(
+                    '${entry.key}: ${_formatFilterValue(entry.value)}',
+                    style: decoration.styles.filterChipLabel,
+                  ),
+                  deleteIcon: const Icon(Icons.close, size: 16),
+                  onDeleted: () => controller.clearFilter(entry.key),
+                  backgroundColor: decoration.colors.filterChipBackground,
+                  visualDensity: VisualDensity.compact,
+                );
+              }).toList(),
+            ),
+          ],
+        ],
       ],
     );
+  }
+
+  String _formatFilterValue(Filter filter) {
+    switch (filter.type) {
+      case FilterType.text:
+        return '"${filter.value as String}"';
+      case FilterType.numeric:
+        return '${filter.operator ?? '='} ${filter.value}';
+      case FilterType.date:
+        return (filter.value as DateTime).toLocal().toString().split(' ')[0];
+      case FilterType.boolean:
+        return (filter.value as bool) ? 'True' : 'False';
+      case FilterType.list:
+        return (filter.value as List<String>).join(', ');
+      default:
+        return filter.value.toString();
+    }
   }
 
   void _showFilterDialog(BuildContext context, OperanceDataColumn column) {
     showDialog(
       context: context,
-      builder: (context) => FilterDialog(
-        columnName: column.name,
-        filterType: column.filterType,
-        currentFilter: controller.filters[column.name] as Filter?,
-        onApply: (filter) {
-          controller.applyFilter(column.name, filter);
-          Navigator.of(context).pop(); // Close the dialog after applying
-        },
+      builder: (context) => Dialog(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(
+            maxWidth: 400,
+            maxHeight: 500,
+          ),
+          child: FilterDialog(
+            columnName: column.name,
+            filterType: column.filterType,
+            currentFilter: controller.filters[column.name] as Filter?,
+            onApply: (filter) {
+              controller.applyFilter(column.name, filter);
+              Navigator.of(context).pop();
+            },
+          ),
+        ),
       ),
     );
   }

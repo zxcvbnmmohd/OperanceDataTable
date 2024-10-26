@@ -1,11 +1,14 @@
 import 'dart:convert';
 import 'package:example/pokemon.dart';
 import 'package:http/http.dart' as http;
+import 'package:flutter/foundation.dart';
+import 'package:operance_datatable/src/filter.dart';
 
 abstract class IPokeApi {
   Future<(List<Pokemon>, bool)> fetchPokemon({
     required int limit,
     Map<String, bool>? sort,
+    Map<String, dynamic>? filters,
   });
 
   Future<(List<Pokemon>, bool)> fetchMore({
@@ -25,31 +28,45 @@ class PokeApi implements IPokeApi {
   Future<(List<Pokemon>, bool)> fetchPokemon({
     required int limit,
     Map<String, bool>? sort,
-    Map<String, dynamic>? filters, // Added filters parameter
+    Map<String, dynamic>? filters,
   }) async {
-    final filterQuery = _buildFilterQuery(filters);
-    final response = await http.get(
-      Uri.parse('$_baseUrl/pokemon?offset=$offset&limit=$limit$filterQuery'),
-    );
+    try {
+      debugPrint('Fetching Pokemon with filters: $filters'); // Debug log
 
-    if (response.statusCode != 200) {
-      throw Exception('Failed to load Pokemons');
+      // Apply filters to the query if they exist
+      String query = '';
+      if (filters != null && filters.isNotEmpty) {
+        query = _buildFilterQuery(filters);
+        debugPrint('Built filter query: $query'); // Debug log
+      }
+
+      // Your existing API call logic here
+      final response = await http.get(
+          Uri.parse('https://pokeapi.co/api/v2/pokemon?limit=$limit$query'));
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        final List<dynamic> results = data['results'];
+
+        // Fetch detailed data for each Pokemon
+        final List<Pokemon> pokemon = await Future.wait(
+          results.map((result) async {
+            final detailResponse = await http.get(Uri.parse(result['url']));
+            if (detailResponse.statusCode == 200) {
+              return Pokemon.fromJson(json.decode(detailResponse.body));
+            }
+            throw Exception('Failed to load Pokemon details');
+          }),
+        );
+
+        debugPrint('Fetched ${pokemon.length} Pokemon'); // Debug log
+        return (pokemon, data['next'] != null);
+      }
+      throw Exception('Failed to load Pokemon');
+    } catch (e) {
+      debugPrint('Error in fetchPokemon: $e'); // Debug log
+      rethrow;
     }
-
-    final data = json.decode(response.body);
-    final pokemon = <Pokemon>[];
-
-    for (final result in data['results'] as List<dynamic>) {
-      final pokemonResponse = await http.get(Uri.parse(result['url']));
-      pokemon.add(Pokemon.fromJson(json.decode(pokemonResponse.body)));
-    }
-
-    cache.addAll(pokemon);
-    total = data['count'] as int;
-    nextToken = data['next'] as String;
-    _sort = sort;
-
-    return (_sortPokemon(pokemon), total > cache.length);
   }
 
   @override
@@ -164,15 +181,50 @@ class PokeApi implements IPokeApi {
     return sortedPokemon;
   }
 
-  String _buildFilterQuery(Map<String, dynamic>? filters) {
-    if (filters == null || filters.isEmpty) {
-      return '';
+  String _buildFilterQuery(Map<String, dynamic> filters) {
+    final queryParams = <String>[];
+
+    filters.forEach((key, value) {
+      if (value is Filter) {
+        final filterValue = value.value;
+        final operator =
+            value.operator ?? '='; // Provide default operator if null
+
+        switch (key) {
+          case 'id':
+          case 'weight':
+          case 'height':
+            queryParams.add('$key${_getOperatorSymbol(operator)}$filterValue');
+            break;
+          case 'name':
+            if (operator == 'contains') {
+              queryParams.add('name_like=$filterValue');
+            } else {
+              queryParams.add('name=$filterValue');
+            }
+            break;
+          // Add other filter cases as needed
+        }
+      }
+    });
+
+    return queryParams.isEmpty ? '' : '&${queryParams.join('&')}';
+  }
+
+  String _getOperatorSymbol(String operator) {
+    switch (operator) {
+      case '>':
+        return '[gt]';
+      case '>=':
+        return '[gte]';
+      case '<':
+        return '[lt]';
+      case '<=':
+        return '[lte]';
+      case '=':
+        return '';
+      default:
+        return '';
     }
-
-    final filterParams = filters.entries.map((entry) {
-      return '${entry.key}=${entry.value}';
-    }).join('&');
-
-    return '&$filterParams';
   }
 }

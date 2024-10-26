@@ -49,9 +49,9 @@ class OperanceDataColors {
     this.rowDividerColor = const Color(0xFFE0E0E0),
     this.rowSelectedColor = const Color(0xFFE6E6E6),
     this.rowExpansionIconColor = const Color(0xFF000000),
-    this.activeFilterColor = const Color(0xFF2196F3), // Material Blue
-    this.inactiveFilterColor = const Color(0xFF9E9E9E), // Material Grey
-    this.filterChipBackground = const Color(0xFFE0E0E0), // Light Grey
+    this.activeFilterColor = const Color(0xFF2196F3),
+    this.inactiveFilterColor = const Color(0xFF757575),
+    this.filterChipBackground = const Color(0xFFE0E0E0),
   });
 
   /// The background color while loading.

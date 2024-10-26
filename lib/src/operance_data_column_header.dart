@@ -338,9 +338,8 @@ class _ColumnHeader<T> extends StatelessWidget {
       child: Row(
         children: <Widget>[
           Expanded(child: column.columnHeader),
-          if (column.sortable)
+          if (column.sortable && onSort != null)
             _SortIcon(
-              key: ValueKey('sort_${column.name}'),
               columnName: column.name,
               sorts: sorts,
               onSort: onSort,

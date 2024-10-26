@@ -41,12 +41,8 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   final _pokeApi = PokeApi();
-  final _activeFilters = <String, dynamic>{};
-  final TextEditingController _controller = TextEditingController();
-  final InputDecoration _decoration = InputDecoration(
-    hintText: 'Active Filters',
-    border: OutlineInputBorder(),
-  );
+  // Use a more specific type for filters
+  final Map<String, dynamic> _activeFilters = {};
 
   @override
   Widget build(BuildContext context) {
@@ -57,57 +53,53 @@ class _MyHomePageState extends State<MyHomePage> {
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: Text(widget.title),
       ),
       body: Column(
+        // Wrap with Column instead of directly using Expanded
         children: [
-          _buildFilterChips(),
-          _ActiveFilters(
-            controller: _controller,
-            decoration: _decoration,
-          ),
           Expanded(
+            // Now Expanded has a proper parent
             child: OperanceDataTable<Pokemon>(
               onFetch: (limit, sort,
                   {bool isInitial = true,
                   Map<String, dynamic>? filters}) async {
-                if (isInitial) {
-                  return await _pokeApi.fetchPokemon(
+                try {
+                  debugPrint('Fetching with filters: $filters');
+                  final result = await _pokeApi.fetchPokemon(
                     limit: limit,
                     sort: sort.isNotEmpty
                         ? sort.map((key, value) {
                             return MapEntry(
-                              key,
-                              value == SortDirection.ascending,
-                            );
+                                key, value == SortDirection.ascending);
                           })
                         : null,
-                    filters: filters, // Pass filters to fetchPokemon
+                    filters: filters,
                   );
+                  return result;
+                } catch (e) {
+                  debugPrint('Error in onFetch: $e');
+                  return (
+                    <Pokemon>[],
+                    false
+                  ); // Return empty list instead of throwing
                 }
-
-                return await _pokeApi.fetchMore(limit: limit);
               },
               columns: <OperanceDataColumn<Pokemon>>[
                 OperanceDataColumn<Pokemon>(
                   name: 'id',
                   sortable: true,
-                  filterType: FilterType.numeric, // Specify filter type
-                  columnHeader: _buildFilterableHeader(
-                      'ID', 'id', columnHeaderStyle, FilterType.numeric),
-                  cellBuilder: (context, item) {
-                    return Text(item.id.toString());
-                  },
+                  filterType: FilterType.numeric,
+                  columnHeader: Text('ID', style: columnHeaderStyle),
+                  cellBuilder: (context, item) => Text(item.id.toString()),
                   numeric: true,
                   width: const OperanceDataColumnWidth(factor: 0.1),
                 ),
                 OperanceDataColumn<Pokemon>(
                   name: 'name',
                   sortable: true,
-                  filterType: FilterType.text, // Specify filter type
-                  columnHeader: _buildFilterableHeader(
-                      'Name', 'name', columnHeaderStyle, FilterType.text),
+                  filterType: FilterType.text,
+                  columnHeader: Text('Name', style: columnHeaderStyle),
                   cellBuilder: (context, item) {
                     return Text(item.name);
                   },
@@ -208,7 +200,7 @@ class _MyHomePageState extends State<MyHomePage> {
               },
               expandable: true,
               selectable: true,
-              searchable: true,
+              searchable: false, // Disable search if not needed
               showHeader: true,
               showEmptyRows: true,
               showRowsPerPageOptions: true,
@@ -250,6 +242,10 @@ class _MyHomePageState extends State<MyHomePage> {
               _activeFilters[columnName] = filter;
             });
             Navigator.of(context).pop();
+            // Trigger a refresh of the table
+            if (mounted) {
+              setState(() {});
+            }
           },
         );
       },
@@ -276,24 +272,14 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
     );
   }
-}
 
-class _ActiveFilters extends StatelessWidget {
-  final TextEditingController controller;
-  final InputDecoration decoration;
-
-  const _ActiveFilters({
-    super.key,
-    required this.controller,
-    required this.decoration,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    // Implement your widget's UI here
-    return TextField(
-      controller: controller,
-      decoration: decoration,
-    );
+  void clearFilter(String columnName) {
+    setState(() {
+      _activeFilters.remove(columnName);
+      // Trigger a refresh of the table
+      if (mounted) {
+        setState(() {});
+      }
+    });
   }
 }
