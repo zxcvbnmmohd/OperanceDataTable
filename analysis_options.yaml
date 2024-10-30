@@ -41,7 +41,6 @@ linter:
     - unnecessary_raw_strings
     - use_is_even_rather_than_modulo
     - use_setters_to_change_properties
-    # Pub
     - sort_pub_dependencies
 
 analyzer:
