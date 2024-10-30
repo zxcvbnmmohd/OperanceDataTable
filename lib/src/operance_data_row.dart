@@ -95,6 +95,7 @@ class OperanceDataRow<T> extends StatelessWidget {
 
   /// Indicates whether the checkbox is shown.
   final bool showCheckbox;
+
   @override
   Widget build(BuildContext context) {
     final colors = decoration.colors;
@@ -109,8 +110,8 @@ class OperanceDataRow<T> extends StatelessWidget {
         MouseRegion(
           cursor:
               onRowPressed != null ? ui.rowCursor : SystemMouseCursors.basic,
-          onEnter: onEnter,
-          onExit: onExit,
+          onEnter: onRowPressed != null ? onEnter : null,
+          onExit: onRowPressed != null ? onExit : null,
           child: GestureDetector(
             onTap: onRowPressed != null ? () => onRowPressed!(row) : null,
             child: AnimatedContainer(
@@ -124,7 +125,9 @@ class OperanceDataRow<T> extends StatelessWidget {
                 children: <Widget>[
                   if (showExpansionIcon)
                     MouseRegion(
-                      cursor: ui.rowExpansionCursor,
+                      cursor: onRowPressed != null
+                          ? ui.rowCursor
+                          : SystemMouseCursors.basic,
                       child: GestureDetector(
                         onTap: () => onExpanded!.call(index),
                         child: SizedBox(
@@ -135,7 +138,7 @@ class OperanceDataRow<T> extends StatelessWidget {
                             ),
                             transitionBuilder: (child, animation) {
                               return RotationTransition(
-                                turns: child.key == ValueKey('expanded')
+                                turns: child.key == ValueKey('expanded_$index')
                                     ? Tween<double>(
                                         begin: 0.5,
                                         end: 1.0,
@@ -155,7 +158,9 @@ class OperanceDataRow<T> extends StatelessWidget {
                                   ? icons.rowExpansionIconExpanded
                                   : icons.rowExpansionIconCollapsed,
                               key: ValueKey(
-                                isExpanded ? 'expanded' : 'collapsed',
+                                isExpanded
+                                    ? 'expanded_$index'
+                                    : 'collapsed_$index',
                               ),
                               color: colors.rowExpansionIconColor,
                             ),
@@ -199,7 +204,7 @@ class OperanceDataRow<T> extends StatelessWidget {
           child: isExpanded
               ? Container(
                   padding: styles.rowExpandedContainerPadding,
-                  child: expansionBuilder!.call(row),
+                  child: expansionBuilder?.call(row),
                 )
               : SizedBox.shrink(),
         ),

@@ -269,7 +269,7 @@ class OperanceDataTableState<T> extends State<OperanceDataTable<T>> {
       _controller.removeListener(_controllerListener);
     }
 
-    if (widget.keyboardFocusNode != null) {
+    if (widget.keyboardFocusNode == null) {
       _keyboardFocusNode.dispose();
     }
 
@@ -306,10 +306,9 @@ class OperanceDataTableState<T> extends State<OperanceDataTable<T>> {
     final searchPosition = ui.searchPosition;
 
     return LayoutBuilder(builder: (context, constraints) {
-      final isDesktopPlatform = kIsWeb &&
-          (defaultTargetPlatform == TargetPlatform.macOS ||
-              defaultTargetPlatform == TargetPlatform.windows ||
-              defaultTargetPlatform == TargetPlatform.linux);
+      final isDesktopPlatform = defaultTargetPlatform == TargetPlatform.macOS ||
+          defaultTargetPlatform == TargetPlatform.windows ||
+          defaultTargetPlatform == TargetPlatform.linux;
       final tableWidth = isDesktopPlatform
           ? constraints.maxWidth
           : constraints.maxWidth > constraints.maxHeight
@@ -335,7 +334,7 @@ class OperanceDataTableState<T> extends State<OperanceDataTable<T>> {
                 child: Row(
                   children: <Widget>[
                     if (_searchable && searchPosition == SearchPosition.left)
-                      _SearchField(
+                      SearchField(
                         decoration: _decoration,
                         controller: _searchFieldController,
                         focusNode: _searchFieldFocusNode,
@@ -345,7 +344,7 @@ class OperanceDataTableState<T> extends State<OperanceDataTable<T>> {
                     if (_searchable &&
                         searchPosition == SearchPosition.right) ...<Widget>[
                       const Spacer(),
-                      _SearchField(
+                      SearchField(
                         decoration: _decoration,
                         controller: _searchFieldController,
                         focusNode: _searchFieldFocusNode,
@@ -428,6 +427,7 @@ class OperanceDataTableState<T> extends State<OperanceDataTable<T>> {
                                       }
 
                                       return OperanceDataRow(
+                                        key: ValueKey(_activeRows[index]),
                                         columnOrder: _columnOrder,
                                         columns: _columns,
                                         row: _activeRows[index],
@@ -704,16 +704,17 @@ class OperanceDataTableState<T> extends State<OperanceDataTable<T>> {
 }
 
 /// A widget that represents a search field in the Operance data table.
-class _SearchField extends StatelessWidget {
-  /// Creates an instance of [_SearchField].
+class SearchField extends StatelessWidget {
+  /// Creates an instance of [SearchField].
   ///
   /// The [decoration], [controller], and [focusNode] parameters are required.
   /// The [onChanged] parameter is optional.
-  const _SearchField({
+  const SearchField({
     required this.decoration,
     required this.controller,
     required this.focusNode,
     this.onChanged,
+    super.key,
   });
 
   /// The decoration settings for the search field.
