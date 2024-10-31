@@ -3,8 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 // 🌎 Project imports:
-import 'package:operance_datatable/src/operance_data_column.dart';
-import 'package:operance_datatable/src/operance_data_decoration.dart';
+import 'package:operance_datatable/src/models/models.dart';
 
 /// A widget that represents a row in the OperanceDataTable.
 class OperanceDataRow<T> extends StatelessWidget {

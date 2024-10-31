@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 
 // 🌎 Project imports:
-import 'package:operance_datatable/src/operance_data_column_width.dart';
+import 'package:operance_datatable/src/models/models.dart';
 
 /// A class representing a column in the OperanceDataTable.
 class OperanceDataColumn<T> {

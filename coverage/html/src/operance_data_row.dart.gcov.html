@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2024-10-30 21:33:57</td>
+            <td class="headerValue">2024-10-31 15:15:07</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -181,8 +181,8 @@
 <span id="L119"><span class="lineNum">     119</span> <span class="tlaGNC">           2 :                 milliseconds: ui.animationDuration,</span></span>
 <span id="L120"><span class="lineNum">     120</span>              :               ),</span>
 <span id="L121"><span class="lineNum">     121</span> <span class="tlaGNC">           2 :               color: isSelected</span></span>
-<span id="L122"><span class="lineNum">     122</span> <span class="tlaGNC">           4 :                   ? colors.rowSelectedColor.withOpacity(0.3)</span></span>
-<span id="L123"><span class="lineNum">     123</span> <span class="tlaGNC">           5 :                   : (isHovered ? colors.rowHoverColor : colors.rowColor),</span></span>
+<span id="L122"><span class="lineNum">     122</span> <span class="tlaGNC">           2 :                   ? colors.rowSelectedColor.withOpacity(0.3)</span></span>
+<span id="L123"><span class="lineNum">     123</span> <span class="tlaGNC">           4 :                   : (isHovered ? colors.rowHoverColor : colors.rowColor),</span></span>
 <span id="L124"><span class="lineNum">     124</span> <span class="tlaGNC">           2 :               child: Row(</span></span>
 <span id="L125"><span class="lineNum">     125</span> <span class="tlaGNC">           2 :                 children: &lt;Widget&gt;[</span></span>
 <span id="L126"><span class="lineNum">     126</span> <span class="tlaGNC">           2 :                   if (showExpansionIcon)</span></span>
@@ -201,10 +201,10 @@
 <span id="L139"><span class="lineNum">     139</span> <span class="tlaGNC">           2 :                             transitionBuilder: (child, animation) {</span></span>
 <span id="L140"><span class="lineNum">     140</span> <span class="tlaGNC">           2 :                               return RotationTransition(</span></span>
 <span id="L141"><span class="lineNum">     141</span> <span class="tlaGNC">          10 :                                 turns: child.key == ValueKey('expanded_$index')</span></span>
-<span id="L142"><span class="lineNum">     142</span> <span class="tlaGNC">           2 :                                     ? Tween&lt;double&gt;(</span></span>
+<span id="L142"><span class="lineNum">     142</span> <span class="tlaGNC">           1 :                                     ? Tween&lt;double&gt;(</span></span>
 <span id="L143"><span class="lineNum">     143</span>              :                                         begin: 0.5,</span>
 <span id="L144"><span class="lineNum">     144</span>              :                                         end: 1.0,</span>
-<span id="L145"><span class="lineNum">     145</span> <span class="tlaGNC">           2 :                                       ).animate(animation)</span></span>
+<span id="L145"><span class="lineNum">     145</span> <span class="tlaGNC">           1 :                                       ).animate(animation)</span></span>
 <span id="L146"><span class="lineNum">     146</span> <span class="tlaGNC">           2 :                                     : Tween&lt;double&gt;(</span></span>
 <span id="L147"><span class="lineNum">     147</span>              :                                         begin: 1.0,</span>
 <span id="L148"><span class="lineNum">     148</span>              :                                         end: 0.5,</span>
@@ -217,12 +217,12 @@
 <span id="L155"><span class="lineNum">     155</span>              :                             },</span>
 <span id="L156"><span class="lineNum">     156</span> <span class="tlaGNC">           2 :                             child: Icon(</span></span>
 <span id="L157"><span class="lineNum">     157</span> <span class="tlaGNC">           2 :                               isExpanded</span></span>
-<span id="L158"><span class="lineNum">     158</span> <span class="tlaGNC">           2 :                                   ? icons.rowExpansionIconExpanded</span></span>
+<span id="L158"><span class="lineNum">     158</span> <span class="tlaGNC">           1 :                                   ? icons.rowExpansionIconExpanded</span></span>
 <span id="L159"><span class="lineNum">     159</span> <span class="tlaGNC">           2 :                                   : icons.rowExpansionIconCollapsed,</span></span>
 <span id="L160"><span class="lineNum">     160</span> <span class="tlaGNC">           2 :                               key: ValueKey(</span></span>
 <span id="L161"><span class="lineNum">     161</span> <span class="tlaGNC">           2 :                                 isExpanded</span></span>
-<span id="L162"><span class="lineNum">     162</span> <span class="tlaGNC">           2 :                                     ? 'expanded_$index'</span></span>
-<span id="L163"><span class="lineNum">     163</span> <span class="tlaGNC">           6 :                                     : 'collapsed_$index',</span></span>
+<span id="L162"><span class="lineNum">     162</span> <span class="tlaGNC">           1 :                                     ? 'expanded_$index'</span></span>
+<span id="L163"><span class="lineNum">     163</span> <span class="tlaGNC">           5 :                                     : 'collapsed_$index',</span></span>
 <span id="L164"><span class="lineNum">     164</span>              :                               ),</span>
 <span id="L165"><span class="lineNum">     165</span> <span class="tlaGNC">           2 :                               color: colors.rowExpansionIconColor,</span></span>
 <span id="L166"><span class="lineNum">     166</span>              :                             ),</span>
@@ -264,9 +264,9 @@
 <span id="L202"><span class="lineNum">     202</span>              :           ),</span>
 <span id="L203"><span class="lineNum">     203</span>              :           curve: Curves.easeInOut,</span>
 <span id="L204"><span class="lineNum">     204</span> <span class="tlaGNC">           2 :           child: isExpanded</span></span>
-<span id="L205"><span class="lineNum">     205</span> <span class="tlaGNC">           2 :               ? Container(</span></span>
-<span id="L206"><span class="lineNum">     206</span> <span class="tlaGNC">           2 :                   padding: styles.rowExpandedContainerPadding,</span></span>
-<span id="L207"><span class="lineNum">     207</span> <span class="tlaGNC">           6 :                   child: expansionBuilder?.call(row),</span></span>
+<span id="L205"><span class="lineNum">     205</span> <span class="tlaGNC">           1 :               ? Container(</span></span>
+<span id="L206"><span class="lineNum">     206</span> <span class="tlaGNC">           1 :                   padding: styles.rowExpandedContainerPadding,</span></span>
+<span id="L207"><span class="lineNum">     207</span> <span class="tlaGNC">           3 :                   child: expansionBuilder?.call(row),</span></span>
 <span id="L208"><span class="lineNum">     208</span>              :                 )</span>
 <span id="L209"><span class="lineNum">     209</span> <span class="tlaGNC">           2 :               : SizedBox.shrink(),</span></span>
 <span id="L210"><span class="lineNum">     210</span>              :         ),</span>

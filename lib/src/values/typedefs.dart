@@ -1,3 +1,6 @@
+// 🌎 Project imports:
+import 'package:operance_datatable/src/values/enumerations.dart';
+
 /// A typedef for a page of data.
 ///
 /// This typedef represents a tuple containing:
@@ -22,21 +25,3 @@ typedef OnFetch<T> = Future<PageData<T>> Function(
   Map<String, SortDirection> sort, {
   bool isInitial,
 });
-
-/// An enum representing the sort direction.
-enum SortDirection {
-  /// Sort in ascending order.
-  ascending,
-
-  /// Sort in descending order.
-  descending,
-}
-
-/// An enum representing the position of the search bar.
-enum SearchPosition {
-  /// Search bar is positioned on the left.
-  left,
-
-  /// Search bar is positioned on the right.
-  right,
-}

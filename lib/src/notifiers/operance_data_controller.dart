@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 
 // 🌎 Project imports:
-import 'package:operance_datatable/src/misc.dart';
+import 'package:operance_datatable/src/values/values.dart';
 
 /// A controller class for managing the state and behavior of the
 /// OperanceDataTable.

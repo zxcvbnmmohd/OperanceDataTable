@@ -2,8 +2,8 @@
 import 'package:flutter_test/flutter_test.dart';
 
 // 🌎 Project imports:
-import 'package:operance_datatable/src/misc.dart';
-import 'package:operance_datatable/src/operance_data_controller.dart';
+import 'package:operance_datatable/src/notifiers/operance_data_controller.dart';
+import 'package:operance_datatable/src/values/values.dart';
 
 void main() {
   const emptyPage = (<String>[], false);

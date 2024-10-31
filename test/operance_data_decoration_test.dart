@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 // 🌎 Project imports:
-import 'package:operance_datatable/src/operance_data_decoration.dart';
+import 'package:operance_datatable/src/models/operance_data_decoration.dart';
 
 void main() {
   group('Given an OperanceDataDecoration instance', () {

@@ -2,9 +2,8 @@
 import 'package:flutter/material.dart';
 
 // 🌎 Project imports:
-import 'package:operance_datatable/src/misc.dart';
-import 'package:operance_datatable/src/operance_data_column.dart';
-import 'package:operance_datatable/src/operance_data_decoration.dart';
+import 'package:operance_datatable/src/models/models.dart';
+import 'package:operance_datatable/src/values/values.dart';
 
 /// A widget that represents the header of a data column in the Operance data
 /// table.

@@ -12,7 +12,8 @@ import 'package:flutter_test/flutter_test.dart';
 
 // 🌎 Project imports:
 import 'package:operance_datatable/operance_datatable.dart';
-import 'package:operance_datatable/src/operance_data_row.dart';
+import 'package:operance_datatable/src/widgets/operance_data_row.dart';
+import 'package:operance_datatable/src/widgets/operance_data_search_field.dart';
 
 void main() {
   group('Given an OperanceDataTable instance', () {
@@ -267,7 +268,7 @@ void main() {
           ),
         );
 
-        expect(find.byType(SearchField), findsOneWidget);
+        expect(find.byType(OperanceDataSearchField), findsOneWidget);
       });
 
       testWidgets('Then it should display the search field on the right',
@@ -284,7 +285,7 @@ void main() {
           ),
         );
 
-        expect(find.byType(SearchField), findsOneWidget);
+        expect(find.byType(OperanceDataSearchField), findsOneWidget);
       });
     });
 
@@ -522,7 +523,7 @@ void main() {
           showHeader: true,
         );
 
-        expect(find.byType(SearchField), findsOneWidget);
+        expect(find.byType(OperanceDataSearchField), findsOneWidget);
       });
 
       testWidgets('Then it should search rows', (tester) async {

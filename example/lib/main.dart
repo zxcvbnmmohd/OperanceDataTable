@@ -189,6 +189,7 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
           );
         },
+        onRowPressed: (pokemon) {},
         expandable: true,
         selectable: true,
         searchable: true,

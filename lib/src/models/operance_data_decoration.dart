@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 
 // 🌎 Project imports:
-import 'package:operance_datatable/src/misc.dart';
+import 'package:operance_datatable/src/values/values.dart';
 
 /// A class representing the decoration settings for the OperanceDataTable.
 class OperanceDataDecoration {
