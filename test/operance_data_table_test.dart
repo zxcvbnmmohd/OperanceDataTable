@@ -599,12 +599,12 @@ void main() {
         await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
         await tester.pump();
 
-        expect(controller.expandedRows[0], isTrue);
+        expect(controller.expandedRows.value[0], isTrue);
 
         await tester.sendKeyEvent(LogicalKeyboardKey.arrowLeft);
         await tester.pump();
 
-        expect(controller.expandedRows[0], isFalse);
+        expect(controller.expandedRows.value[0], isFalse);
 
         await tester.sendKeyEvent(LogicalKeyboardKey.enter);
         await tester.pump();
@@ -669,12 +669,12 @@ void main() {
         await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
         await tester.pump();
 
-        expect(controller.expandedRows[0], true);
+        expect(controller.expandedRows.value[0], true);
 
         await tester.sendKeyEvent(LogicalKeyboardKey.arrowLeft);
         await tester.pump();
 
-        expect(controller.expandedRows[0], false);
+        expect(controller.expandedRows.value[0], false);
       });
 
       testWidgets('Then it should trigger row press with enter key',
