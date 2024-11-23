@@ -440,17 +440,12 @@ class OperanceDataTableState<T> extends State<OperanceDataTable<T>> {
                                                 _controller
                                                     .clearHoveredRowIndex();
                                               },
-                                              onExpanded: _expandable
-                                                  ? _controller
-                                                      .toggleExpandedRow
-                                                  : null,
                                               expansionBuilder:
                                                   _expansionBuilder,
                                               onChecked: _onSelectionChanged,
                                               onRowPressed: _onRowPressed,
                                               decoration: _decoration,
                                               isHovered: _isHovered(index),
-                                              isExpanded: _isExpanded(index),
                                               showExpansionIcon: _expandable,
                                               showCheckbox: _selectable,
                                             );
@@ -579,9 +574,6 @@ class OperanceDataTableState<T> extends State<OperanceDataTable<T>> {
   /// Gets the rows that match the search criteria.
   Set<T> get _searchedRows => _controller.searchedRows;
 
-  /// Gets the rows that are expanded.
-  Map<int, bool> get _expandedRows => _controller.expandedRows;
-
   /// Gets the number of rows per page.
   int get _rowsPerPage => _controller.rowsPerPage;
 
@@ -609,9 +601,6 @@ class OperanceDataTableState<T> extends State<OperanceDataTable<T>> {
         (_selectable ? _selectionWidth : 0.0) +
         (_columnHeaderTrailingActions.length * 50.0);
   }
-
-  /// Checks if a row is expanded.
-  bool _isExpanded(int index) => _expandedRows[index] ?? false;
 
   /// Checks if a row is hovered.
   bool _isHovered(int index) => _hoveredRowIndex == index;
@@ -663,6 +652,7 @@ class OperanceDataTableState<T> extends State<OperanceDataTable<T>> {
 
   /// Handles keyboard events to navigate and interact with the table rows.
   void _hoverRow(KeyEvent event) {
+    final expandedRowsNotifier = _controller.expandedRows;
     final currentHoveredIndex = _hoveredRowIndex;
 
     if (event is KeyDownEvent) {
@@ -680,11 +670,11 @@ class OperanceDataTableState<T> extends State<OperanceDataTable<T>> {
         }
       } else if (event.logicalKey == LogicalKeyboardKey.arrowLeft) {
         if (currentHoveredIndex != null) {
-          _controller.toggleExpandedRow(currentHoveredIndex);
+          expandedRowsNotifier.toggle(currentHoveredIndex);
         }
       } else if (event.logicalKey == LogicalKeyboardKey.arrowRight) {
         if (currentHoveredIndex != null) {
-          _controller.toggleExpandedRow(currentHoveredIndex);
+          expandedRowsNotifier.toggle(currentHoveredIndex);
         }
       } else if (event.logicalKey == LogicalKeyboardKey.enter) {
         if (currentHoveredIndex != null) {

@@ -12,8 +12,8 @@ class OperanceDataRow<T> extends StatelessWidget {
   ///
   /// The [columnOrder], [columns], [row], [index] and [tableWidth] parameters
   /// are required.
-  /// The [onEnter], [onExit], [onExpanded], [expansionBuilder], [onChecked],
-  /// [onRowPressed], [decoration], [isHovered], [isExpanded],
+  /// The [onEnter], [onExit], [expansionBuilder], [onChecked],
+  /// [onRowPressed], [decoration], [isHovered],
   /// [showExpansionIcon], and [showCheckbox] parameters are optional.
   const OperanceDataRow({
     required this.columnOrder,
@@ -23,22 +23,15 @@ class OperanceDataRow<T> extends StatelessWidget {
     required this.tableWidth,
     this.onEnter,
     this.onExit,
-    this.onExpanded,
-    this.expansionBuilder,
     this.onChecked,
     this.onRowPressed,
+    this.expansionBuilder,
     this.decoration = const OperanceDataDecoration(),
     this.isHovered = false,
-    this.isExpanded = false,
     this.showExpansionIcon = false,
     this.showCheckbox = false,
     super.key,
-  }) : assert(
-          !showExpansionIcon ||
-              (onExpanded != null && expansionBuilder != null),
-          'if showExpansionIcon is true then onExpanded and expansionBuilder '
-          'must not be null',
-        );
+  });
 
   /// The order of the columns.
   final List<int> columnOrder;
@@ -61,26 +54,20 @@ class OperanceDataRow<T> extends StatelessWidget {
   /// Callback when the pointer exits the row.
   final PointerExitEventListener? onExit;
 
-  /// Callback when the row is expanded.
-  final void Function(int)? onExpanded;
-
-  /// Builder for the expanded content of the row.
-  final Widget Function(T)? expansionBuilder;
-
   /// Callback when the checkbox is checked or unchecked.
   final ValueChanged<Set<T>>? onChecked;
 
   /// Callback when the row is pressed.
   final void Function(T)? onRowPressed;
 
+  /// Builder for the expanded content of the row.
+  final Widget Function(T)? expansionBuilder;
+
   /// The decoration settings for the data table.
   final OperanceDataDecoration decoration;
 
   /// Indicates whether the row is hovered.
   final bool isHovered;
-
-  /// Indicates whether the row is expanded.
-  final bool isExpanded;
 
   /// Indicates whether the expansion icon is shown.
   final bool showExpansionIcon;
@@ -90,23 +77,25 @@ class OperanceDataRow<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final selectedRowsNotifier = context.controller<T>().selectedRows;
+    final controller = context.controller<T>();
+    final expandedRowsNotifier = controller.expandedRows;
+    final selectedRowsNotifier = controller.selectedRows;
     final colors = decoration.colors;
     final icons = decoration.icons;
     final sizes = decoration.sizes;
     final styles = decoration.styles;
     final ui = decoration.ui;
+    final canPress = onRowPressed != null;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
         MouseRegion(
-          cursor:
-              onRowPressed != null ? ui.rowCursor : SystemMouseCursors.basic,
-          onEnter: onRowPressed != null ? onEnter : null,
-          onExit: onRowPressed != null ? onExit : null,
+          cursor: canPress ? ui.rowCursor : SystemMouseCursors.basic,
+          onEnter: canPress ? onEnter : null,
+          onExit: canPress ? onExit : null,
           child: GestureDetector(
-            onTap: onRowPressed != null ? () => onRowPressed!(row) : null,
+            onTap: canPress ? () => onRowPressed!(row) : null,
             child: ValueListenableBuilder<Set<T>>(
               valueListenable: selectedRowsNotifier,
               builder: (context, selectedRows, child) {
@@ -121,11 +110,11 @@ class OperanceDataRow<T> extends StatelessWidget {
                     children: <Widget>[
                       if (showExpansionIcon)
                         MouseRegion(
-                          cursor: onRowPressed != null
+                          cursor: canPress
                               ? ui.rowCursor
                               : SystemMouseCursors.basic,
                           child: GestureDetector(
-                            onTap: () => onExpanded!.call(index),
+                            onTap: () => expandedRowsNotifier.toggle(index),
                             child: SizedBox(
                               width: 50.0,
                               child: AnimatedSwitcher(
@@ -150,16 +139,24 @@ class OperanceDataRow<T> extends StatelessWidget {
                                     ),
                                   );
                                 },
-                                child: Icon(
-                                  isExpanded
-                                      ? icons.rowExpansionIconExpanded
-                                      : icons.rowExpansionIconCollapsed,
-                                  key: ValueKey(
-                                    isExpanded
-                                        ? 'expanded_$index'
-                                        : 'collapsed_$index',
-                                  ),
-                                  color: colors.rowExpansionIconColor,
+                                child: ValueListenableBuilder(
+                                  valueListenable: expandedRowsNotifier,
+                                  builder: (context, expandedRows, child) {
+                                    final isExpanded =
+                                        expandedRows[index] ?? false;
+
+                                    return Icon(
+                                      isExpanded
+                                          ? icons.rowExpansionIconExpanded
+                                          : icons.rowExpansionIconCollapsed,
+                                      key: ValueKey(
+                                        isExpanded
+                                            ? 'expanded_$index'
+                                            : 'collapsed_$index',
+                                      ),
+                                      color: colors.rowExpansionIconColor,
+                                    );
+                                  },
                                 ),
                               ),
                             ),
@@ -201,12 +198,17 @@ class OperanceDataRow<T> extends StatelessWidget {
             milliseconds: ui.animationDuration,
           ),
           curve: Curves.easeInOut,
-          child: isExpanded
-              ? Container(
-                  padding: styles.rowExpandedContainerPadding,
-                  child: expansionBuilder?.call(row),
-                )
-              : SizedBox.shrink(),
+          child: ValueListenableBuilder<Map<int, bool>>(
+            valueListenable: expandedRowsNotifier,
+            builder: (context, expandedRows, child) {
+              return expandedRows[index] ?? false
+                  ? Container(
+                      padding: styles.rowExpandedContainerPadding,
+                      child: expansionBuilder?.call(row),
+                    )
+                  : SizedBox.shrink();
+            },
+          ),
         ),
       ],
     );

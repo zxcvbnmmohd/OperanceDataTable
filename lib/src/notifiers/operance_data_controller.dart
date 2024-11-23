@@ -23,11 +23,11 @@ class OperanceDataController<T> extends ChangeNotifier {
   /// The set of searched rows.
   final _searchedRows = <T>{};
 
-  /// The set of selected rows.
-  final selectedRows = SelectedRowsNotifier<T>(rows: <T>{});
+  /// The map of expanded rows notifier.
+  final expandedRows = ExpandedRowsNotifier(rows: <int, bool>{});
 
-  /// The map of expanded rows.
-  final _expandedRows = <int, bool>{};
+  /// The set of selected rows notifier.
+  final selectedRows = SelectedRowsNotifier<T>(rows: <T>{});
 
   /// The map of sort directions for columns.
   final _sorts = <String, SortDirection>{};
@@ -95,9 +95,6 @@ class OperanceDataController<T> extends ChangeNotifier {
 
   /// Gets the set of searched rows.
   Set<T> get searchedRows => Set<T>.unmodifiable(_searchedRows);
-
-  /// Gets the map of expanded rows.
-  Map<int, bool> get expandedRows => Map<int, bool>.unmodifiable(_expandedRows);
 
   /// Gets the map of sort directions for columns.
   Map<String, SortDirection> get sorts {
@@ -284,12 +281,6 @@ class OperanceDataController<T> extends ChangeNotifier {
     _searchedRows
       ..clear()
       ..addAll(rows);
-    notifyListeners();
-  }
-
-  /// Toggles the expansion of a row.
-  void toggleExpandedRow(int index) {
-    _expandedRows[index] = !(_expandedRows[index] ?? false);
     notifyListeners();
   }
 

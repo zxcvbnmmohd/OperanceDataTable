@@ -223,14 +223,6 @@ void main() {
           initialPage: initialPageWithRows,
         );
       });
-
-      test('Then it should toggle the expansion of a row', () {
-        controller.toggleExpandedRow(0);
-        expect(controller.expandedRows, <int, bool>{0: true});
-
-        controller.toggleExpandedRow(0);
-        expect(controller.expandedRows, <int, bool>{0: false});
-      });
     });
 
     group('When hovering rows', () {
