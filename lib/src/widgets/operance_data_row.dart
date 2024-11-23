@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 // 🌎 Project imports:
+import 'package:operance_datatable/src/extensions/build_context.dart';
 import 'package:operance_datatable/src/models/models.dart';
 
 /// A widget that represents a row in the OperanceDataTable.
@@ -12,7 +13,7 @@ class OperanceDataRow<T> extends StatelessWidget {
   /// The [columnOrder], [columns], [row], [index] and [tableWidth] parameters
   /// are required.
   /// The [onEnter], [onExit], [onExpanded], [expansionBuilder], [onChecked],
-  /// [onRowPressed], [decoration], [isHovered], [isSelected], [isExpanded],
+  /// [onRowPressed], [decoration], [isHovered], [isExpanded],
   /// [showExpansionIcon], and [showCheckbox] parameters are optional.
   const OperanceDataRow({
     required this.columnOrder,
@@ -28,20 +29,15 @@ class OperanceDataRow<T> extends StatelessWidget {
     this.onRowPressed,
     this.decoration = const OperanceDataDecoration(),
     this.isHovered = false,
-    this.isSelected = false,
     this.isExpanded = false,
     this.showExpansionIcon = false,
     this.showCheckbox = false,
     super.key,
-  })  : assert(
+  }) : assert(
           !showExpansionIcon ||
               (onExpanded != null && expansionBuilder != null),
           'if showExpansionIcon is true then onExpanded and expansionBuilder '
           'must not be null',
-        ),
-        assert(
-          !showCheckbox || onChecked != null,
-          'if showCheckbox is true then onChecked must not be null',
         );
 
   /// The order of the columns.
@@ -72,7 +68,7 @@ class OperanceDataRow<T> extends StatelessWidget {
   final Widget Function(T)? expansionBuilder;
 
   /// Callback when the checkbox is checked or unchecked.
-  final void Function(int, {bool? isSelected})? onChecked;
+  final ValueChanged<Set<T>>? onChecked;
 
   /// Callback when the row is pressed.
   final void Function(T)? onRowPressed;
@@ -82,9 +78,6 @@ class OperanceDataRow<T> extends StatelessWidget {
 
   /// Indicates whether the row is hovered.
   final bool isHovered;
-
-  /// Indicates whether the row is selected.
-  final bool isSelected;
 
   /// Indicates whether the row is expanded.
   final bool isExpanded;
@@ -97,6 +90,7 @@ class OperanceDataRow<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final selectedRowsNotifier = context.controller<T>().selectedRows;
     final colors = decoration.colors;
     final icons = decoration.icons;
     final sizes = decoration.sizes;
@@ -113,85 +107,92 @@ class OperanceDataRow<T> extends StatelessWidget {
           onExit: onRowPressed != null ? onExit : null,
           child: GestureDetector(
             onTap: onRowPressed != null ? () => onRowPressed!(row) : null,
-            child: AnimatedContainer(
-              duration: Duration(
-                milliseconds: ui.animationDuration,
-              ),
-              color: isSelected
-                  ? colors.rowSelectedColor.withOpacity(0.3)
-                  : (isHovered ? colors.rowHoverColor : colors.rowColor),
-              child: Row(
-                children: <Widget>[
-                  if (showExpansionIcon)
-                    MouseRegion(
-                      cursor: onRowPressed != null
-                          ? ui.rowCursor
-                          : SystemMouseCursors.basic,
-                      child: GestureDetector(
-                        onTap: () => onExpanded!.call(index),
-                        child: SizedBox(
-                          width: 50.0,
-                          child: AnimatedSwitcher(
-                            duration: Duration(
-                              milliseconds: ui.animationDuration,
-                            ),
-                            transitionBuilder: (child, animation) {
-                              return RotationTransition(
-                                turns: child.key == ValueKey('expanded_$index')
-                                    ? Tween<double>(
-                                        begin: 0.5,
-                                        end: 1.0,
-                                      ).animate(animation)
-                                    : Tween<double>(
-                                        begin: 1.0,
-                                        end: 0.5,
-                                      ).animate(animation),
-                                child: FadeTransition(
-                                  opacity: animation,
-                                  child: child,
+            child: ValueListenableBuilder<Set<T>>(
+              valueListenable: selectedRowsNotifier,
+              builder: (context, selectedRows, child) {
+                return AnimatedContainer(
+                  duration: Duration(
+                    milliseconds: ui.animationDuration,
+                  ),
+                  color: selectedRows.contains(row)
+                      ? colors.rowSelectedColor.withOpacity(0.3)
+                      : (isHovered ? colors.rowHoverColor : colors.rowColor),
+                  child: Row(
+                    children: <Widget>[
+                      if (showExpansionIcon)
+                        MouseRegion(
+                          cursor: onRowPressed != null
+                              ? ui.rowCursor
+                              : SystemMouseCursors.basic,
+                          child: GestureDetector(
+                            onTap: () => onExpanded!.call(index),
+                            child: SizedBox(
+                              width: 50.0,
+                              child: AnimatedSwitcher(
+                                duration: Duration(
+                                  milliseconds: ui.animationDuration,
                                 ),
-                              );
-                            },
-                            child: Icon(
-                              isExpanded
-                                  ? icons.rowExpansionIconExpanded
-                                  : icons.rowExpansionIconCollapsed,
-                              key: ValueKey(
-                                isExpanded
-                                    ? 'expanded_$index'
-                                    : 'collapsed_$index',
+                                transitionBuilder: (child, animation) {
+                                  return RotationTransition(
+                                    turns:
+                                        child.key == ValueKey('expanded_$index')
+                                            ? Tween<double>(
+                                                begin: 0.5,
+                                                end: 1.0,
+                                              ).animate(animation)
+                                            : Tween<double>(
+                                                begin: 1.0,
+                                                end: 0.5,
+                                              ).animate(animation),
+                                    child: FadeTransition(
+                                      opacity: animation,
+                                      child: child,
+                                    ),
+                                  );
+                                },
+                                child: Icon(
+                                  isExpanded
+                                      ? icons.rowExpansionIconExpanded
+                                      : icons.rowExpansionIconCollapsed,
+                                  key: ValueKey(
+                                    isExpanded
+                                        ? 'expanded_$index'
+                                        : 'collapsed_$index',
+                                  ),
+                                  color: colors.rowExpansionIconColor,
+                                ),
                               ),
-                              color: colors.rowExpansionIconColor,
                             ),
                           ),
                         ),
-                      ),
-                    ),
-                  if (showCheckbox)
-                    SizedBox(
-                      width: 50.0,
-                      child: Checkbox(
-                        value: isSelected,
-                        onChanged: (value) {
-                          onChecked?.call(index, isSelected: value);
-                        },
-                      ),
-                    ),
-                  ...columnOrder.map((index) {
-                    final column = columns[index];
+                      if (showCheckbox)
+                        SizedBox(
+                          width: 50.0,
+                          child: Checkbox(
+                            value: selectedRows.contains(row),
+                            onChanged: (value) {
+                              selectedRowsNotifier.toggle(row);
+                              onChecked?.call(selectedRowsNotifier.value);
+                            },
+                          ),
+                        ),
+                      ...columnOrder.map((index) {
+                        final column = columns[index];
 
-                    return Container(
-                      alignment: column.numeric
-                          ? Alignment.centerRight
-                          : Alignment.centerLeft,
-                      padding: styles.cellPadding,
-                      width: column.width.value(tableWidth),
-                      height: sizes.rowHeight,
-                      child: column.cellBuilder(context, row),
-                    );
-                  }),
-                ],
-              ),
+                        return Container(
+                          alignment: column.numeric
+                              ? Alignment.centerRight
+                              : Alignment.centerLeft,
+                          padding: styles.cellPadding,
+                          width: column.width.value(tableWidth),
+                          height: sizes.rowHeight,
+                          child: column.cellBuilder(context, row),
+                        );
+                      }),
+                    ],
+                  ),
+                );
+              },
             ),
           ),
         ),

@@ -36,6 +36,20 @@ td.title
   font-style: italic;
   font-weight: bold;
 }
+/* table footnote */
+td.footnote
+{
+  text-align: left;
+  padding-left: 100px;
+  padding-right: 10px;
+  background-color: #dae7fe; /* light blue table background color */
+  /* dark blue table header color
+  background-color: #6688d4; */
+  white-space: nowrap;
+  font-family: sans-serif;
+  font-style: italic;
+  font-size:70%;
+}
 /* "Line coverage date bins" leader */
 td.subTableHeader
 {

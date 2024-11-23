@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 
 // 🌎 Project imports:
+import 'package:operance_datatable/src/extensions/extensions.dart';
 import 'package:operance_datatable/src/models/models.dart';
 import 'package:operance_datatable/src/values/values.dart';
 
@@ -12,7 +13,7 @@ class OperanceDataColumnHeader<T> extends StatelessWidget {
   ///
   /// The [columnOrder], [columns] and [tableWidth] parameters are required.
   /// The [trailing], [onChecked], [onColumnDragged], [onSort], [sorts]
-  /// [currentRows], [selectedRows], [decoration], [allowColumnReorder],
+  /// [currentRows], [decoration], [allowColumnReorder],
   /// [expandable], and [selectable] parameters are optional.
   const OperanceDataColumnHeader({
     required this.columnOrder,
@@ -24,7 +25,6 @@ class OperanceDataColumnHeader<T> extends StatelessWidget {
     this.sorts = const {},
     this.trailing = const [],
     this.currentRows = const [],
-    this.selectedRows = const {},
     this.decoration = const OperanceDataDecoration(),
     this.allowColumnReorder = false,
     this.expandable = false,
@@ -42,7 +42,7 @@ class OperanceDataColumnHeader<T> extends StatelessWidget {
   final double tableWidth;
 
   /// Callback when the checkbox is checked or unchecked.
-  final ValueChanged<bool?>? onChecked;
+  final ValueChanged<Set<T>>? onChecked;
 
   /// Callback when a column is dragged.
   final void Function(int, int)? onColumnDragged;
@@ -58,9 +58,6 @@ class OperanceDataColumnHeader<T> extends StatelessWidget {
 
   /// The current rows in the table.
   final List<T> currentRows;
-
-  /// The selected rows in the table.
-  final Set<T> selectedRows;
 
   /// The decoration settings for the data table.
   final OperanceDataDecoration decoration;
@@ -94,10 +91,7 @@ class OperanceDataColumnHeader<T> extends StatelessWidget {
               SizedBox(
                 width: 50,
                 height: sizes.columnHeaderHeight,
-                child: _SelectableCheckbox(
-                  decoration: decoration,
-                  selectedRows: selectedRows,
-                  currentRows: currentRows,
+                child: _SelectableCheckbox<T>(
                   onChecked: onChecked,
                 ),
               ),
@@ -131,38 +125,43 @@ class OperanceDataColumnHeader<T> extends StatelessWidget {
 }
 
 /// A widget that represents a selectable checkbox in the OperanceDataTable.
-class _SelectableCheckbox extends StatelessWidget {
+class _SelectableCheckbox<T> extends StatelessWidget {
   /// Creates an instance of [_SelectableCheckbox].
   ///
-  /// The [decoration], [selectedRows], [currentRows], and [onChecked]
-  /// parameters are required.
+  /// The [onChecked] parameter is required.
   const _SelectableCheckbox({
-    required this.decoration,
-    required this.selectedRows,
-    required this.currentRows,
     required this.onChecked,
   });
 
-  /// The decoration settings for the data table.
-  final OperanceDataDecoration decoration;
-
-  /// The selected rows in the table.
-  final Set<dynamic> selectedRows;
-
-  /// The current rows in the table.
-  final List<dynamic> currentRows;
-
   /// Callback when the checkbox is checked or unchecked.
-  final ValueChanged<bool?>? onChecked;
+  final ValueChanged<Set<T>>? onChecked;
 
   @override
   Widget build(BuildContext context) {
+    final controller = context.controller<T>();
+    final decoration = context.decoration();
+    final currentRows = controller.currentRows;
+    final selectedRowsNotifier = controller.selectedRows;
+
     return Container(
       decoration: decoration.styles.columnHeaderDecoration,
-      child: Checkbox(
-        value: selectedRows.isNotEmpty &&
-            selectedRows.length == currentRows.length,
-        onChanged: onChecked,
+      child: ValueListenableBuilder(
+        valueListenable: selectedRowsNotifier,
+        builder: (context, selectedRows, child) {
+          return Checkbox(
+            value: selectedRows.isNotEmpty &&
+                selectedRows.length == currentRows.length,
+            onChanged: (value) {
+              if (value == null || value == false) {
+                selectedRowsNotifier.clear();
+              } else {
+                selectedRowsNotifier.selectAll(currentRows.toSet());
+              }
+
+              onChecked?.call(selectedRows);
+            },
+          );
+        },
       ),
     );
   }
@@ -217,13 +216,12 @@ class _ColumnHeaderCell<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final columnWidth = column.width.value(tableWidth);
-    final Widget headerContent = _ColumnHeader<T>(
+    final headerContent = _ColumnHeader<T>(
       key: ValueKey('header_${column.name}'),
       decoration: decoration,
       column: column,
       tableWidth: tableWidth,
-      columnWidth: columnWidth,
+      columnWidth: column.width.value(tableWidth),
       onSort: onSort,
       sorts: sorts,
     );

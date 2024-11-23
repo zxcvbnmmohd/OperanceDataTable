@@ -4,7 +4,7 @@
 
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-  <title>LCOV - lcov.info - notifiers/loading_notifier.dart</title>
+  <title>LCOV - lcov.info - extensions/build_context.dart</title>
   <link rel="stylesheet" type="text/css" href="../gcov.css">
 </head>
 
@@ -19,7 +19,7 @@
                 <table cellpadding=1 border=0 width="100%">
           <tr>
             <td width="10%" class="headerItem">Current view:</td>
-            <td width="10%" class="headerValue"><a href="../index.html" title="Click to go to top-level">top level</a> - <a href="index.html" title="Click to go to directory notifiers">notifiers</a> - loading_notifier.dart</td>
+            <td width="10%" class="headerValue"><a href="../index.html" title="Click to go to top-level">top level</a> - <a href="index.html" title="Click to go to directory extensions">extensions</a> - build_context.dart</td>
             <td width="5%"></td>
             <td width="5%"></td>
             <td width="5%" class="headerCovTableHead">Coverage</td>
@@ -31,9 +31,9 @@
             <td class="headerValue">lcov.info</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">0.0&nbsp;%</td>
+            <td class="headerCovTableEntryHi">100.0&nbsp;%</td>
             <td class="headerCovTableEntry">4</td>
-            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">4</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
@@ -63,15 +63,20 @@
 <span id="L1"><span class="lineNum">       1</span>              : // 🐦 Flutter imports:</span>
 <span id="L2"><span class="lineNum">       2</span>              : import 'package:flutter/material.dart';</span>
 <span id="L3"><span class="lineNum">       3</span>              : </span>
-<span id="L4"><span class="lineNum">       4</span>              : class LoadingNotifier extends ValueNotifier&lt;bool&gt; {</span>
-<span id="L5"><span class="lineNum">       5</span> <span class="tlaUNC">           0 :   LoadingNotifier({bool isLoading = false}) : super(isLoading);</span></span>
-<span id="L6"><span class="lineNum">       6</span>              : </span>
-<span id="L7"><span class="lineNum">       7</span> <span class="tlaUNC">           0 :   void set({bool isLoading = false}) {</span></span>
-<span id="L8"><span class="lineNum">       8</span> <span class="tlaUNC">           0 :     value = isLoading;</span></span>
-<span id="L9"><span class="lineNum">       9</span>              : </span>
-<span id="L10"><span class="lineNum">      10</span> <span class="tlaUNC">           0 :     return notifyListeners();</span></span>
-<span id="L11"><span class="lineNum">      11</span>              :   }</span>
-<span id="L12"><span class="lineNum">      12</span>              : }</span>
+<span id="L4"><span class="lineNum">       4</span>              : // 🌎 Project imports:</span>
+<span id="L5"><span class="lineNum">       5</span>              : import 'package:operance_datatable/src/models/models.dart';</span>
+<span id="L6"><span class="lineNum">       6</span>              : import 'package:operance_datatable/src/notifiers/notifiers.dart';</span>
+<span id="L7"><span class="lineNum">       7</span>              : import 'package:operance_datatable/src/providers/providers.dart';</span>
+<span id="L8"><span class="lineNum">       8</span>              : </span>
+<span id="L9"><span class="lineNum">       9</span>              : extension BuildContextX on BuildContext {</span>
+<span id="L10"><span class="lineNum">      10</span> <span class="tlaGNC">           3 :   OperanceDataController&lt;T&gt; controller&lt;T&gt;() {</span></span>
+<span id="L11"><span class="lineNum">      11</span> <span class="tlaGNC">           3 :     return OperanceDataControllerProvider.of&lt;T&gt;(this);</span></span>
+<span id="L12"><span class="lineNum">      12</span>              :   }</span>
+<span id="L13"><span class="lineNum">      13</span>              : </span>
+<span id="L14"><span class="lineNum">      14</span> <span class="tlaGNC">           1 :   OperanceDataDecoration decoration() {</span></span>
+<span id="L15"><span class="lineNum">      15</span> <span class="tlaGNC">           1 :     return OperanceDataDecorationProvider.of(this);</span></span>
+<span id="L16"><span class="lineNum">      16</span>              :   }</span>
+<span id="L17"><span class="lineNum">      17</span>              : }</span>
         </pre>
               </td>
             </tr>

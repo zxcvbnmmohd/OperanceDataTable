@@ -14,8 +14,10 @@ class SelectedRowsNotifier<T> extends ValueNotifier<Set<T>> {
     return notifyListeners();
   }
 
-  void selectMany(Set<T> rows) {
-    value.addAll(rows);
+  void selectAll(Set<T> rows) {
+    value
+      ..clear()
+      ..addAll(rows);
 
     return notifyListeners();
   }

@@ -27,7 +27,7 @@ void main() {
       required bool showCheckbox,
       void Function(int)? onExpanded,
       Widget Function(String)? expansionBuilder,
-      void Function(int, {bool? isSelected})? onChecked,
+      ValueChanged<Set<String>>? onChecked,
     }) async {
       await tester.pumpWidget(
         MaterialApp(
@@ -46,7 +46,6 @@ void main() {
               onRowPressed: (_) {},
               decoration: const OperanceDataDecoration(),
               isHovered: true,
-              isSelected: true,
               isExpanded: isExpanded,
               showExpansionIcon: showExpansionIcon,
               showCheckbox: showCheckbox,

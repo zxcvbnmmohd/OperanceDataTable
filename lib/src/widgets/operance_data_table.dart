@@ -117,7 +117,7 @@ class OperanceDataTable<T> extends StatefulWidget {
   final void Function(T)? onRowPressed;
 
   /// Callback when the selection changes.
-  final ValueChanged<List<T>>? onSelectionChanged;
+  final ValueChanged<Set<T>>? onSelectionChanged;
 
   /// Decoration settings for the table.
   final OperanceDataDecoration decoration;
@@ -186,7 +186,7 @@ class OperanceDataTableState<T> extends State<OperanceDataTable<T>> {
   late final WidgetBuilder? _loadingStateBuilder;
   late final Widget Function(T)? _expansionBuilder;
   late final void Function(T)? _onRowPressed;
-  late final ValueChanged<List<T>>? _onSelectionChanged;
+  late final ValueChanged<Set<T>>? _onSelectionChanged;
   late final OperanceDataDecoration _decoration;
   late final PageData<T> _initialPage;
   late final int _currentPageIndex;
@@ -243,8 +243,7 @@ class OperanceDataTableState<T> extends State<OperanceDataTable<T>> {
         rowsPerPage: _decoration.ui.rowsPerPageOptions.first,
         infiniteScroll: _infiniteScroll,
         onFetch: _onFetch,
-      )
-      ..addListener(_controllerListener);
+      );
     _keyboardFocusNode = (widget.keyboardFocusNode ?? FocusNode())
       ..requestFocus();
     _horizontalScrollController =
@@ -264,8 +263,6 @@ class OperanceDataTableState<T> extends State<OperanceDataTable<T>> {
   void dispose() {
     if (widget.controller == null) {
       _controller.dispose();
-    } else {
-      _controller.removeListener(_controllerListener);
     }
 
     if (widget.keyboardFocusNode == null) {
@@ -304,7 +301,7 @@ class OperanceDataTableState<T> extends State<OperanceDataTable<T>> {
     final ui = _decoration.ui;
     final searchPosition = ui.searchPosition;
 
-    return OperanceDataControllerProvider(
+    return OperanceDataControllerProvider<T>(
       controller: _controller,
       child: OperanceDataDecorationProvider(
         decoration: _decoration,
@@ -380,17 +377,11 @@ class OperanceDataTableState<T> extends State<OperanceDataTable<T>> {
                                 columns: _columns,
                                 tableWidth: availableWidth,
                                 trailing: _columnHeaderTrailingActions,
-                                onChecked: (value) {
-                                  _controller.toggleAllSelectedRows(
-                                      isSelected: value);
-                                  _onSelectionChanged
-                                      ?.call(_selectedRows.toList());
-                                },
+                                onChecked: _onSelectionChanged,
                                 onColumnDragged: _controller.reOrderColumn,
                                 onSort: _controller.setSort,
                                 sorts: _controller.sorts,
                                 currentRows: _currentRows,
-                                selectedRows: _selectedRows,
                                 decoration: _decoration,
                                 allowColumnReorder: _allowColumnReorder,
                                 expandable: _expandable,
@@ -434,7 +425,7 @@ class OperanceDataTableState<T> extends State<OperanceDataTable<T>> {
                                               );
                                             }
 
-                                            return OperanceDataRow(
+                                            return OperanceDataRow<T>(
                                               key: ValueKey(_activeRows[index]),
                                               columnOrder: _columnOrder,
                                               columns: _columns,
@@ -455,21 +446,10 @@ class OperanceDataTableState<T> extends State<OperanceDataTable<T>> {
                                                   : null,
                                               expansionBuilder:
                                                   _expansionBuilder,
-                                              onChecked: _selectable
-                                                  ? (index, {isSelected}) {
-                                                      _controller
-                                                          .toggleSelectedRow(
-                                                        _activeRows[index],
-                                                      );
-                                                      _onSelectionChanged?.call(
-                                                        _selectedRows.toList(),
-                                                      );
-                                                    }
-                                                  : null,
+                                              onChecked: _onSelectionChanged,
                                               onRowPressed: _onRowPressed,
                                               decoration: _decoration,
                                               isHovered: _isHovered(index),
-                                              isSelected: _isSelected(index),
                                               isExpanded: _isExpanded(index),
                                               showExpansionIcon: _expandable,
                                               showCheckbox: _selectable,
@@ -599,9 +579,6 @@ class OperanceDataTableState<T> extends State<OperanceDataTable<T>> {
   /// Gets the rows that match the search criteria.
   Set<T> get _searchedRows => _controller.searchedRows;
 
-  /// Gets the rows that are selected.
-  Set<T> get _selectedRows => _controller.selectedRows;
-
   /// Gets the rows that are expanded.
   Map<int, bool> get _expandedRows => _controller.expandedRows;
 
@@ -633,17 +610,11 @@ class OperanceDataTableState<T> extends State<OperanceDataTable<T>> {
         (_columnHeaderTrailingActions.length * 50.0);
   }
 
-  /// Checks if a row is selected.
-  bool _isSelected(int index) => _selectedRows.contains(_currentRows[index]);
-
   /// Checks if a row is expanded.
   bool _isExpanded(int index) => _expandedRows[index] ?? false;
 
   /// Checks if a row is hovered.
   bool _isHovered(int index) => _hoveredRowIndex == index;
-
-  /// Listener for the controller to update the state.
-  void _controllerListener() {}
 
   /// Listener for the search field to update the searched rows.
   void _searchFieldListener() {

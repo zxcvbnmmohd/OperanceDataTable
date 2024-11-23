@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 
 // 🌎 Project imports:
+import 'package:operance_datatable/src/notifiers/notifiers.dart';
 import 'package:operance_datatable/src/values/values.dart';
 
 /// A controller class for managing the state and behavior of the
@@ -23,7 +24,7 @@ class OperanceDataController<T> extends ChangeNotifier {
   final _searchedRows = <T>{};
 
   /// The set of selected rows.
-  final _selectedRows = <T>{};
+  final selectedRows = SelectedRowsNotifier<T>(rows: <T>{});
 
   /// The map of expanded rows.
   final _expandedRows = <int, bool>{};
@@ -94,9 +95,6 @@ class OperanceDataController<T> extends ChangeNotifier {
 
   /// Gets the set of searched rows.
   Set<T> get searchedRows => Set<T>.unmodifiable(_searchedRows);
-
-  /// Gets the set of selected rows.
-  Set<T> get selectedRows => Set<T>.unmodifiable(_selectedRows);
 
   /// Gets the map of expanded rows.
   Map<int, bool> get expandedRows => Map<int, bool>.unmodifiable(_expandedRows);
@@ -286,28 +284,6 @@ class OperanceDataController<T> extends ChangeNotifier {
     _searchedRows
       ..clear()
       ..addAll(rows);
-    notifyListeners();
-  }
-
-  /// Toggles the selection of a row.
-  void toggleSelectedRow(T row) {
-    if (_selectedRows.contains(row)) {
-      _selectedRows.remove(row);
-    } else {
-      _selectedRows.add(row);
-    }
-
-    notifyListeners();
-  }
-
-  /// Toggles the selection of all rows.
-  void toggleAllSelectedRows({bool? isSelected}) {
-    if (isSelected == true) {
-      _selectedRows.addAll(currentRows);
-    } else {
-      _selectedRows.clear();
-    }
-
     notifyListeners();
   }
 
