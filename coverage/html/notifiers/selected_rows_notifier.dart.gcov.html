@@ -19,7 +19,7 @@
                 <table cellpadding=1 border=0 width="100%">
           <tr>
             <td width="10%" class="headerItem">Current view:</td>
-            <td width="10%" class="headerValue"><a href="../index.html" title="Click to go to top-level">top level</a> - <a href="index.html" title="Click to go to directory notifiers">notifiers</a> - selected_rows_notifier.dart<span style="font-size: 80%;"> (source / <a href="selected_rows_notifier.dart.func-c.html" title="Click to go to function table">functions</a>)</span></td>
+            <td width="10%" class="headerValue"><a href="../index.html" title="Click to go to top-level">top level</a> - <a href="index.html" title="Click to go to directory notifiers">notifiers</a> - selected_rows_notifier.dart</td>
             <td width="5%"></td>
             <td width="5%"></td>
             <td width="5%" class="headerCovTableHead">Coverage</td>
@@ -31,13 +31,13 @@
             <td class="headerValue">lcov.info</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">0.0&nbsp;%</td>
-            <td class="headerCovTableEntry">12</td>
-            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntryLo">71.4&nbsp;%</td>
+            <td class="headerCovTableEntry">14</td>
+            <td class="headerCovTableEntry">10</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2024-11-03 19:52:38</td>
+            <td class="headerValue">2024-11-23 14:55:46</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -64,30 +64,32 @@
 <span id="L2"><span class="lineNum">       2</span>              : import 'package:flutter/material.dart';</span>
 <span id="L3"><span class="lineNum">       3</span>              : </span>
 <span id="L4"><span class="lineNum">       4</span>              : class SelectedRowsNotifier&lt;T&gt; extends ValueNotifier&lt;Set&lt;T&gt;&gt; {</span>
-<span id="L5"><span class="lineNum">       5</span> <span class="tlaUNC tlaBgUNC">           0 :   SelectedRowsNotifier({Set&lt;T&gt; rows = const {}}) : super(rows);</span></span>
+<span id="L5"><span class="lineNum">       5</span> <span class="tlaGNC">           4 :   SelectedRowsNotifier({Set&lt;T&gt; rows = const {}}) : super(rows);</span></span>
 <span id="L6"><span class="lineNum">       6</span>              : </span>
-<span id="L7"><span class="lineNum">       7</span> <span class="tlaUNC">           0 :   void toggle(T row) {</span></span>
-<span id="L8"><span class="lineNum">       8</span> <span class="tlaUNC">           0 :     if (value.contains(row)) {</span></span>
+<span id="L7"><span class="lineNum">       7</span> <span class="tlaGNC">           2 :   void toggle(T row) {</span></span>
+<span id="L8"><span class="lineNum">       8</span> <span class="tlaGNC">           4 :     if (value.contains(row)) {</span></span>
 <span id="L9"><span class="lineNum">       9</span> <span class="tlaUNC">           0 :       value.remove(row);</span></span>
 <span id="L10"><span class="lineNum">      10</span>              :     } else {</span>
-<span id="L11"><span class="lineNum">      11</span> <span class="tlaUNC">           0 :       value.add(row);</span></span>
+<span id="L11"><span class="lineNum">      11</span> <span class="tlaGNC">           4 :       value.add(row);</span></span>
 <span id="L12"><span class="lineNum">      12</span>              :     }</span>
 <span id="L13"><span class="lineNum">      13</span>              : </span>
-<span id="L14"><span class="lineNum">      14</span> <span class="tlaUNC">           0 :     return notifyListeners();</span></span>
+<span id="L14"><span class="lineNum">      14</span> <span class="tlaGNC">           2 :     return notifyListeners();</span></span>
 <span id="L15"><span class="lineNum">      15</span>              :   }</span>
 <span id="L16"><span class="lineNum">      16</span>              : </span>
-<span id="L17"><span class="lineNum">      17</span> <span class="tlaUNC">           0 :   void selectMany(Set&lt;T&gt; rows) {</span></span>
-<span id="L18"><span class="lineNum">      18</span> <span class="tlaUNC">           0 :     value.addAll(rows);</span></span>
-<span id="L19"><span class="lineNum">      19</span>              : </span>
-<span id="L20"><span class="lineNum">      20</span> <span class="tlaUNC">           0 :     return notifyListeners();</span></span>
-<span id="L21"><span class="lineNum">      21</span>              :   }</span>
-<span id="L22"><span class="lineNum">      22</span>              : </span>
-<span id="L23"><span class="lineNum">      23</span> <span class="tlaUNC">           0 :   void clear() {</span></span>
-<span id="L24"><span class="lineNum">      24</span> <span class="tlaUNC">           0 :     value.clear();</span></span>
-<span id="L25"><span class="lineNum">      25</span>              : </span>
-<span id="L26"><span class="lineNum">      26</span> <span class="tlaUNC">           0 :     return notifyListeners();</span></span>
-<span id="L27"><span class="lineNum">      27</span>              :   }</span>
-<span id="L28"><span class="lineNum">      28</span>              : }</span>
+<span id="L17"><span class="lineNum">      17</span> <span class="tlaGNC">           2 :   void selectAll(Set&lt;T&gt; rows) {</span></span>
+<span id="L18"><span class="lineNum">      18</span> <span class="tlaGNC">           2 :     value</span></span>
+<span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC">           2 :       ..clear()</span></span>
+<span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">           2 :       ..addAll(rows);</span></span>
+<span id="L21"><span class="lineNum">      21</span>              : </span>
+<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           2 :     return notifyListeners();</span></span>
+<span id="L23"><span class="lineNum">      23</span>              :   }</span>
+<span id="L24"><span class="lineNum">      24</span>              : </span>
+<span id="L25"><span class="lineNum">      25</span> <span class="tlaUNC">           0 :   void clear() {</span></span>
+<span id="L26"><span class="lineNum">      26</span> <span class="tlaUNC">           0 :     value.clear();</span></span>
+<span id="L27"><span class="lineNum">      27</span>              : </span>
+<span id="L28"><span class="lineNum">      28</span> <span class="tlaUNC">           0 :     return notifyListeners();</span></span>
+<span id="L29"><span class="lineNum">      29</span>              :   }</span>
+<span id="L30"><span class="lineNum">      30</span>              : }</span>
         </pre>
               </td>
             </tr>
@@ -96,7 +98,7 @@
 
           <table width="100%" border=0 cellspacing=0 cellpadding=0>
             <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
-            <tr><td class="versionInfo">Generated by: <a href="https://github.com//linux-test-project/lcov" target="_parent">LCOV version 2.1-1</a></td></tr>
+            <tr><td class="versionInfo">Generated by: <a href="https://github.com//linux-test-project/lcov" target="_parent">LCOV version 2.2-1</a></td></tr>
           </table>
           <br>
 

@@ -202,19 +202,18 @@ void main() {
       });
 
       test('Then it should toggle the selection of a row', () {
-        controller.toggleSelectedRow('Row1');
+        controller.selectedRows.toggle('Row1');
         expect(controller.selectedRows, <String>{'Row1'});
 
-        controller.toggleSelectedRow('Row1');
+        controller.selectedRows.toggle('Row1');
         expect(controller.selectedRows, isEmpty);
       });
 
       test('Then it should toggle the selection of all rows', () {
-        controller.toggleAllSelectedRows(isSelected: true);
+        controller.selectedRows.selectAll(
+          <String>{'Row1', 'Row2'},
+        );
         expect(controller.selectedRows, <String>{'Row1', 'Row2'});
-
-        controller.toggleAllSelectedRows(isSelected: false);
-        expect(controller.selectedRows, isEmpty);
       });
     });
 

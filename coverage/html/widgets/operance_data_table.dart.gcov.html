@@ -19,7 +19,7 @@
                 <table cellpadding=1 border=0 width="100%">
           <tr>
             <td width="10%" class="headerItem">Current view:</td>
-            <td width="10%" class="headerValue"><a href="../index.html" title="Click to go to top-level">top level</a> - <a href="index.html" title="Click to go to directory widgets">widgets</a> - operance_data_table.dart<span style="font-size: 80%;"> (source / <a href="operance_data_table.dart.func-c.html" title="Click to go to function table">functions</a>)</span></td>
+            <td width="10%" class="headerValue"><a href="../index.html" title="Click to go to top-level">top level</a> - <a href="index.html" title="Click to go to directory widgets">widgets</a> - operance_data_table.dart</td>
             <td width="5%"></td>
             <td width="5%"></td>
             <td width="5%" class="headerCovTableHead">Coverage</td>
@@ -32,12 +32,12 @@
             <td></td>
             <td class="headerItem">Lines:</td>
             <td class="headerCovTableEntryHi">99.7&nbsp;%</td>
-            <td class="headerCovTableEntry">320</td>
-            <td class="headerCovTableEntry">319</td>
+            <td class="headerCovTableEntry">307</td>
+            <td class="headerCovTableEntry">306</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2024-11-03 19:52:38</td>
+            <td class="headerValue">2024-11-23 14:55:46</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -87,7 +87,7 @@
 <span id="L25"><span class="lineNum">      25</span>              :   /// [showHeader], [showColumnHeader], [showFooter], [showEmptyRows],</span>
 <span id="L26"><span class="lineNum">      26</span>              :   /// [showRowsPerPageOptions], [infiniteScroll] and [allowColumnReorder]</span>
 <span id="L27"><span class="lineNum">      27</span>              :   /// parameters are optional.</span>
-<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC tlaBgGNC">           1 :   OperanceDataTable({</span></span>
+<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">           1 :   OperanceDataTable({</span></span>
 <span id="L29"><span class="lineNum">      29</span>              :     required this.columns,</span>
 <span id="L30"><span class="lineNum">      30</span>              :     this.onFetch,</span>
 <span id="L31"><span class="lineNum">      31</span>              :     this.controller,</span>
@@ -179,7 +179,7 @@
 <span id="L117"><span class="lineNum">     117</span>              :   final void Function(T)? onRowPressed;</span>
 <span id="L118"><span class="lineNum">     118</span>              : </span>
 <span id="L119"><span class="lineNum">     119</span>              :   /// Callback when the selection changes.</span>
-<span id="L120"><span class="lineNum">     120</span>              :   final ValueChanged&lt;List&lt;T&gt;&gt;? onSelectionChanged;</span>
+<span id="L120"><span class="lineNum">     120</span>              :   final ValueChanged&lt;Set&lt;T&gt;&gt;? onSelectionChanged;</span>
 <span id="L121"><span class="lineNum">     121</span>              : </span>
 <span id="L122"><span class="lineNum">     122</span>              :   /// Decoration settings for the table.</span>
 <span id="L123"><span class="lineNum">     123</span>              :   final OperanceDataDecoration decoration;</span>
@@ -248,7 +248,7 @@
 <span id="L186"><span class="lineNum">     186</span>              :   late final WidgetBuilder? _loadingStateBuilder;</span>
 <span id="L187"><span class="lineNum">     187</span>              :   late final Widget Function(T)? _expansionBuilder;</span>
 <span id="L188"><span class="lineNum">     188</span>              :   late final void Function(T)? _onRowPressed;</span>
-<span id="L189"><span class="lineNum">     189</span>              :   late final ValueChanged&lt;List&lt;T&gt;&gt;? _onSelectionChanged;</span>
+<span id="L189"><span class="lineNum">     189</span>              :   late final ValueChanged&lt;Set&lt;T&gt;&gt;? _onSelectionChanged;</span>
 <span id="L190"><span class="lineNum">     190</span>              :   late final OperanceDataDecoration _decoration;</span>
 <span id="L191"><span class="lineNum">     191</span>              :   late final PageData&lt;T&gt; _initialPage;</span>
 <span id="L192"><span class="lineNum">     192</span>              :   late final int _currentPageIndex;</span>
@@ -366,7 +366,7 @@
 <span id="L304"><span class="lineNum">     304</span> <span class="tlaGNC">           2 :     final ui = _decoration.ui;</span></span>
 <span id="L305"><span class="lineNum">     305</span> <span class="tlaGNC">           1 :     final searchPosition = ui.searchPosition;</span></span>
 <span id="L306"><span class="lineNum">     306</span>              : </span>
-<span id="L307"><span class="lineNum">     307</span> <span class="tlaGNC">           1 :     return OperanceDataControllerProvider(</span></span>
+<span id="L307"><span class="lineNum">     307</span> <span class="tlaGNC">           1 :     return OperanceDataControllerProvider&lt;T&gt;(</span></span>
 <span id="L308"><span class="lineNum">     308</span> <span class="tlaGNC">           1 :       controller: _controller,</span></span>
 <span id="L309"><span class="lineNum">     309</span> <span class="tlaGNC">           1 :       child: OperanceDataDecorationProvider(</span></span>
 <span id="L310"><span class="lineNum">     310</span> <span class="tlaGNC">           1 :         decoration: _decoration,</span></span>
@@ -442,349 +442,329 @@
 <span id="L380"><span class="lineNum">     380</span> <span class="tlaGNC">           1 :                                 columns: _columns,</span></span>
 <span id="L381"><span class="lineNum">     381</span>              :                                 tableWidth: availableWidth,</span>
 <span id="L382"><span class="lineNum">     382</span> <span class="tlaGNC">           1 :                                 trailing: _columnHeaderTrailingActions,</span></span>
-<span id="L383"><span class="lineNum">     383</span> <span class="tlaGNC">           1 :                                 onChecked: (value) {</span></span>
-<span id="L384"><span class="lineNum">     384</span> <span class="tlaGNC">           2 :                                   _controller.toggleAllSelectedRows(</span></span>
-<span id="L385"><span class="lineNum">     385</span>              :                                       isSelected: value);</span>
-<span id="L386"><span class="lineNum">     386</span> <span class="tlaGNC">           1 :                                   _onSelectionChanged</span></span>
-<span id="L387"><span class="lineNum">     387</span> <span class="tlaGNC">           3 :                                       ?.call(_selectedRows.toList());</span></span>
-<span id="L388"><span class="lineNum">     388</span>              :                                 },</span>
-<span id="L389"><span class="lineNum">     389</span> <span class="tlaGNC">           2 :                                 onColumnDragged: _controller.reOrderColumn,</span></span>
-<span id="L390"><span class="lineNum">     390</span> <span class="tlaGNC">           2 :                                 onSort: _controller.setSort,</span></span>
-<span id="L391"><span class="lineNum">     391</span> <span class="tlaGNC">           2 :                                 sorts: _controller.sorts,</span></span>
-<span id="L392"><span class="lineNum">     392</span> <span class="tlaGNC">           1 :                                 currentRows: _currentRows,</span></span>
-<span id="L393"><span class="lineNum">     393</span> <span class="tlaGNC">           1 :                                 selectedRows: _selectedRows,</span></span>
-<span id="L394"><span class="lineNum">     394</span> <span class="tlaGNC">           1 :                                 decoration: _decoration,</span></span>
-<span id="L395"><span class="lineNum">     395</span> <span class="tlaGNC">           1 :                                 allowColumnReorder: _allowColumnReorder,</span></span>
-<span id="L396"><span class="lineNum">     396</span> <span class="tlaGNC">           1 :                                 expandable: _expandable,</span></span>
-<span id="L397"><span class="lineNum">     397</span> <span class="tlaGNC">           1 :                                 selectable: _selectable,</span></span>
-<span id="L398"><span class="lineNum">     398</span>              :                               ),</span>
-<span id="L399"><span class="lineNum">     399</span> <span class="tlaGNC">           1 :                             Expanded(</span></span>
-<span id="L400"><span class="lineNum">     400</span> <span class="tlaGNC">           1 :                               child: ConstrainedBox(</span></span>
-<span id="L401"><span class="lineNum">     401</span> <span class="tlaGNC">           1 :                                 constraints: BoxConstraints(</span></span>
-<span id="L402"><span class="lineNum">     402</span> <span class="tlaGNC">           1 :                                   maxWidth: constraints.maxWidth,</span></span>
-<span id="L403"><span class="lineNum">     403</span>              :                                 ),</span>
-<span id="L404"><span class="lineNum">     404</span> <span class="tlaGNC">           1 :                                 child: Builder(</span></span>
-<span id="L405"><span class="lineNum">     405</span> <span class="tlaGNC">           1 :                                   builder: (context) {</span></span>
-<span id="L406"><span class="lineNum">     406</span> <span class="tlaGNC">           2 :                                     if (!_controller.isLoading &amp;&amp;</span></span>
-<span id="L407"><span class="lineNum">     407</span> <span class="tlaGNC">           2 :                                         _currentRows.isEmpty &amp;&amp;</span></span>
-<span id="L408"><span class="lineNum">     408</span> <span class="tlaGNC">           1 :                                         _emptyStateBuilder != null) {</span></span>
-<span id="L409"><span class="lineNum">     409</span> <span class="tlaGNC">           2 :                                       return _emptyStateBuilder.call(context);</span></span>
-<span id="L410"><span class="lineNum">     410</span>              :                                     }</span>
-<span id="L411"><span class="lineNum">     411</span>              : </span>
-<span id="L412"><span class="lineNum">     412</span> <span class="tlaGNC">           2 :                                     var itemCount = _activeRows.length;</span></span>
-<span id="L413"><span class="lineNum">     413</span> <span class="tlaGNC">           1 :                                     final rowHeight = sizes.rowHeight;</span></span>
-<span id="L414"><span class="lineNum">     414</span>              : </span>
-<span id="L415"><span class="lineNum">     415</span> <span class="tlaGNC">           1 :                                     if (_showEmptyRows &amp;&amp;</span></span>
-<span id="L416"><span class="lineNum">     416</span> <span class="tlaGNC">           2 :                                         (itemCount &lt; tableHeight / rowHeight)) {</span></span>
-<span id="L417"><span class="lineNum">     417</span>              :                                       final emptyRows =</span>
-<span id="L418"><span class="lineNum">     418</span> <span class="tlaGNC">           2 :                                           tableHeight / rowHeight - itemCount;</span></span>
-<span id="L419"><span class="lineNum">     419</span>              : </span>
-<span id="L420"><span class="lineNum">     420</span> <span class="tlaGNC">           2 :                                       itemCount += emptyRows.toInt();</span></span>
-<span id="L421"><span class="lineNum">     421</span>              :                                     }</span>
-<span id="L422"><span class="lineNum">     422</span>              : </span>
-<span id="L423"><span class="lineNum">     423</span> <span class="tlaGNC">           1 :                                     return Stack(</span></span>
-<span id="L424"><span class="lineNum">     424</span> <span class="tlaGNC">           1 :                                       children: &lt;Widget&gt;[</span></span>
-<span id="L425"><span class="lineNum">     425</span> <span class="tlaGNC">           1 :                                         ListView.separated(</span></span>
-<span id="L426"><span class="lineNum">     426</span> <span class="tlaGNC">           1 :                                           controller: _verticalScrollController,</span></span>
-<span id="L427"><span class="lineNum">     427</span>              :                                           shrinkWrap: true,</span>
-<span id="L428"><span class="lineNum">     428</span>              :                                           itemCount: itemCount,</span>
-<span id="L429"><span class="lineNum">     429</span> <span class="tlaGNC">           1 :                                           itemBuilder: (context, index) {</span></span>
-<span id="L430"><span class="lineNum">     430</span> <span class="tlaGNC">           3 :                                             if (index &gt;= _activeRows.length) {</span></span>
-<span id="L431"><span class="lineNum">     431</span> <span class="tlaGNC">           1 :                                               return Container(</span></span>
-<span id="L432"><span class="lineNum">     432</span> <span class="tlaGNC">           1 :                                                 height: sizes.rowHeight,</span></span>
-<span id="L433"><span class="lineNum">     433</span> <span class="tlaGNC">           1 :                                                 color: colors.rowColor,</span></span>
-<span id="L434"><span class="lineNum">     434</span>              :                                               );</span>
-<span id="L435"><span class="lineNum">     435</span>              :                                             }</span>
-<span id="L436"><span class="lineNum">     436</span>              : </span>
-<span id="L437"><span class="lineNum">     437</span> <span class="tlaGNC">           1 :                                             return OperanceDataRow(</span></span>
-<span id="L438"><span class="lineNum">     438</span> <span class="tlaGNC">           3 :                                               key: ValueKey(_activeRows[index]),</span></span>
-<span id="L439"><span class="lineNum">     439</span> <span class="tlaGNC">           1 :                                               columnOrder: _columnOrder,</span></span>
-<span id="L440"><span class="lineNum">     440</span> <span class="tlaGNC">           1 :                                               columns: _columns,</span></span>
-<span id="L441"><span class="lineNum">     441</span> <span class="tlaGNC">           2 :                                               row: _activeRows[index],</span></span>
-<span id="L442"><span class="lineNum">     442</span>              :                                               index: index,</span>
-<span id="L443"><span class="lineNum">     443</span>              :                                               tableWidth: availableWidth,</span>
-<span id="L444"><span class="lineNum">     444</span> <span class="tlaGNC">           1 :                                               onEnter: (_) {</span></span>
-<span id="L445"><span class="lineNum">     445</span> <span class="tlaGNC">           1 :                                                 _controller</span></span>
-<span id="L446"><span class="lineNum">     446</span> <span class="tlaGNC">           1 :                                                     .setHoveredRowIndex(index);</span></span>
-<span id="L447"><span class="lineNum">     447</span>              :                                               },</span>
-<span id="L448"><span class="lineNum">     448</span> <span class="tlaGNC">           1 :                                               onExit: (_) {</span></span>
-<span id="L449"><span class="lineNum">     449</span> <span class="tlaGNC">           1 :                                                 _controller</span></span>
-<span id="L450"><span class="lineNum">     450</span> <span class="tlaGNC">           1 :                                                     .clearHoveredRowIndex();</span></span>
-<span id="L451"><span class="lineNum">     451</span>              :                                               },</span>
-<span id="L452"><span class="lineNum">     452</span> <span class="tlaGNC">           1 :                                               onExpanded: _expandable</span></span>
-<span id="L453"><span class="lineNum">     453</span> <span class="tlaGNC">           1 :                                                   ? _controller</span></span>
-<span id="L454"><span class="lineNum">     454</span> <span class="tlaGNC">           1 :                                                       .toggleExpandedRow</span></span>
-<span id="L455"><span class="lineNum">     455</span>              :                                                   : null,</span>
-<span id="L456"><span class="lineNum">     456</span>              :                                               expansionBuilder:</span>
-<span id="L457"><span class="lineNum">     457</span> <span class="tlaGNC">           1 :                                                   _expansionBuilder,</span></span>
-<span id="L458"><span class="lineNum">     458</span> <span class="tlaGNC">           1 :                                               onChecked: _selectable</span></span>
-<span id="L459"><span class="lineNum">     459</span> <span class="tlaGNC">           1 :                                                   ? (index, {isSelected}) {</span></span>
-<span id="L460"><span class="lineNum">     460</span> <span class="tlaGNC">           1 :                                                       _controller</span></span>
-<span id="L461"><span class="lineNum">     461</span> <span class="tlaGNC">           1 :                                                           .toggleSelectedRow(</span></span>
-<span id="L462"><span class="lineNum">     462</span> <span class="tlaGNC">           2 :                                                         _activeRows[index],</span></span>
-<span id="L463"><span class="lineNum">     463</span>              :                                                       );</span>
-<span id="L464"><span class="lineNum">     464</span> <span class="tlaGNC">           2 :                                                       _onSelectionChanged?.call(</span></span>
-<span id="L465"><span class="lineNum">     465</span> <span class="tlaGNC">           2 :                                                         _selectedRows.toList(),</span></span>
-<span id="L466"><span class="lineNum">     466</span>              :                                                       );</span>
-<span id="L467"><span class="lineNum">     467</span>              :                                                     }</span>
-<span id="L468"><span class="lineNum">     468</span>              :                                                   : null,</span>
-<span id="L469"><span class="lineNum">     469</span> <span class="tlaGNC">           1 :                                               onRowPressed: _onRowPressed,</span></span>
-<span id="L470"><span class="lineNum">     470</span> <span class="tlaGNC">           1 :                                               decoration: _decoration,</span></span>
-<span id="L471"><span class="lineNum">     471</span> <span class="tlaGNC">           1 :                                               isHovered: _isHovered(index),</span></span>
-<span id="L472"><span class="lineNum">     472</span> <span class="tlaGNC">           1 :                                               isSelected: _isSelected(index),</span></span>
-<span id="L473"><span class="lineNum">     473</span> <span class="tlaGNC">           1 :                                               isExpanded: _isExpanded(index),</span></span>
-<span id="L474"><span class="lineNum">     474</span> <span class="tlaGNC">           1 :                                               showExpansionIcon: _expandable,</span></span>
-<span id="L475"><span class="lineNum">     475</span> <span class="tlaGNC">           1 :                                               showCheckbox: _selectable,</span></span>
-<span id="L476"><span class="lineNum">     476</span>              :                                             );</span>
-<span id="L477"><span class="lineNum">     477</span>              :                                           },</span>
-<span id="L478"><span class="lineNum">     478</span> <span class="tlaGNC">           1 :                                           separatorBuilder: (context, index) {</span></span>
-<span id="L479"><span class="lineNum">     479</span> <span class="tlaGNC">           1 :                                             if (!ui.rowDividerEnabled) {</span></span>
-<span id="L480"><span class="lineNum">     480</span>              :                                               return const SizedBox();</span>
-<span id="L481"><span class="lineNum">     481</span>              :                                             }</span>
-<span id="L482"><span class="lineNum">     482</span>              : </span>
-<span id="L483"><span class="lineNum">     483</span> <span class="tlaGNC">           1 :                                             return Divider(</span></span>
-<span id="L484"><span class="lineNum">     484</span> <span class="tlaGNC">           1 :                                               height: sizes.rowDividerHeight,</span></span>
-<span id="L485"><span class="lineNum">     485</span>              :                                               thickness:</span>
-<span id="L486"><span class="lineNum">     486</span> <span class="tlaGNC">           1 :                                                   sizes.rowDividerThickness,</span></span>
-<span id="L487"><span class="lineNum">     487</span> <span class="tlaGNC">           1 :                                               color: colors.rowDividerColor,</span></span>
-<span id="L488"><span class="lineNum">     488</span> <span class="tlaGNC">           1 :                                               indent: sizes.rowDividerIndent,</span></span>
-<span id="L489"><span class="lineNum">     489</span>              :                                               endIndent:</span>
-<span id="L490"><span class="lineNum">     490</span> <span class="tlaGNC">           1 :                                                   sizes.rowDividerEndIndent,</span></span>
-<span id="L491"><span class="lineNum">     491</span>              :                                             );</span>
-<span id="L492"><span class="lineNum">     492</span>              :                                           },</span>
-<span id="L493"><span class="lineNum">     493</span>              :                                         ),</span>
-<span id="L494"><span class="lineNum">     494</span> <span class="tlaGNC">           2 :                                         if (_controller.isLoading)</span></span>
-<span id="L495"><span class="lineNum">     495</span> <span class="tlaGNC">           1 :                                           _loadingStateBuilder != null</span></span>
-<span id="L496"><span class="lineNum">     496</span> <span class="tlaGNC">           2 :                                               ? _loadingStateBuilder</span></span>
-<span id="L497"><span class="lineNum">     497</span> <span class="tlaGNC">           1 :                                                   .call(context)</span></span>
-<span id="L498"><span class="lineNum">     498</span> <span class="tlaGNC">           1 :                                               : LinearProgressIndicator(</span></span>
-<span id="L499"><span class="lineNum">     499</span>              :                                                   backgroundColor: colors</span>
-<span id="L500"><span class="lineNum">     500</span> <span class="tlaGNC">           1 :                                                       .loadingBackgroundColor,</span></span>
-<span id="L501"><span class="lineNum">     501</span>              :                                                   valueColor:</span>
-<span id="L502"><span class="lineNum">     502</span> <span class="tlaGNC">           1 :                                                       AlwaysStoppedAnimation&lt;</span></span>
-<span id="L503"><span class="lineNum">     503</span>              :                                                           Color&gt;(</span>
-<span id="L504"><span class="lineNum">     504</span> <span class="tlaGNC">           1 :                                                     colors.loadingProgressColor,</span></span>
-<span id="L505"><span class="lineNum">     505</span>              :                                                   ),</span>
-<span id="L506"><span class="lineNum">     506</span>              :                                                   minHeight:</span>
-<span id="L507"><span class="lineNum">     507</span> <span class="tlaGNC">           1 :                                                       sizes.loadingHeight,</span></span>
-<span id="L508"><span class="lineNum">     508</span>              :                                                   borderRadius: styles</span>
-<span id="L509"><span class="lineNum">     509</span> <span class="tlaGNC">           1 :                                                       .loadingBorderRadius,</span></span>
-<span id="L510"><span class="lineNum">     510</span>              :                                                 ),</span>
-<span id="L511"><span class="lineNum">     511</span>              :                                       ],</span>
-<span id="L512"><span class="lineNum">     512</span>              :                                     );</span>
-<span id="L513"><span class="lineNum">     513</span>              :                                   },</span>
-<span id="L514"><span class="lineNum">     514</span>              :                                 ),</span>
-<span id="L515"><span class="lineNum">     515</span>              :                               ),</span>
-<span id="L516"><span class="lineNum">     516</span>              :                             ),</span>
-<span id="L517"><span class="lineNum">     517</span>              :                           ],</span>
-<span id="L518"><span class="lineNum">     518</span>              :                         ),</span>
-<span id="L519"><span class="lineNum">     519</span>              :                       ),</span>
-<span id="L520"><span class="lineNum">     520</span>              :                     ),</span>
-<span id="L521"><span class="lineNum">     521</span>              :                   ),</span>
-<span id="L522"><span class="lineNum">     522</span>              :                   // ------------------------------ Footer ---------------------</span>
-<span id="L523"><span class="lineNum">     523</span> <span class="tlaGNC">           2 :                   if (_showFooter &amp;&amp; !_infiniteScroll)</span></span>
-<span id="L524"><span class="lineNum">     524</span> <span class="tlaGNC">           1 :                     Container(</span></span>
-<span id="L525"><span class="lineNum">     525</span> <span class="tlaGNC">           1 :                       padding: EdgeInsets.symmetric(</span></span>
-<span id="L526"><span class="lineNum">     526</span> <span class="tlaGNC">           1 :                         horizontal: sizes.footerHorizontalPadding,</span></span>
-<span id="L527"><span class="lineNum">     527</span>              :                       ),</span>
-<span id="L528"><span class="lineNum">     528</span> <span class="tlaGNC">           1 :                       decoration: styles.footerDecoration,</span></span>
-<span id="L529"><span class="lineNum">     529</span> <span class="tlaGNC">           1 :                       height: sizes.footerHeight,</span></span>
-<span id="L530"><span class="lineNum">     530</span> <span class="tlaGNC">           1 :                       child: Row(</span></span>
-<span id="L531"><span class="lineNum">     531</span>              :                         mainAxisAlignment: MainAxisAlignment.spaceBetween,</span>
-<span id="L532"><span class="lineNum">     532</span> <span class="tlaGNC">           1 :                         children: &lt;Widget&gt;[</span></span>
-<span id="L533"><span class="lineNum">     533</span> <span class="tlaGNC">           1 :                           _showRowsPerPageOptions</span></span>
-<span id="L534"><span class="lineNum">     534</span> <span class="tlaGNC">           1 :                               ? Row(</span></span>
-<span id="L535"><span class="lineNum">     535</span> <span class="tlaGNC">           1 :                                   children: &lt;Widget&gt;[</span></span>
-<span id="L536"><span class="lineNum">     536</span> <span class="tlaGNC">           1 :                                     Text(</span></span>
-<span id="L537"><span class="lineNum">     537</span> <span class="tlaGNC">           1 :                                       ui.rowsPerPageText,</span></span>
-<span id="L538"><span class="lineNum">     538</span> <span class="tlaGNC">           1 :                                       style: styles.rowsPerPageTextStyle,</span></span>
+<span id="L383"><span class="lineNum">     383</span> <span class="tlaGNC">           1 :                                 onChecked: _onSelectionChanged,</span></span>
+<span id="L384"><span class="lineNum">     384</span> <span class="tlaGNC">           2 :                                 onColumnDragged: _controller.reOrderColumn,</span></span>
+<span id="L385"><span class="lineNum">     385</span> <span class="tlaGNC">           2 :                                 onSort: _controller.setSort,</span></span>
+<span id="L386"><span class="lineNum">     386</span> <span class="tlaGNC">           2 :                                 sorts: _controller.sorts,</span></span>
+<span id="L387"><span class="lineNum">     387</span> <span class="tlaGNC">           1 :                                 currentRows: _currentRows,</span></span>
+<span id="L388"><span class="lineNum">     388</span> <span class="tlaGNC">           1 :                                 decoration: _decoration,</span></span>
+<span id="L389"><span class="lineNum">     389</span> <span class="tlaGNC">           1 :                                 allowColumnReorder: _allowColumnReorder,</span></span>
+<span id="L390"><span class="lineNum">     390</span> <span class="tlaGNC">           1 :                                 expandable: _expandable,</span></span>
+<span id="L391"><span class="lineNum">     391</span> <span class="tlaGNC">           1 :                                 selectable: _selectable,</span></span>
+<span id="L392"><span class="lineNum">     392</span>              :                               ),</span>
+<span id="L393"><span class="lineNum">     393</span> <span class="tlaGNC">           1 :                             Expanded(</span></span>
+<span id="L394"><span class="lineNum">     394</span> <span class="tlaGNC">           1 :                               child: ConstrainedBox(</span></span>
+<span id="L395"><span class="lineNum">     395</span> <span class="tlaGNC">           1 :                                 constraints: BoxConstraints(</span></span>
+<span id="L396"><span class="lineNum">     396</span> <span class="tlaGNC">           1 :                                   maxWidth: constraints.maxWidth,</span></span>
+<span id="L397"><span class="lineNum">     397</span>              :                                 ),</span>
+<span id="L398"><span class="lineNum">     398</span> <span class="tlaGNC">           1 :                                 child: Builder(</span></span>
+<span id="L399"><span class="lineNum">     399</span> <span class="tlaGNC">           1 :                                   builder: (context) {</span></span>
+<span id="L400"><span class="lineNum">     400</span> <span class="tlaGNC">           2 :                                     if (!_controller.isLoading &amp;&amp;</span></span>
+<span id="L401"><span class="lineNum">     401</span> <span class="tlaGNC">           2 :                                         _currentRows.isEmpty &amp;&amp;</span></span>
+<span id="L402"><span class="lineNum">     402</span> <span class="tlaGNC">           1 :                                         _emptyStateBuilder != null) {</span></span>
+<span id="L403"><span class="lineNum">     403</span> <span class="tlaGNC">           2 :                                       return _emptyStateBuilder.call(context);</span></span>
+<span id="L404"><span class="lineNum">     404</span>              :                                     }</span>
+<span id="L405"><span class="lineNum">     405</span>              : </span>
+<span id="L406"><span class="lineNum">     406</span> <span class="tlaGNC">           2 :                                     var itemCount = _activeRows.length;</span></span>
+<span id="L407"><span class="lineNum">     407</span> <span class="tlaGNC">           1 :                                     final rowHeight = sizes.rowHeight;</span></span>
+<span id="L408"><span class="lineNum">     408</span>              : </span>
+<span id="L409"><span class="lineNum">     409</span> <span class="tlaGNC">           1 :                                     if (_showEmptyRows &amp;&amp;</span></span>
+<span id="L410"><span class="lineNum">     410</span> <span class="tlaGNC">           2 :                                         (itemCount &lt; tableHeight / rowHeight)) {</span></span>
+<span id="L411"><span class="lineNum">     411</span>              :                                       final emptyRows =</span>
+<span id="L412"><span class="lineNum">     412</span> <span class="tlaGNC">           2 :                                           tableHeight / rowHeight - itemCount;</span></span>
+<span id="L413"><span class="lineNum">     413</span>              : </span>
+<span id="L414"><span class="lineNum">     414</span> <span class="tlaGNC">           2 :                                       itemCount += emptyRows.toInt();</span></span>
+<span id="L415"><span class="lineNum">     415</span>              :                                     }</span>
+<span id="L416"><span class="lineNum">     416</span>              : </span>
+<span id="L417"><span class="lineNum">     417</span> <span class="tlaGNC">           1 :                                     return Stack(</span></span>
+<span id="L418"><span class="lineNum">     418</span> <span class="tlaGNC">           1 :                                       children: &lt;Widget&gt;[</span></span>
+<span id="L419"><span class="lineNum">     419</span> <span class="tlaGNC">           1 :                                         ListView.separated(</span></span>
+<span id="L420"><span class="lineNum">     420</span> <span class="tlaGNC">           1 :                                           controller: _verticalScrollController,</span></span>
+<span id="L421"><span class="lineNum">     421</span>              :                                           shrinkWrap: true,</span>
+<span id="L422"><span class="lineNum">     422</span>              :                                           itemCount: itemCount,</span>
+<span id="L423"><span class="lineNum">     423</span> <span class="tlaGNC">           1 :                                           itemBuilder: (context, index) {</span></span>
+<span id="L424"><span class="lineNum">     424</span> <span class="tlaGNC">           3 :                                             if (index &gt;= _activeRows.length) {</span></span>
+<span id="L425"><span class="lineNum">     425</span> <span class="tlaGNC">           1 :                                               return Container(</span></span>
+<span id="L426"><span class="lineNum">     426</span> <span class="tlaGNC">           1 :                                                 height: sizes.rowHeight,</span></span>
+<span id="L427"><span class="lineNum">     427</span> <span class="tlaGNC">           1 :                                                 color: colors.rowColor,</span></span>
+<span id="L428"><span class="lineNum">     428</span>              :                                               );</span>
+<span id="L429"><span class="lineNum">     429</span>              :                                             }</span>
+<span id="L430"><span class="lineNum">     430</span>              : </span>
+<span id="L431"><span class="lineNum">     431</span> <span class="tlaGNC">           1 :                                             return OperanceDataRow&lt;T&gt;(</span></span>
+<span id="L432"><span class="lineNum">     432</span> <span class="tlaGNC">           3 :                                               key: ValueKey(_activeRows[index]),</span></span>
+<span id="L433"><span class="lineNum">     433</span> <span class="tlaGNC">           1 :                                               columnOrder: _columnOrder,</span></span>
+<span id="L434"><span class="lineNum">     434</span> <span class="tlaGNC">           1 :                                               columns: _columns,</span></span>
+<span id="L435"><span class="lineNum">     435</span> <span class="tlaGNC">           2 :                                               row: _activeRows[index],</span></span>
+<span id="L436"><span class="lineNum">     436</span>              :                                               index: index,</span>
+<span id="L437"><span class="lineNum">     437</span>              :                                               tableWidth: availableWidth,</span>
+<span id="L438"><span class="lineNum">     438</span> <span class="tlaGNC">           1 :                                               onEnter: (_) {</span></span>
+<span id="L439"><span class="lineNum">     439</span> <span class="tlaGNC">           1 :                                                 _controller</span></span>
+<span id="L440"><span class="lineNum">     440</span> <span class="tlaGNC">           1 :                                                     .setHoveredRowIndex(index);</span></span>
+<span id="L441"><span class="lineNum">     441</span>              :                                               },</span>
+<span id="L442"><span class="lineNum">     442</span> <span class="tlaGNC">           1 :                                               onExit: (_) {</span></span>
+<span id="L443"><span class="lineNum">     443</span> <span class="tlaGNC">           1 :                                                 _controller</span></span>
+<span id="L444"><span class="lineNum">     444</span> <span class="tlaGNC">           1 :                                                     .clearHoveredRowIndex();</span></span>
+<span id="L445"><span class="lineNum">     445</span>              :                                               },</span>
+<span id="L446"><span class="lineNum">     446</span> <span class="tlaGNC">           1 :                                               onExpanded: _expandable</span></span>
+<span id="L447"><span class="lineNum">     447</span> <span class="tlaGNC">           1 :                                                   ? _controller</span></span>
+<span id="L448"><span class="lineNum">     448</span> <span class="tlaGNC">           1 :                                                       .toggleExpandedRow</span></span>
+<span id="L449"><span class="lineNum">     449</span>              :                                                   : null,</span>
+<span id="L450"><span class="lineNum">     450</span>              :                                               expansionBuilder:</span>
+<span id="L451"><span class="lineNum">     451</span> <span class="tlaGNC">           1 :                                                   _expansionBuilder,</span></span>
+<span id="L452"><span class="lineNum">     452</span> <span class="tlaGNC">           1 :                                               onChecked: _onSelectionChanged,</span></span>
+<span id="L453"><span class="lineNum">     453</span> <span class="tlaGNC">           1 :                                               onRowPressed: _onRowPressed,</span></span>
+<span id="L454"><span class="lineNum">     454</span> <span class="tlaGNC">           1 :                                               decoration: _decoration,</span></span>
+<span id="L455"><span class="lineNum">     455</span> <span class="tlaGNC">           1 :                                               isHovered: _isHovered(index),</span></span>
+<span id="L456"><span class="lineNum">     456</span> <span class="tlaGNC">           1 :                                               isExpanded: _isExpanded(index),</span></span>
+<span id="L457"><span class="lineNum">     457</span> <span class="tlaGNC">           1 :                                               showExpansionIcon: _expandable,</span></span>
+<span id="L458"><span class="lineNum">     458</span> <span class="tlaGNC">           1 :                                               showCheckbox: _selectable,</span></span>
+<span id="L459"><span class="lineNum">     459</span>              :                                             );</span>
+<span id="L460"><span class="lineNum">     460</span>              :                                           },</span>
+<span id="L461"><span class="lineNum">     461</span> <span class="tlaGNC">           1 :                                           separatorBuilder: (context, index) {</span></span>
+<span id="L462"><span class="lineNum">     462</span> <span class="tlaGNC">           1 :                                             if (!ui.rowDividerEnabled) {</span></span>
+<span id="L463"><span class="lineNum">     463</span>              :                                               return const SizedBox();</span>
+<span id="L464"><span class="lineNum">     464</span>              :                                             }</span>
+<span id="L465"><span class="lineNum">     465</span>              : </span>
+<span id="L466"><span class="lineNum">     466</span> <span class="tlaGNC">           1 :                                             return Divider(</span></span>
+<span id="L467"><span class="lineNum">     467</span> <span class="tlaGNC">           1 :                                               height: sizes.rowDividerHeight,</span></span>
+<span id="L468"><span class="lineNum">     468</span>              :                                               thickness:</span>
+<span id="L469"><span class="lineNum">     469</span> <span class="tlaGNC">           1 :                                                   sizes.rowDividerThickness,</span></span>
+<span id="L470"><span class="lineNum">     470</span> <span class="tlaGNC">           1 :                                               color: colors.rowDividerColor,</span></span>
+<span id="L471"><span class="lineNum">     471</span> <span class="tlaGNC">           1 :                                               indent: sizes.rowDividerIndent,</span></span>
+<span id="L472"><span class="lineNum">     472</span>              :                                               endIndent:</span>
+<span id="L473"><span class="lineNum">     473</span> <span class="tlaGNC">           1 :                                                   sizes.rowDividerEndIndent,</span></span>
+<span id="L474"><span class="lineNum">     474</span>              :                                             );</span>
+<span id="L475"><span class="lineNum">     475</span>              :                                           },</span>
+<span id="L476"><span class="lineNum">     476</span>              :                                         ),</span>
+<span id="L477"><span class="lineNum">     477</span> <span class="tlaGNC">           2 :                                         if (_controller.isLoading)</span></span>
+<span id="L478"><span class="lineNum">     478</span> <span class="tlaGNC">           1 :                                           _loadingStateBuilder != null</span></span>
+<span id="L479"><span class="lineNum">     479</span> <span class="tlaGNC">           2 :                                               ? _loadingStateBuilder</span></span>
+<span id="L480"><span class="lineNum">     480</span> <span class="tlaGNC">           1 :                                                   .call(context)</span></span>
+<span id="L481"><span class="lineNum">     481</span> <span class="tlaGNC">           1 :                                               : LinearProgressIndicator(</span></span>
+<span id="L482"><span class="lineNum">     482</span>              :                                                   backgroundColor: colors</span>
+<span id="L483"><span class="lineNum">     483</span> <span class="tlaGNC">           1 :                                                       .loadingBackgroundColor,</span></span>
+<span id="L484"><span class="lineNum">     484</span>              :                                                   valueColor:</span>
+<span id="L485"><span class="lineNum">     485</span> <span class="tlaGNC">           1 :                                                       AlwaysStoppedAnimation&lt;</span></span>
+<span id="L486"><span class="lineNum">     486</span>              :                                                           Color&gt;(</span>
+<span id="L487"><span class="lineNum">     487</span> <span class="tlaGNC">           1 :                                                     colors.loadingProgressColor,</span></span>
+<span id="L488"><span class="lineNum">     488</span>              :                                                   ),</span>
+<span id="L489"><span class="lineNum">     489</span>              :                                                   minHeight:</span>
+<span id="L490"><span class="lineNum">     490</span> <span class="tlaGNC">           1 :                                                       sizes.loadingHeight,</span></span>
+<span id="L491"><span class="lineNum">     491</span>              :                                                   borderRadius: styles</span>
+<span id="L492"><span class="lineNum">     492</span> <span class="tlaGNC">           1 :                                                       .loadingBorderRadius,</span></span>
+<span id="L493"><span class="lineNum">     493</span>              :                                                 ),</span>
+<span id="L494"><span class="lineNum">     494</span>              :                                       ],</span>
+<span id="L495"><span class="lineNum">     495</span>              :                                     );</span>
+<span id="L496"><span class="lineNum">     496</span>              :                                   },</span>
+<span id="L497"><span class="lineNum">     497</span>              :                                 ),</span>
+<span id="L498"><span class="lineNum">     498</span>              :                               ),</span>
+<span id="L499"><span class="lineNum">     499</span>              :                             ),</span>
+<span id="L500"><span class="lineNum">     500</span>              :                           ],</span>
+<span id="L501"><span class="lineNum">     501</span>              :                         ),</span>
+<span id="L502"><span class="lineNum">     502</span>              :                       ),</span>
+<span id="L503"><span class="lineNum">     503</span>              :                     ),</span>
+<span id="L504"><span class="lineNum">     504</span>              :                   ),</span>
+<span id="L505"><span class="lineNum">     505</span>              :                   // ------------------------------ Footer ---------------------</span>
+<span id="L506"><span class="lineNum">     506</span> <span class="tlaGNC">           2 :                   if (_showFooter &amp;&amp; !_infiniteScroll)</span></span>
+<span id="L507"><span class="lineNum">     507</span> <span class="tlaGNC">           1 :                     Container(</span></span>
+<span id="L508"><span class="lineNum">     508</span> <span class="tlaGNC">           1 :                       padding: EdgeInsets.symmetric(</span></span>
+<span id="L509"><span class="lineNum">     509</span> <span class="tlaGNC">           1 :                         horizontal: sizes.footerHorizontalPadding,</span></span>
+<span id="L510"><span class="lineNum">     510</span>              :                       ),</span>
+<span id="L511"><span class="lineNum">     511</span> <span class="tlaGNC">           1 :                       decoration: styles.footerDecoration,</span></span>
+<span id="L512"><span class="lineNum">     512</span> <span class="tlaGNC">           1 :                       height: sizes.footerHeight,</span></span>
+<span id="L513"><span class="lineNum">     513</span> <span class="tlaGNC">           1 :                       child: Row(</span></span>
+<span id="L514"><span class="lineNum">     514</span>              :                         mainAxisAlignment: MainAxisAlignment.spaceBetween,</span>
+<span id="L515"><span class="lineNum">     515</span> <span class="tlaGNC">           1 :                         children: &lt;Widget&gt;[</span></span>
+<span id="L516"><span class="lineNum">     516</span> <span class="tlaGNC">           1 :                           _showRowsPerPageOptions</span></span>
+<span id="L517"><span class="lineNum">     517</span> <span class="tlaGNC">           1 :                               ? Row(</span></span>
+<span id="L518"><span class="lineNum">     518</span> <span class="tlaGNC">           1 :                                   children: &lt;Widget&gt;[</span></span>
+<span id="L519"><span class="lineNum">     519</span> <span class="tlaGNC">           1 :                                     Text(</span></span>
+<span id="L520"><span class="lineNum">     520</span> <span class="tlaGNC">           1 :                                       ui.rowsPerPageText,</span></span>
+<span id="L521"><span class="lineNum">     521</span> <span class="tlaGNC">           1 :                                       style: styles.rowsPerPageTextStyle,</span></span>
+<span id="L522"><span class="lineNum">     522</span>              :                                     ),</span>
+<span id="L523"><span class="lineNum">     523</span>              :                                     const SizedBox(width: 8.0),</span>
+<span id="L524"><span class="lineNum">     524</span> <span class="tlaGNC">           1 :                                     DropdownButton&lt;int&gt;(</span></span>
+<span id="L525"><span class="lineNum">     525</span> <span class="tlaGNC">           1 :                                       value: _rowsPerPage,</span></span>
+<span id="L526"><span class="lineNum">     526</span> <span class="tlaGNC">           2 :                                       items: ui.rowsPerPageOptions.map(</span></span>
+<span id="L527"><span class="lineNum">     527</span> <span class="tlaGNC">           1 :                                         (value) {</span></span>
+<span id="L528"><span class="lineNum">     528</span> <span class="tlaGNC">           1 :                                           return DropdownMenuItem&lt;int&gt;(</span></span>
+<span id="L529"><span class="lineNum">     529</span>              :                                             value: value,</span>
+<span id="L530"><span class="lineNum">     530</span> <span class="tlaGNC">           2 :                                             child: Text(value.toString()),</span></span>
+<span id="L531"><span class="lineNum">     531</span>              :                                           );</span>
+<span id="L532"><span class="lineNum">     532</span>              :                                         },</span>
+<span id="L533"><span class="lineNum">     533</span> <span class="tlaGNC">           1 :                                       ).toList(),</span></span>
+<span id="L534"><span class="lineNum">     534</span> <span class="tlaGNC">           1 :                                       onChanged: (value) {</span></span>
+<span id="L535"><span class="lineNum">     535</span>              :                                         if (value != null) {</span>
+<span id="L536"><span class="lineNum">     536</span> <span class="tlaGNC">           2 :                                           _controller.setRowsPerPage(value);</span></span>
+<span id="L537"><span class="lineNum">     537</span>              :                                         }</span>
+<span id="L538"><span class="lineNum">     538</span>              :                                       },</span>
 <span id="L539"><span class="lineNum">     539</span>              :                                     ),</span>
-<span id="L540"><span class="lineNum">     540</span>              :                                     const SizedBox(width: 8.0),</span>
-<span id="L541"><span class="lineNum">     541</span> <span class="tlaGNC">           1 :                                     DropdownButton&lt;int&gt;(</span></span>
-<span id="L542"><span class="lineNum">     542</span> <span class="tlaGNC">           1 :                                       value: _rowsPerPage,</span></span>
-<span id="L543"><span class="lineNum">     543</span> <span class="tlaGNC">           2 :                                       items: ui.rowsPerPageOptions.map(</span></span>
-<span id="L544"><span class="lineNum">     544</span> <span class="tlaGNC">           1 :                                         (value) {</span></span>
-<span id="L545"><span class="lineNum">     545</span> <span class="tlaGNC">           1 :                                           return DropdownMenuItem&lt;int&gt;(</span></span>
-<span id="L546"><span class="lineNum">     546</span>              :                                             value: value,</span>
-<span id="L547"><span class="lineNum">     547</span> <span class="tlaGNC">           2 :                                             child: Text(value.toString()),</span></span>
-<span id="L548"><span class="lineNum">     548</span>              :                                           );</span>
-<span id="L549"><span class="lineNum">     549</span>              :                                         },</span>
-<span id="L550"><span class="lineNum">     550</span> <span class="tlaGNC">           1 :                                       ).toList(),</span></span>
-<span id="L551"><span class="lineNum">     551</span> <span class="tlaGNC">           1 :                                       onChanged: (value) {</span></span>
-<span id="L552"><span class="lineNum">     552</span>              :                                         if (value != null) {</span>
-<span id="L553"><span class="lineNum">     553</span> <span class="tlaGNC">           2 :                                           _controller.setRowsPerPage(value);</span></span>
-<span id="L554"><span class="lineNum">     554</span>              :                                         }</span>
-<span id="L555"><span class="lineNum">     555</span>              :                                       },</span>
-<span id="L556"><span class="lineNum">     556</span>              :                                     ),</span>
-<span id="L557"><span class="lineNum">     557</span>              :                                   ],</span>
-<span id="L558"><span class="lineNum">     558</span>              :                                 )</span>
-<span id="L559"><span class="lineNum">     559</span>              :                               : const Spacer(),</span>
-<span id="L560"><span class="lineNum">     560</span> <span class="tlaGNC">           1 :                           Row(</span></span>
-<span id="L561"><span class="lineNum">     561</span>              :                             mainAxisAlignment: MainAxisAlignment.center,</span>
-<span id="L562"><span class="lineNum">     562</span> <span class="tlaGNC">           1 :                             children: &lt;Widget&gt;[</span></span>
-<span id="L563"><span class="lineNum">     563</span> <span class="tlaGNC">           1 :                               IconButton(</span></span>
-<span id="L564"><span class="lineNum">     564</span> <span class="tlaGNC">           2 :                                 icon: Icon(icons.previousPageIcon),</span></span>
-<span id="L565"><span class="lineNum">     565</span> <span class="tlaGNC">           2 :                                 onPressed: _controller.canGoPrevious</span></span>
-<span id="L566"><span class="lineNum">     566</span> <span class="tlaUNC tlaBgUNC">           0 :                                     ? _controller.previousPage</span></span>
-<span id="L567"><span class="lineNum">     567</span>              :                                     : null,</span>
-<span id="L568"><span class="lineNum">     568</span>              :                                 splashRadius: 24.0,</span>
-<span id="L569"><span class="lineNum">     569</span>              :                               ),</span>
-<span id="L570"><span class="lineNum">     570</span>              :                               const SizedBox(width: 12.0),</span>
-<span id="L571"><span class="lineNum">     571</span> <span class="tlaGNC tlaBgGNC">           1 :                               IconButton(</span></span>
-<span id="L572"><span class="lineNum">     572</span> <span class="tlaGNC">           2 :                                 icon: Icon(icons.nextPageIcon),</span></span>
-<span id="L573"><span class="lineNum">     573</span> <span class="tlaGNC">           2 :                                 onPressed: _controller.canGoNext ||</span></span>
-<span id="L574"><span class="lineNum">     574</span> <span class="tlaGNC">           2 :                                         _controller.canFetchNext</span></span>
-<span id="L575"><span class="lineNum">     575</span> <span class="tlaGNC">           2 :                                     ? _controller.nextPage</span></span>
-<span id="L576"><span class="lineNum">     576</span>              :                                     : null,</span>
-<span id="L577"><span class="lineNum">     577</span>              :                                 splashRadius: 24.0,</span>
-<span id="L578"><span class="lineNum">     578</span>              :                               ),</span>
-<span id="L579"><span class="lineNum">     579</span>              :                             ],</span>
-<span id="L580"><span class="lineNum">     580</span>              :                           ),</span>
-<span id="L581"><span class="lineNum">     581</span>              :                         ],</span>
-<span id="L582"><span class="lineNum">     582</span>              :                       ),</span>
-<span id="L583"><span class="lineNum">     583</span>              :                     ),</span>
-<span id="L584"><span class="lineNum">     584</span>              :                 ],</span>
-<span id="L585"><span class="lineNum">     585</span>              :               ),</span>
-<span id="L586"><span class="lineNum">     586</span>              :             );</span>
-<span id="L587"><span class="lineNum">     587</span>              :           },</span>
-<span id="L588"><span class="lineNum">     588</span>              :         ),</span>
-<span id="L589"><span class="lineNum">     589</span>              :       ),</span>
-<span id="L590"><span class="lineNum">     590</span>              :     );</span>
-<span id="L591"><span class="lineNum">     591</span>              :   }</span>
-<span id="L592"><span class="lineNum">     592</span>              : </span>
-<span id="L593"><span class="lineNum">     593</span>              :   /// Gets the order of the columns.</span>
-<span id="L594"><span class="lineNum">     594</span> <span class="tlaGNC">           3 :   List&lt;int&gt; get _columnOrder =&gt; _controller.columnOrder;</span></span>
-<span id="L595"><span class="lineNum">     595</span>              : </span>
-<span id="L596"><span class="lineNum">     596</span>              :   /// Gets the current rows being displayed.</span>
-<span id="L597"><span class="lineNum">     597</span> <span class="tlaGNC">           3 :   List&lt;T&gt; get _currentRows =&gt; _controller.currentRows;</span></span>
-<span id="L598"><span class="lineNum">     598</span>              : </span>
-<span id="L599"><span class="lineNum">     599</span>              :   /// Gets the rows that match the search criteria.</span>
-<span id="L600"><span class="lineNum">     600</span> <span class="tlaGNC">           3 :   Set&lt;T&gt; get _searchedRows =&gt; _controller.searchedRows;</span></span>
-<span id="L601"><span class="lineNum">     601</span>              : </span>
-<span id="L602"><span class="lineNum">     602</span>              :   /// Gets the rows that are selected.</span>
-<span id="L603"><span class="lineNum">     603</span> <span class="tlaGNC">           3 :   Set&lt;T&gt; get _selectedRows =&gt; _controller.selectedRows;</span></span>
-<span id="L604"><span class="lineNum">     604</span>              : </span>
-<span id="L605"><span class="lineNum">     605</span>              :   /// Gets the rows that are expanded.</span>
-<span id="L606"><span class="lineNum">     606</span> <span class="tlaGNC">           3 :   Map&lt;int, bool&gt; get _expandedRows =&gt; _controller.expandedRows;</span></span>
-<span id="L607"><span class="lineNum">     607</span>              : </span>
-<span id="L608"><span class="lineNum">     608</span>              :   /// Gets the number of rows per page.</span>
-<span id="L609"><span class="lineNum">     609</span> <span class="tlaGNC">           3 :   int get _rowsPerPage =&gt; _controller.rowsPerPage;</span></span>
-<span id="L610"><span class="lineNum">     610</span>              : </span>
-<span id="L611"><span class="lineNum">     611</span>              :   /// Gets the index of the currently hovered row.</span>
-<span id="L612"><span class="lineNum">     612</span> <span class="tlaGNC">           3 :   int? get _hoveredRowIndex =&gt; _controller.hoveredRowIndex;</span></span>
-<span id="L613"><span class="lineNum">     613</span>              : </span>
-<span id="L614"><span class="lineNum">     614</span>              :   /// Gets the active rows, which are either the searched rows or the current</span>
-<span id="L615"><span class="lineNum">     615</span>              :   /// rows.</span>
-<span id="L616"><span class="lineNum">     616</span> <span class="tlaGNC">           1 :   List&lt;T&gt; get _activeRows {</span></span>
-<span id="L617"><span class="lineNum">     617</span> <span class="tlaGNC">           3 :     return _searchedRows.isNotEmpty ? _searchedRows.toList() : _currentRows;</span></span>
-<span id="L618"><span class="lineNum">     618</span>              :   }</span>
-<span id="L619"><span class="lineNum">     619</span>              : </span>
-<span id="L620"><span class="lineNum">     620</span>              :   /// Calculates the maximum available width of the table.</span>
-<span id="L621"><span class="lineNum">     621</span> <span class="tlaGNC">           1 :   double _tableMaxWidth(double width) {</span></span>
-<span id="L622"><span class="lineNum">     622</span> <span class="tlaGNC">           2 :     final availableWidth = width - _extrasWidth;</span></span>
-<span id="L623"><span class="lineNum">     623</span> <span class="tlaGNC">           3 :     final totalColumnWidth = _columns.fold(0.0, (acc, column) {</span></span>
-<span id="L624"><span class="lineNum">     624</span> <span class="tlaGNC">           3 :       return acc + column.width.value(availableWidth);</span></span>
-<span id="L625"><span class="lineNum">     625</span>              :     });</span>
-<span id="L626"><span class="lineNum">     626</span>              : </span>
-<span id="L627"><span class="lineNum">     627</span> <span class="tlaGNC">           2 :     return totalColumnWidth + _extrasWidth;</span></span>
-<span id="L628"><span class="lineNum">     628</span>              :   }</span>
-<span id="L629"><span class="lineNum">     629</span>              : </span>
-<span id="L630"><span class="lineNum">     630</span> <span class="tlaGNC">           1 :   double get _extrasWidth {</span></span>
-<span id="L631"><span class="lineNum">     631</span> <span class="tlaGNC">           2 :     return (_expandable ? _expansionWidth : 0.0) +</span></span>
-<span id="L632"><span class="lineNum">     632</span> <span class="tlaGNC">           2 :         (_selectable ? _selectionWidth : 0.0) +</span></span>
-<span id="L633"><span class="lineNum">     633</span> <span class="tlaGNC">           3 :         (_columnHeaderTrailingActions.length * 50.0);</span></span>
-<span id="L634"><span class="lineNum">     634</span>              :   }</span>
-<span id="L635"><span class="lineNum">     635</span>              : </span>
-<span id="L636"><span class="lineNum">     636</span>              :   /// Checks if a row is selected.</span>
-<span id="L637"><span class="lineNum">     637</span> <span class="tlaGNC">           5 :   bool _isSelected(int index) =&gt; _selectedRows.contains(_currentRows[index]);</span></span>
-<span id="L638"><span class="lineNum">     638</span>              : </span>
-<span id="L639"><span class="lineNum">     639</span>              :   /// Checks if a row is expanded.</span>
-<span id="L640"><span class="lineNum">     640</span> <span class="tlaGNC">           3 :   bool _isExpanded(int index) =&gt; _expandedRows[index] ?? false;</span></span>
-<span id="L641"><span class="lineNum">     641</span>              : </span>
-<span id="L642"><span class="lineNum">     642</span>              :   /// Checks if a row is hovered.</span>
-<span id="L643"><span class="lineNum">     643</span> <span class="tlaGNC">           3 :   bool _isHovered(int index) =&gt; _hoveredRowIndex == index;</span></span>
-<span id="L644"><span class="lineNum">     644</span>              : </span>
-<span id="L645"><span class="lineNum">     645</span>              :   /// Listener for the controller to update the state.</span>
-<span id="L646"><span class="lineNum">     646</span> <span class="tlaGNC">           1 :   void _controllerListener() {}</span></span>
-<span id="L647"><span class="lineNum">     647</span>              : </span>
-<span id="L648"><span class="lineNum">     648</span>              :   /// Listener for the search field to update the searched rows.</span>
-<span id="L649"><span class="lineNum">     649</span> <span class="tlaGNC">           1 :   void _searchFieldListener() {</span></span>
-<span id="L650"><span class="lineNum">     650</span> <span class="tlaGNC">           3 :     if (_searchFieldController.text.isEmpty) {</span></span>
-<span id="L651"><span class="lineNum">     651</span> <span class="tlaGNC">           2 :       _controller.clearSearchedRows();</span></span>
-<span id="L652"><span class="lineNum">     652</span>              :     } else {</span>
-<span id="L653"><span class="lineNum">     653</span> <span class="tlaGNC">           2 :       final rows = _controller.allRows</span></span>
-<span id="L654"><span class="lineNum">     654</span> <span class="tlaGNC">           1 :           .where(</span></span>
-<span id="L655"><span class="lineNum">     655</span> <span class="tlaGNC">           4 :             (row) =&gt; _columns.any((column) {</span></span>
-<span id="L656"><span class="lineNum">     656</span> <span class="tlaGNC">           1 :               return column.getSearchableValue</span></span>
-<span id="L657"><span class="lineNum">     657</span> <span class="tlaGNC">           1 :                       ?.call(row)</span></span>
-<span id="L658"><span class="lineNum">     658</span> <span class="tlaGNC">           3 :                       .contains(_searchFieldController.text) ??</span></span>
-<span id="L659"><span class="lineNum">     659</span>              :                   false;</span>
-<span id="L660"><span class="lineNum">     660</span>              :             }),</span>
-<span id="L661"><span class="lineNum">     661</span>              :           )</span>
-<span id="L662"><span class="lineNum">     662</span> <span class="tlaGNC">           1 :           .toList();</span></span>
+<span id="L540"><span class="lineNum">     540</span>              :                                   ],</span>
+<span id="L541"><span class="lineNum">     541</span>              :                                 )</span>
+<span id="L542"><span class="lineNum">     542</span>              :                               : const Spacer(),</span>
+<span id="L543"><span class="lineNum">     543</span> <span class="tlaGNC">           1 :                           Row(</span></span>
+<span id="L544"><span class="lineNum">     544</span>              :                             mainAxisAlignment: MainAxisAlignment.center,</span>
+<span id="L545"><span class="lineNum">     545</span> <span class="tlaGNC">           1 :                             children: &lt;Widget&gt;[</span></span>
+<span id="L546"><span class="lineNum">     546</span> <span class="tlaGNC">           1 :                               IconButton(</span></span>
+<span id="L547"><span class="lineNum">     547</span> <span class="tlaGNC">           2 :                                 icon: Icon(icons.previousPageIcon),</span></span>
+<span id="L548"><span class="lineNum">     548</span> <span class="tlaGNC">           2 :                                 onPressed: _controller.canGoPrevious</span></span>
+<span id="L549"><span class="lineNum">     549</span> <span class="tlaUNC">           0 :                                     ? _controller.previousPage</span></span>
+<span id="L550"><span class="lineNum">     550</span>              :                                     : null,</span>
+<span id="L551"><span class="lineNum">     551</span>              :                                 splashRadius: 24.0,</span>
+<span id="L552"><span class="lineNum">     552</span>              :                               ),</span>
+<span id="L553"><span class="lineNum">     553</span>              :                               const SizedBox(width: 12.0),</span>
+<span id="L554"><span class="lineNum">     554</span> <span class="tlaGNC">           1 :                               IconButton(</span></span>
+<span id="L555"><span class="lineNum">     555</span> <span class="tlaGNC">           2 :                                 icon: Icon(icons.nextPageIcon),</span></span>
+<span id="L556"><span class="lineNum">     556</span> <span class="tlaGNC">           2 :                                 onPressed: _controller.canGoNext ||</span></span>
+<span id="L557"><span class="lineNum">     557</span> <span class="tlaGNC">           2 :                                         _controller.canFetchNext</span></span>
+<span id="L558"><span class="lineNum">     558</span> <span class="tlaGNC">           2 :                                     ? _controller.nextPage</span></span>
+<span id="L559"><span class="lineNum">     559</span>              :                                     : null,</span>
+<span id="L560"><span class="lineNum">     560</span>              :                                 splashRadius: 24.0,</span>
+<span id="L561"><span class="lineNum">     561</span>              :                               ),</span>
+<span id="L562"><span class="lineNum">     562</span>              :                             ],</span>
+<span id="L563"><span class="lineNum">     563</span>              :                           ),</span>
+<span id="L564"><span class="lineNum">     564</span>              :                         ],</span>
+<span id="L565"><span class="lineNum">     565</span>              :                       ),</span>
+<span id="L566"><span class="lineNum">     566</span>              :                     ),</span>
+<span id="L567"><span class="lineNum">     567</span>              :                 ],</span>
+<span id="L568"><span class="lineNum">     568</span>              :               ),</span>
+<span id="L569"><span class="lineNum">     569</span>              :             );</span>
+<span id="L570"><span class="lineNum">     570</span>              :           },</span>
+<span id="L571"><span class="lineNum">     571</span>              :         ),</span>
+<span id="L572"><span class="lineNum">     572</span>              :       ),</span>
+<span id="L573"><span class="lineNum">     573</span>              :     );</span>
+<span id="L574"><span class="lineNum">     574</span>              :   }</span>
+<span id="L575"><span class="lineNum">     575</span>              : </span>
+<span id="L576"><span class="lineNum">     576</span>              :   /// Gets the order of the columns.</span>
+<span id="L577"><span class="lineNum">     577</span> <span class="tlaGNC">           3 :   List&lt;int&gt; get _columnOrder =&gt; _controller.columnOrder;</span></span>
+<span id="L578"><span class="lineNum">     578</span>              : </span>
+<span id="L579"><span class="lineNum">     579</span>              :   /// Gets the current rows being displayed.</span>
+<span id="L580"><span class="lineNum">     580</span> <span class="tlaGNC">           3 :   List&lt;T&gt; get _currentRows =&gt; _controller.currentRows;</span></span>
+<span id="L581"><span class="lineNum">     581</span>              : </span>
+<span id="L582"><span class="lineNum">     582</span>              :   /// Gets the rows that match the search criteria.</span>
+<span id="L583"><span class="lineNum">     583</span> <span class="tlaGNC">           3 :   Set&lt;T&gt; get _searchedRows =&gt; _controller.searchedRows;</span></span>
+<span id="L584"><span class="lineNum">     584</span>              : </span>
+<span id="L585"><span class="lineNum">     585</span>              :   /// Gets the rows that are expanded.</span>
+<span id="L586"><span class="lineNum">     586</span> <span class="tlaGNC">           3 :   Map&lt;int, bool&gt; get _expandedRows =&gt; _controller.expandedRows;</span></span>
+<span id="L587"><span class="lineNum">     587</span>              : </span>
+<span id="L588"><span class="lineNum">     588</span>              :   /// Gets the number of rows per page.</span>
+<span id="L589"><span class="lineNum">     589</span> <span class="tlaGNC">           3 :   int get _rowsPerPage =&gt; _controller.rowsPerPage;</span></span>
+<span id="L590"><span class="lineNum">     590</span>              : </span>
+<span id="L591"><span class="lineNum">     591</span>              :   /// Gets the index of the currently hovered row.</span>
+<span id="L592"><span class="lineNum">     592</span> <span class="tlaGNC">           3 :   int? get _hoveredRowIndex =&gt; _controller.hoveredRowIndex;</span></span>
+<span id="L593"><span class="lineNum">     593</span>              : </span>
+<span id="L594"><span class="lineNum">     594</span>              :   /// Gets the active rows, which are either the searched rows or the current</span>
+<span id="L595"><span class="lineNum">     595</span>              :   /// rows.</span>
+<span id="L596"><span class="lineNum">     596</span> <span class="tlaGNC">           1 :   List&lt;T&gt; get _activeRows {</span></span>
+<span id="L597"><span class="lineNum">     597</span> <span class="tlaGNC">           3 :     return _searchedRows.isNotEmpty ? _searchedRows.toList() : _currentRows;</span></span>
+<span id="L598"><span class="lineNum">     598</span>              :   }</span>
+<span id="L599"><span class="lineNum">     599</span>              : </span>
+<span id="L600"><span class="lineNum">     600</span>              :   /// Calculates the maximum available width of the table.</span>
+<span id="L601"><span class="lineNum">     601</span> <span class="tlaGNC">           1 :   double _tableMaxWidth(double width) {</span></span>
+<span id="L602"><span class="lineNum">     602</span> <span class="tlaGNC">           2 :     final availableWidth = width - _extrasWidth;</span></span>
+<span id="L603"><span class="lineNum">     603</span> <span class="tlaGNC">           3 :     final totalColumnWidth = _columns.fold(0.0, (acc, column) {</span></span>
+<span id="L604"><span class="lineNum">     604</span> <span class="tlaGNC">           3 :       return acc + column.width.value(availableWidth);</span></span>
+<span id="L605"><span class="lineNum">     605</span>              :     });</span>
+<span id="L606"><span class="lineNum">     606</span>              : </span>
+<span id="L607"><span class="lineNum">     607</span> <span class="tlaGNC">           2 :     return totalColumnWidth + _extrasWidth;</span></span>
+<span id="L608"><span class="lineNum">     608</span>              :   }</span>
+<span id="L609"><span class="lineNum">     609</span>              : </span>
+<span id="L610"><span class="lineNum">     610</span> <span class="tlaGNC">           1 :   double get _extrasWidth {</span></span>
+<span id="L611"><span class="lineNum">     611</span> <span class="tlaGNC">           2 :     return (_expandable ? _expansionWidth : 0.0) +</span></span>
+<span id="L612"><span class="lineNum">     612</span> <span class="tlaGNC">           2 :         (_selectable ? _selectionWidth : 0.0) +</span></span>
+<span id="L613"><span class="lineNum">     613</span> <span class="tlaGNC">           3 :         (_columnHeaderTrailingActions.length * 50.0);</span></span>
+<span id="L614"><span class="lineNum">     614</span>              :   }</span>
+<span id="L615"><span class="lineNum">     615</span>              : </span>
+<span id="L616"><span class="lineNum">     616</span>              :   /// Checks if a row is selected.</span>
+<span id="L617"><span class="lineNum">     617</span>              :   // bool _isSelected(int index) =&gt; _selectedRows.contains(_currentRows[index]);</span>
+<span id="L618"><span class="lineNum">     618</span>              : </span>
+<span id="L619"><span class="lineNum">     619</span>              :   /// Checks if a row is expanded.</span>
+<span id="L620"><span class="lineNum">     620</span> <span class="tlaGNC">           3 :   bool _isExpanded(int index) =&gt; _expandedRows[index] ?? false;</span></span>
+<span id="L621"><span class="lineNum">     621</span>              : </span>
+<span id="L622"><span class="lineNum">     622</span>              :   /// Checks if a row is hovered.</span>
+<span id="L623"><span class="lineNum">     623</span> <span class="tlaGNC">           3 :   bool _isHovered(int index) =&gt; _hoveredRowIndex == index;</span></span>
+<span id="L624"><span class="lineNum">     624</span>              : </span>
+<span id="L625"><span class="lineNum">     625</span>              :   /// Listener for the controller to update the state.</span>
+<span id="L626"><span class="lineNum">     626</span> <span class="tlaGNC">           1 :   void _controllerListener() {}</span></span>
+<span id="L627"><span class="lineNum">     627</span>              : </span>
+<span id="L628"><span class="lineNum">     628</span>              :   /// Listener for the search field to update the searched rows.</span>
+<span id="L629"><span class="lineNum">     629</span> <span class="tlaGNC">           1 :   void _searchFieldListener() {</span></span>
+<span id="L630"><span class="lineNum">     630</span> <span class="tlaGNC">           3 :     if (_searchFieldController.text.isEmpty) {</span></span>
+<span id="L631"><span class="lineNum">     631</span> <span class="tlaGNC">           2 :       _controller.clearSearchedRows();</span></span>
+<span id="L632"><span class="lineNum">     632</span>              :     } else {</span>
+<span id="L633"><span class="lineNum">     633</span> <span class="tlaGNC">           2 :       final rows = _controller.allRows</span></span>
+<span id="L634"><span class="lineNum">     634</span> <span class="tlaGNC">           1 :           .where(</span></span>
+<span id="L635"><span class="lineNum">     635</span> <span class="tlaGNC">           4 :             (row) =&gt; _columns.any((column) {</span></span>
+<span id="L636"><span class="lineNum">     636</span> <span class="tlaGNC">           1 :               return column.getSearchableValue</span></span>
+<span id="L637"><span class="lineNum">     637</span> <span class="tlaGNC">           1 :                       ?.call(row)</span></span>
+<span id="L638"><span class="lineNum">     638</span> <span class="tlaGNC">           3 :                       .contains(_searchFieldController.text) ??</span></span>
+<span id="L639"><span class="lineNum">     639</span>              :                   false;</span>
+<span id="L640"><span class="lineNum">     640</span>              :             }),</span>
+<span id="L641"><span class="lineNum">     641</span>              :           )</span>
+<span id="L642"><span class="lineNum">     642</span> <span class="tlaGNC">           1 :           .toList();</span></span>
+<span id="L643"><span class="lineNum">     643</span>              : </span>
+<span id="L644"><span class="lineNum">     644</span> <span class="tlaGNC">           4 :       if (rows.length == _searchedRows.length &amp;&amp;</span></span>
+<span id="L645"><span class="lineNum">     645</span> <span class="tlaGNC">           3 :           rows.every(_searchedRows.contains)) {</span></span>
+<span id="L646"><span class="lineNum">     646</span>              :         return;</span>
+<span id="L647"><span class="lineNum">     647</span>              :       }</span>
+<span id="L648"><span class="lineNum">     648</span>              : </span>
+<span id="L649"><span class="lineNum">     649</span> <span class="tlaGNC">           2 :       _controller.addSearchedRows(</span></span>
+<span id="L650"><span class="lineNum">     650</span> <span class="tlaGNC">           2 :         _controller.allRows</span></span>
+<span id="L651"><span class="lineNum">     651</span> <span class="tlaGNC">           1 :             .where(</span></span>
+<span id="L652"><span class="lineNum">     652</span> <span class="tlaGNC">           4 :               (row) =&gt; _columns.any((column) {</span></span>
+<span id="L653"><span class="lineNum">     653</span> <span class="tlaGNC">           1 :                 return column.getSearchableValue</span></span>
+<span id="L654"><span class="lineNum">     654</span> <span class="tlaGNC">           1 :                         ?.call(row)</span></span>
+<span id="L655"><span class="lineNum">     655</span> <span class="tlaGNC">           3 :                         .contains(_searchFieldController.text) ??</span></span>
+<span id="L656"><span class="lineNum">     656</span>              :                     false;</span>
+<span id="L657"><span class="lineNum">     657</span>              :               }),</span>
+<span id="L658"><span class="lineNum">     658</span>              :             )</span>
+<span id="L659"><span class="lineNum">     659</span> <span class="tlaGNC">           1 :             .toList(),</span></span>
+<span id="L660"><span class="lineNum">     660</span>              :       );</span>
+<span id="L661"><span class="lineNum">     661</span>              :     }</span>
+<span id="L662"><span class="lineNum">     662</span>              :   }</span>
 <span id="L663"><span class="lineNum">     663</span>              : </span>
-<span id="L664"><span class="lineNum">     664</span> <span class="tlaGNC">           4 :       if (rows.length == _searchedRows.length &amp;&amp;</span></span>
-<span id="L665"><span class="lineNum">     665</span> <span class="tlaGNC">           3 :           rows.every(_searchedRows.contains)) {</span></span>
-<span id="L666"><span class="lineNum">     666</span>              :         return;</span>
-<span id="L667"><span class="lineNum">     667</span>              :       }</span>
-<span id="L668"><span class="lineNum">     668</span>              : </span>
-<span id="L669"><span class="lineNum">     669</span> <span class="tlaGNC">           2 :       _controller.addSearchedRows(</span></span>
-<span id="L670"><span class="lineNum">     670</span> <span class="tlaGNC">           2 :         _controller.allRows</span></span>
-<span id="L671"><span class="lineNum">     671</span> <span class="tlaGNC">           1 :             .where(</span></span>
-<span id="L672"><span class="lineNum">     672</span> <span class="tlaGNC">           4 :               (row) =&gt; _columns.any((column) {</span></span>
-<span id="L673"><span class="lineNum">     673</span> <span class="tlaGNC">           1 :                 return column.getSearchableValue</span></span>
-<span id="L674"><span class="lineNum">     674</span> <span class="tlaGNC">           1 :                         ?.call(row)</span></span>
-<span id="L675"><span class="lineNum">     675</span> <span class="tlaGNC">           3 :                         .contains(_searchFieldController.text) ??</span></span>
-<span id="L676"><span class="lineNum">     676</span>              :                     false;</span>
-<span id="L677"><span class="lineNum">     677</span>              :               }),</span>
-<span id="L678"><span class="lineNum">     678</span>              :             )</span>
-<span id="L679"><span class="lineNum">     679</span> <span class="tlaGNC">           1 :             .toList(),</span></span>
-<span id="L680"><span class="lineNum">     680</span>              :       );</span>
-<span id="L681"><span class="lineNum">     681</span>              :     }</span>
-<span id="L682"><span class="lineNum">     682</span>              :   }</span>
-<span id="L683"><span class="lineNum">     683</span>              : </span>
-<span id="L684"><span class="lineNum">     684</span>              :   /// Listener for the vertical scroll to fetch the next page if needed.</span>
-<span id="L685"><span class="lineNum">     685</span> <span class="tlaGNC">           1 :   void _verticalScrollListener() {</span></span>
-<span id="L686"><span class="lineNum">     686</span> <span class="tlaGNC">           1 :     if (_infiniteScroll &amp;&amp;</span></span>
-<span id="L687"><span class="lineNum">     687</span> <span class="tlaGNC">           4 :         _verticalScrollController.position.pixels ==</span></span>
-<span id="L688"><span class="lineNum">     688</span> <span class="tlaGNC">           3 :             _verticalScrollController.position.maxScrollExtent) {</span></span>
-<span id="L689"><span class="lineNum">     689</span> <span class="tlaGNC">           2 :       _controller.nextPage();</span></span>
-<span id="L690"><span class="lineNum">     690</span>              :     }</span>
-<span id="L691"><span class="lineNum">     691</span>              :   }</span>
-<span id="L692"><span class="lineNum">     692</span>              : </span>
-<span id="L693"><span class="lineNum">     693</span>              :   /// Handles keyboard events to navigate and interact with the table rows.</span>
-<span id="L694"><span class="lineNum">     694</span> <span class="tlaGNC">           1 :   void _hoverRow(KeyEvent event) {</span></span>
-<span id="L695"><span class="lineNum">     695</span> <span class="tlaGNC">           1 :     final currentHoveredIndex = _hoveredRowIndex;</span></span>
-<span id="L696"><span class="lineNum">     696</span>              : </span>
-<span id="L697"><span class="lineNum">     697</span> <span class="tlaGNC">           1 :     if (event is KeyDownEvent) {</span></span>
-<span id="L698"><span class="lineNum">     698</span> <span class="tlaGNC">           2 :       if (event.logicalKey == LogicalKeyboardKey.arrowDown) {</span></span>
-<span id="L699"><span class="lineNum">     699</span>              :         if (currentHoveredIndex == null) {</span>
-<span id="L700"><span class="lineNum">     700</span> <span class="tlaGNC">           2 :           _controller.setHoveredRowIndex(0);</span></span>
-<span id="L701"><span class="lineNum">     701</span> <span class="tlaGNC">           4 :         } else if (currentHoveredIndex &lt; _activeRows.length - 1) {</span></span>
-<span id="L702"><span class="lineNum">     702</span> <span class="tlaGNC">           3 :           _controller.setHoveredRowIndex(currentHoveredIndex + 1);</span></span>
-<span id="L703"><span class="lineNum">     703</span>              :         }</span>
-<span id="L704"><span class="lineNum">     704</span> <span class="tlaGNC">           2 :       } else if (event.logicalKey == LogicalKeyboardKey.arrowUp) {</span></span>
-<span id="L705"><span class="lineNum">     705</span>              :         if (currentHoveredIndex == null) {</span>
-<span id="L706"><span class="lineNum">     706</span> <span class="tlaGNC">           2 :           _controller.setHoveredRowIndex(0);</span></span>
-<span id="L707"><span class="lineNum">     707</span> <span class="tlaGNC">           1 :         } else if (currentHoveredIndex &gt; 0) {</span></span>
-<span id="L708"><span class="lineNum">     708</span> <span class="tlaGNC">           3 :           _controller.setHoveredRowIndex(currentHoveredIndex - 1);</span></span>
-<span id="L709"><span class="lineNum">     709</span>              :         }</span>
-<span id="L710"><span class="lineNum">     710</span> <span class="tlaGNC">           2 :       } else if (event.logicalKey == LogicalKeyboardKey.arrowLeft) {</span></span>
-<span id="L711"><span class="lineNum">     711</span>              :         if (currentHoveredIndex != null) {</span>
-<span id="L712"><span class="lineNum">     712</span> <span class="tlaGNC">           2 :           _controller.toggleExpandedRow(currentHoveredIndex);</span></span>
-<span id="L713"><span class="lineNum">     713</span>              :         }</span>
-<span id="L714"><span class="lineNum">     714</span> <span class="tlaGNC">           2 :       } else if (event.logicalKey == LogicalKeyboardKey.arrowRight) {</span></span>
-<span id="L715"><span class="lineNum">     715</span>              :         if (currentHoveredIndex != null) {</span>
-<span id="L716"><span class="lineNum">     716</span> <span class="tlaGNC">           2 :           _controller.toggleExpandedRow(currentHoveredIndex);</span></span>
-<span id="L717"><span class="lineNum">     717</span>              :         }</span>
-<span id="L718"><span class="lineNum">     718</span> <span class="tlaGNC">           2 :       } else if (event.logicalKey == LogicalKeyboardKey.enter) {</span></span>
-<span id="L719"><span class="lineNum">     719</span>              :         if (currentHoveredIndex != null) {</span>
-<span id="L720"><span class="lineNum">     720</span> <span class="tlaGNC">           4 :           _onRowPressed?.call(_activeRows[currentHoveredIndex]);</span></span>
-<span id="L721"><span class="lineNum">     721</span>              :         }</span>
-<span id="L722"><span class="lineNum">     722</span>              :       }</span>
-<span id="L723"><span class="lineNum">     723</span>              :     }</span>
-<span id="L724"><span class="lineNum">     724</span>              :   }</span>
-<span id="L725"><span class="lineNum">     725</span>              : }</span>
+<span id="L664"><span class="lineNum">     664</span>              :   /// Listener for the vertical scroll to fetch the next page if needed.</span>
+<span id="L665"><span class="lineNum">     665</span> <span class="tlaGNC">           1 :   void _verticalScrollListener() {</span></span>
+<span id="L666"><span class="lineNum">     666</span> <span class="tlaGNC">           1 :     if (_infiniteScroll &amp;&amp;</span></span>
+<span id="L667"><span class="lineNum">     667</span> <span class="tlaGNC">           4 :         _verticalScrollController.position.pixels ==</span></span>
+<span id="L668"><span class="lineNum">     668</span> <span class="tlaGNC">           3 :             _verticalScrollController.position.maxScrollExtent) {</span></span>
+<span id="L669"><span class="lineNum">     669</span> <span class="tlaGNC">           2 :       _controller.nextPage();</span></span>
+<span id="L670"><span class="lineNum">     670</span>              :     }</span>
+<span id="L671"><span class="lineNum">     671</span>              :   }</span>
+<span id="L672"><span class="lineNum">     672</span>              : </span>
+<span id="L673"><span class="lineNum">     673</span>              :   /// Handles keyboard events to navigate and interact with the table rows.</span>
+<span id="L674"><span class="lineNum">     674</span> <span class="tlaGNC">           1 :   void _hoverRow(KeyEvent event) {</span></span>
+<span id="L675"><span class="lineNum">     675</span> <span class="tlaGNC">           1 :     final currentHoveredIndex = _hoveredRowIndex;</span></span>
+<span id="L676"><span class="lineNum">     676</span>              : </span>
+<span id="L677"><span class="lineNum">     677</span> <span class="tlaGNC">           1 :     if (event is KeyDownEvent) {</span></span>
+<span id="L678"><span class="lineNum">     678</span> <span class="tlaGNC">           2 :       if (event.logicalKey == LogicalKeyboardKey.arrowDown) {</span></span>
+<span id="L679"><span class="lineNum">     679</span>              :         if (currentHoveredIndex == null) {</span>
+<span id="L680"><span class="lineNum">     680</span> <span class="tlaGNC">           2 :           _controller.setHoveredRowIndex(0);</span></span>
+<span id="L681"><span class="lineNum">     681</span> <span class="tlaGNC">           4 :         } else if (currentHoveredIndex &lt; _activeRows.length - 1) {</span></span>
+<span id="L682"><span class="lineNum">     682</span> <span class="tlaGNC">           3 :           _controller.setHoveredRowIndex(currentHoveredIndex + 1);</span></span>
+<span id="L683"><span class="lineNum">     683</span>              :         }</span>
+<span id="L684"><span class="lineNum">     684</span> <span class="tlaGNC">           2 :       } else if (event.logicalKey == LogicalKeyboardKey.arrowUp) {</span></span>
+<span id="L685"><span class="lineNum">     685</span>              :         if (currentHoveredIndex == null) {</span>
+<span id="L686"><span class="lineNum">     686</span> <span class="tlaGNC">           2 :           _controller.setHoveredRowIndex(0);</span></span>
+<span id="L687"><span class="lineNum">     687</span> <span class="tlaGNC">           1 :         } else if (currentHoveredIndex &gt; 0) {</span></span>
+<span id="L688"><span class="lineNum">     688</span> <span class="tlaGNC">           3 :           _controller.setHoveredRowIndex(currentHoveredIndex - 1);</span></span>
+<span id="L689"><span class="lineNum">     689</span>              :         }</span>
+<span id="L690"><span class="lineNum">     690</span> <span class="tlaGNC">           2 :       } else if (event.logicalKey == LogicalKeyboardKey.arrowLeft) {</span></span>
+<span id="L691"><span class="lineNum">     691</span>              :         if (currentHoveredIndex != null) {</span>
+<span id="L692"><span class="lineNum">     692</span> <span class="tlaGNC">           2 :           _controller.toggleExpandedRow(currentHoveredIndex);</span></span>
+<span id="L693"><span class="lineNum">     693</span>              :         }</span>
+<span id="L694"><span class="lineNum">     694</span> <span class="tlaGNC">           2 :       } else if (event.logicalKey == LogicalKeyboardKey.arrowRight) {</span></span>
+<span id="L695"><span class="lineNum">     695</span>              :         if (currentHoveredIndex != null) {</span>
+<span id="L696"><span class="lineNum">     696</span> <span class="tlaGNC">           2 :           _controller.toggleExpandedRow(currentHoveredIndex);</span></span>
+<span id="L697"><span class="lineNum">     697</span>              :         }</span>
+<span id="L698"><span class="lineNum">     698</span> <span class="tlaGNC">           2 :       } else if (event.logicalKey == LogicalKeyboardKey.enter) {</span></span>
+<span id="L699"><span class="lineNum">     699</span>              :         if (currentHoveredIndex != null) {</span>
+<span id="L700"><span class="lineNum">     700</span> <span class="tlaGNC">           4 :           _onRowPressed?.call(_activeRows[currentHoveredIndex]);</span></span>
+<span id="L701"><span class="lineNum">     701</span>              :         }</span>
+<span id="L702"><span class="lineNum">     702</span>              :       }</span>
+<span id="L703"><span class="lineNum">     703</span>              :     }</span>
+<span id="L704"><span class="lineNum">     704</span>              :   }</span>
+<span id="L705"><span class="lineNum">     705</span>              : }</span>
         </pre>
               </td>
             </tr>
@@ -793,7 +773,7 @@
 
           <table width="100%" border=0 cellspacing=0 cellpadding=0>
             <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
-            <tr><td class="versionInfo">Generated by: <a href="https://github.com//linux-test-project/lcov" target="_parent">LCOV version 2.1-1</a></td></tr>
+            <tr><td class="versionInfo">Generated by: <a href="https://github.com//linux-test-project/lcov" target="_parent">LCOV version 2.2-1</a></td></tr>
           </table>
           <br>
 

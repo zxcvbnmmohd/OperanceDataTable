@@ -81,7 +81,6 @@ void main() {
                     'name': SortDirection.ascending,
                   },
                   currentRows: const <String>['Row1', 'Row2'],
-                  selectedRows: const <String>{'Row1'},
                   decoration: const OperanceDataDecoration(),
                   allowColumnReorder: true,
                   expandable: true,

@@ -51,7 +51,7 @@ void main() {
       WidgetBuilder? loadingStateBuilder,
       Widget Function(String)? expansionBuilder,
       void Function(String)? onRowPressed,
-      ValueChanged<List<String>>? onSelectionChanged,
+      ValueChanged<Set<String>>? onSelectionChanged,
       ValueChanged<int>? onCurrentPageIndexChanged,
       double? width,
       double? height,
