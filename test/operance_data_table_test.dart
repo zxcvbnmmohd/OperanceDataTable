@@ -308,7 +308,7 @@ void main() {
         await tester.tap(find.text('50').last);
         await tester.pumpAndSettle();
 
-        expect(controller.rowsPerPage, equals(50));
+        expect(controller.rowsPerPageNotifier.value, equals(50));
       });
 
       testWidgets('Then it should toggle row selection on checkbox tap',

@@ -20,12 +20,12 @@ class OperanceDataController<T> extends ChangeNotifier {
   })  : _columnOrder = columnOrder,
         _hiddenColumns = hiddenColumns,
         _currentPageIndex = currentPageIndex,
-        _rowsPerPage = rowsPerPage,
         _onFetch = onFetch,
         _onCurrentPageIndexChanged = onCurrentPageIndexChanged,
         _sorts = <String, SortDirection>{},
         _hasMore = false,
         loadingNotifier = ValueNotifier<bool>(false),
+        rowsPerPageNotifier = ValueNotifier<int>(rowsPerPage),
         pagesNotifier = PagesNotifier<T>(
           pages: <Set<T>>{},
           rowsPerPage: rowsPerPage,
@@ -50,9 +50,6 @@ class OperanceDataController<T> extends ChangeNotifier {
   /// The current page index.
   int _currentPageIndex;
 
-  /// The number of rows per page.
-  int _rowsPerPage;
-
   /// The function to fetch data.
   final OnFetch<T>? _onFetch;
 
@@ -71,8 +68,11 @@ class OperanceDataController<T> extends ChangeNotifier {
   /// Indicates if data is being loaded.
   final ValueNotifier<bool> loadingNotifier;
 
+  /// The notifier for the number of rows per page.
+  final ValueNotifier<int> rowsPerPageNotifier;
+
   /// The notifier for pages of data.
-  final PagesNotifier<T> pagesNotifier;
+  PagesNotifier<T> pagesNotifier;
 
   /// The notifier for expanded rows.
   final ExpandedRowsNotifier expandedRowsNotifier;
@@ -103,9 +103,6 @@ class OperanceDataController<T> extends ChangeNotifier {
   Map<String, SortDirection> get sorts {
     return Map<String, SortDirection>.unmodifiable(_sorts);
   }
-
-  /// Gets the number of rows per page.
-  int get rowsPerPage => _rowsPerPage;
 
   /// Gets the current page index.
   int get currentPageIndex => _currentPageIndex;
@@ -163,7 +160,7 @@ class OperanceDataController<T> extends ChangeNotifier {
     loadingNotifier.value = true;
 
     final pageData = await _onFetch(
-      _rowsPerPage,
+      rowsPerPageNotifier.value,
       _sorts,
       isInitial: isInitial,
     );
@@ -244,7 +241,9 @@ class OperanceDataController<T> extends ChangeNotifier {
 
   /// Sets the number of rows per page.
   void setRowsPerPage(int rowsPerPage) {
-    _rowsPerPage = rowsPerPage;
+    rowsPerPageNotifier.value = rowsPerPage;
+    pagesNotifier.rowsPerPage = rowsPerPage;
+
     _resetData();
   }
 
