@@ -328,12 +328,12 @@ void main() {
         await tester.tap(firstCheckbox);
         await tester.pump();
 
-        expect(controller.selectedRows, contains('Row 0'));
+        expect(controller.selectedRowsNotifier, contains('Row 0'));
 
         await tester.tap(firstCheckbox);
         await tester.pump();
 
-        expect(controller.selectedRows, isNot(contains('Row 0')));
+        expect(controller.selectedRowsNotifier, isNot(contains('Row 0')));
       });
     });
 
@@ -408,12 +408,12 @@ void main() {
         await tester.tap(firstCheckbox);
         await tester.pumpAndSettle();
 
-        expect(controller.selectedRows, contains('Row 0'));
+        expect(controller.selectedRowsNotifier, contains('Row 0'));
 
         await tester.tap(firstCheckbox);
         await tester.pump();
 
-        expect(controller.selectedRows, isNot(contains('Row 0')));
+        expect(controller.selectedRowsNotifier, isNot(contains('Row 0')));
         expect(checkedCalled, isTrue);
       });
 
@@ -482,13 +482,13 @@ void main() {
         await tester.tap(firstRowCheckbox);
         await tester.pumpAndSettle();
 
-        expect(controller.selectedRows, contains('Row 0'));
+        expect(controller.selectedRowsNotifier, contains('Row 0'));
         expect(selectionChangedCalled, isTrue);
 
         await tester.tap(firstRowCheckbox);
         await tester.pumpAndSettle();
 
-        expect(controller.selectedRows, isNot(contains('Row 0')));
+        expect(controller.selectedRowsNotifier, isNot(contains('Row 0')));
       });
 
       testWidgets('Then it should expand rows', (tester) async {
@@ -541,12 +541,12 @@ void main() {
         await tester.enterText(find.byType(TextField), 'R');
         await tester.pumpAndSettle();
 
-        expect(controller.searchedRows, isNotEmpty);
+        expect(controller.searchedRowsNotifier, isNotEmpty);
 
         await tester.enterText(find.byType(TextField), '');
         await tester.pumpAndSettle();
 
-        expect(controller.searchedRows, isEmpty);
+        expect(controller.searchedRowsNotifier, isEmpty);
       });
 
       testWidgets('Then it should navigate pages', (tester) async {
@@ -599,12 +599,12 @@ void main() {
         await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
         await tester.pump();
 
-        expect(controller.expandedRows.value[0], isTrue);
+        expect(controller.expandedRowsNotifier.value[0], isTrue);
 
         await tester.sendKeyEvent(LogicalKeyboardKey.arrowLeft);
         await tester.pump();
 
-        expect(controller.expandedRows.value[0], isFalse);
+        expect(controller.expandedRowsNotifier.value[0], isFalse);
 
         await tester.sendKeyEvent(LogicalKeyboardKey.enter);
         await tester.pump();
@@ -669,12 +669,12 @@ void main() {
         await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
         await tester.pump();
 
-        expect(controller.expandedRows.value[0], true);
+        expect(controller.expandedRowsNotifier.value[0], true);
 
         await tester.sendKeyEvent(LogicalKeyboardKey.arrowLeft);
         await tester.pump();
 
-        expect(controller.expandedRows.value[0], false);
+        expect(controller.expandedRowsNotifier.value[0], false);
       });
 
       testWidgets('Then it should trigger row press with enter key',
@@ -776,9 +776,10 @@ void main() {
         await tester.enterText(find.byType(TextField), 'Row 1');
         await tester.pump();
 
-        expect(controller.searchedRows, isNotEmpty);
+        expect(controller.searchedRowsNotifier.value, isNotEmpty);
         expect(
-          controller.searchedRows.every((row) => row.contains('Row 1')),
+          controller.searchedRowsNotifier.value
+              .every((row) => row.contains('Row 1')),
           isTrue,
         );
       });
@@ -806,13 +807,15 @@ void main() {
 
         await tester.pumpAndSettle();
 
-        expect(controller.searchedRows.length, initialRows.length);
+        expect(
+            controller.searchedRowsNotifier.value.length, initialRows.length);
 
         searchFieldController.text = 'Row ';
 
         await tester.pumpAndSettle();
 
-        expect(controller.searchedRows.length, initialRows.length);
+        expect(
+            controller.searchedRowsNotifier.value.length, initialRows.length);
       });
     });
 

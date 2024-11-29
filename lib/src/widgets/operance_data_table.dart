@@ -234,16 +234,15 @@ class OperanceDataTableState<T> extends State<OperanceDataTable<T>> {
     _infiniteScroll = widget.infiniteScroll;
     _allowColumnReorder = widget.allowColumnReorder;
 
-    _controller = (widget.controller ?? OperanceDataController<T>())
-      ..initialize(
-        columnOrder: List.generate(widget.columns.length, (index) => index),
-        initialPage: _initialPage,
-        currentPageIndex: _currentPageIndex,
-        onCurrentPageIndexChanged: _onCurrentPageIndexChanged,
-        rowsPerPage: _decoration.ui.rowsPerPageOptions.first,
-        infiniteScroll: _infiniteScroll,
-        onFetch: _onFetch,
-      );
+    _controller = widget.controller ??
+        OperanceDataController<T>(
+          columnOrder: List.generate(widget.columns.length, (index) => index),
+          initialPage: _initialPage,
+          currentPageIndex: _currentPageIndex,
+          onCurrentPageIndexChanged: _onCurrentPageIndexChanged,
+          rowsPerPage: _decoration.ui.rowsPerPageOptions.first,
+          onFetch: _onFetch,
+        );
     _keyboardFocusNode = (widget.keyboardFocusNode ?? FocusNode())
       ..requestFocus();
     _horizontalScrollController =
@@ -319,245 +318,295 @@ class OperanceDataTableState<T> extends State<OperanceDataTable<T>> {
             final availableWidth = tableWidth - _extrasWidth;
             final tableHeight = constraints.maxHeight;
 
-            return KeyboardListener(
-              focusNode: _keyboardFocusNode,
-              onKeyEvent: _hoverRow,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: <Widget>[
-                  // ------------------------------ Header ---------------------
-                  if (_showHeader)
-                    Container(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: sizes.headerHorizontalPadding,
-                      ),
-                      decoration: styles.headerDecoration,
-                      height: sizes.headerHeight,
-                      child: Row(
-                        children: <Widget>[
-                          if (_searchable &&
-                              searchPosition == SearchPosition.left)
-                            OperanceDataSearchField(
-                              decoration: _decoration,
-                              controller: _searchFieldController,
-                              focusNode: _searchFieldFocusNode,
-                              onChanged: _onSearchFieldChanged,
-                            ),
-                          ..._header,
-                          if (_searchable &&
-                              searchPosition ==
-                                  SearchPosition.right) ...<Widget>[
-                            const Spacer(),
-                            OperanceDataSearchField(
-                              decoration: _decoration,
-                              controller: _searchFieldController,
-                              focusNode: _searchFieldFocusNode,
-                              onChanged: _onSearchFieldChanged,
-                            ),
-                          ],
-                        ],
-                      ),
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: <Widget>[
+                // ------------------------------ Header ---------------------
+                if (_showHeader)
+                  Container(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: sizes.headerHorizontalPadding,
                     ),
-                  // ------------------------------ Table ----------------------
-                  Expanded(
-                    child: SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      physics: ui.horizontalScrollPhysics,
-                      controller: _horizontalScrollController,
-                      child: ConstrainedBox(
-                        constraints: BoxConstraints(
-                          maxWidth: _tableMaxWidth(tableWidth),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: <Widget>[
-                            if (_showColumnHeader)
-                              OperanceDataColumnHeader<T>(
-                                columnOrder: _columnOrder,
-                                columns: _columns,
-                                tableWidth: availableWidth,
-                                trailing: _columnHeaderTrailingActions,
-                                onChecked: _onSelectionChanged,
-                                onColumnDragged: _controller.reOrderColumn,
-                                onSort: _controller.setSort,
-                                sorts: _controller.sorts,
-                                currentRows: _currentRows,
-                                decoration: _decoration,
-                                allowColumnReorder: _allowColumnReorder,
-                                expandable: _expandable,
-                                selectable: _selectable,
-                              ),
-                            Expanded(
-                              child: ConstrainedBox(
-                                constraints: BoxConstraints(
-                                  maxWidth: constraints.maxWidth,
-                                ),
-                                child: Builder(
-                                  builder: (context) {
-                                    if (!_controller.isLoading &&
-                                        _currentRows.isEmpty &&
-                                        _emptyStateBuilder != null) {
-                                      return _emptyStateBuilder.call(context);
-                                    }
-
-                                    var itemCount = _activeRows.length;
-                                    final rowHeight = sizes.rowHeight;
-
-                                    if (_showEmptyRows &&
-                                        (itemCount < tableHeight / rowHeight)) {
-                                      final emptyRows =
-                                          tableHeight / rowHeight - itemCount;
-
-                                      itemCount += emptyRows.toInt();
-                                    }
-
-                                    return Stack(
-                                      children: <Widget>[
-                                        ListView.separated(
-                                          controller: _verticalScrollController,
-                                          shrinkWrap: true,
-                                          itemCount: itemCount,
-                                          itemBuilder: (context, index) {
-                                            if (index >= _activeRows.length) {
-                                              return Container(
-                                                height: sizes.rowHeight,
-                                                color: colors.rowColor,
-                                              );
-                                            }
-
-                                            return OperanceDataRow<T>(
-                                              key: ValueKey(_activeRows[index]),
-                                              columnOrder: _columnOrder,
-                                              columns: _columns,
-                                              row: _activeRows[index],
-                                              index: index,
-                                              tableWidth: availableWidth,
-                                              onEnter: (_) {
-                                                _controller
-                                                    .setHoveredRowIndex(index);
-                                              },
-                                              onExit: (_) {
-                                                _controller
-                                                    .clearHoveredRowIndex();
-                                              },
-                                              expansionBuilder:
-                                                  _expansionBuilder,
-                                              onChecked: _onSelectionChanged,
-                                              onRowPressed: _onRowPressed,
-                                              decoration: _decoration,
-                                              isHovered: _isHovered(index),
-                                              showExpansionIcon: _expandable,
-                                              showCheckbox: _selectable,
-                                            );
-                                          },
-                                          separatorBuilder: (context, index) {
-                                            if (!ui.rowDividerEnabled) {
-                                              return const SizedBox();
-                                            }
-
-                                            return Divider(
-                                              height: sizes.rowDividerHeight,
-                                              thickness:
-                                                  sizes.rowDividerThickness,
-                                              color: colors.rowDividerColor,
-                                              indent: sizes.rowDividerIndent,
-                                              endIndent:
-                                                  sizes.rowDividerEndIndent,
-                                            );
-                                          },
-                                        ),
-                                        if (_controller.isLoading)
-                                          _loadingStateBuilder != null
-                                              ? _loadingStateBuilder
-                                                  .call(context)
-                                              : LinearProgressIndicator(
-                                                  backgroundColor: colors
-                                                      .loadingBackgroundColor,
-                                                  valueColor:
-                                                      AlwaysStoppedAnimation<
-                                                          Color>(
-                                                    colors.loadingProgressColor,
-                                                  ),
-                                                  minHeight:
-                                                      sizes.loadingHeight,
-                                                  borderRadius: styles
-                                                      .loadingBorderRadius,
-                                                ),
-                                      ],
-                                    );
-                                  },
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
+                    decoration: styles.headerDecoration,
+                    height: sizes.headerHeight,
+                    child: Row(
+                      children: <Widget>[
+                        if (_searchable &&
+                            searchPosition == SearchPosition.left)
+                          OperanceDataSearchField(
+                            decoration: _decoration,
+                            controller: _searchFieldController,
+                            focusNode: _searchFieldFocusNode,
+                            onChanged: _onSearchFieldChanged,
+                          ),
+                        ..._header,
+                        if (_searchable &&
+                            searchPosition == SearchPosition.right) ...<Widget>[
+                          const Spacer(),
+                          OperanceDataSearchField(
+                            decoration: _decoration,
+                            controller: _searchFieldController,
+                            focusNode: _searchFieldFocusNode,
+                            onChanged: _onSearchFieldChanged,
+                          ),
+                        ],
+                      ],
                     ),
                   ),
-                  // ------------------------------ Footer ---------------------
-                  if (_showFooter && !_infiniteScroll)
-                    Container(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: sizes.footerHorizontalPadding,
+                // ------------------------------ Table ----------------------
+                Expanded(
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    physics: ui.horizontalScrollPhysics,
+                    controller: _horizontalScrollController,
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(
+                        maxWidth: _tableMaxWidth(tableWidth),
                       ),
-                      decoration: styles.footerDecoration,
-                      height: sizes.footerHeight,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: <Widget>[
-                          _showRowsPerPageOptions
-                              ? Row(
-                                  children: <Widget>[
-                                    Text(
-                                      ui.rowsPerPageText,
-                                      style: styles.rowsPerPageTextStyle,
-                                    ),
-                                    const SizedBox(width: 8.0),
-                                    DropdownButton<int>(
-                                      value: _rowsPerPage,
-                                      items: ui.rowsPerPageOptions.map(
-                                        (value) {
-                                          return DropdownMenuItem<int>(
-                                            value: value,
-                                            child: Text(value.toString()),
+                          if (_showColumnHeader)
+                            OperanceDataColumnHeader<T>(
+                              columnOrder: _columnOrder,
+                              columns: _columns,
+                              tableWidth: availableWidth,
+                              trailing: _columnHeaderTrailingActions,
+                              onChecked: _onSelectionChanged,
+                              onColumnDragged: _controller.reOrderColumn,
+                              onSort: _controller.setSort,
+                              sorts: _controller.sorts,
+                              decoration: _decoration,
+                              allowColumnReorder: _allowColumnReorder,
+                              expandable: _expandable,
+                              selectable: _selectable,
+                            ),
+                          Expanded(
+                            child: ConstrainedBox(
+                              constraints: BoxConstraints(
+                                maxWidth: constraints.maxWidth,
+                              ),
+                              child: Stack(
+                                children: <Widget>[
+                                  ValueListenableBuilder<Set<Set<T>>>(
+                                    valueListenable: _controller.pagesNotifier,
+                                    builder: (context, pages, _) {
+                                      final index =
+                                          _controller.currentPageIndex;
+                                      final currentRows = Set<T>.unmodifiable(
+                                        _infiniteScroll
+                                            ? pages.expand((element) => element)
+                                            : index >= pages.length
+                                                ? const []
+                                                : pages.elementAt(index),
+                                      );
+
+                                      if (!_controller.loadingNotifier.value &&
+                                          currentRows.isEmpty &&
+                                          _emptyStateBuilder != null) {
+                                        return _emptyStateBuilder.call(context);
+                                      }
+
+                                      return ValueListenableBuilder<Set<T>>(
+                                        valueListenable:
+                                            _controller.searchedRowsNotifier,
+                                        builder: (context, searchedRows, _) {
+                                          final activeRows =
+                                              searchedRows.isNotEmpty
+                                                  ? searchedRows
+                                                  : currentRows;
+
+                                          if (activeRows.isEmpty) {
+                                            return const SizedBox();
+                                          }
+
+                                          var itemCount = activeRows.length;
+                                          final rowHeight = sizes.rowHeight;
+
+                                          if (_showEmptyRows &&
+                                              (itemCount <
+                                                  tableHeight / rowHeight)) {
+                                            final emptyRows =
+                                                tableHeight / rowHeight -
+                                                    itemCount;
+
+                                            itemCount += emptyRows.toInt();
+                                          }
+
+                                          return KeyboardListener(
+                                            focusNode: _keyboardFocusNode,
+                                            onKeyEvent: (event) => _hoverRow(
+                                              event: event,
+                                              rows: activeRows,
+                                            ),
+                                            child: ListView.separated(
+                                              controller:
+                                                  _verticalScrollController,
+                                              shrinkWrap: true,
+                                              itemCount: itemCount,
+                                              itemBuilder: (context, index) {
+                                                if (index >=
+                                                    activeRows.length) {
+                                                  return Container(
+                                                    height: sizes.rowHeight,
+                                                    color: colors.rowColor,
+                                                  );
+                                                }
+
+                                                final row =
+                                                    activeRows.elementAt(index);
+
+                                                return OperanceDataRow<T>(
+                                                  key: ValueKey(row),
+                                                  columnOrder: _columnOrder,
+                                                  columns: _columns,
+                                                  row: row,
+                                                  index: index,
+                                                  tableWidth: availableWidth,
+                                                  onEnter: (_) {
+                                                    _controller
+                                                        .setHoveredRowIndex(
+                                                      index,
+                                                    );
+                                                  },
+                                                  onExit: (_) {
+                                                    _controller
+                                                        .clearHoveredRowIndex();
+                                                  },
+                                                  expansionBuilder:
+                                                      _expansionBuilder,
+                                                  onChecked:
+                                                      _onSelectionChanged,
+                                                  onRowPressed: _onRowPressed,
+                                                  decoration: _decoration,
+                                                  isHovered: _isHovered(index),
+                                                  showExpansionIcon:
+                                                      _expandable,
+                                                  showCheckbox: _selectable,
+                                                );
+                                              },
+                                              separatorBuilder:
+                                                  (context, index) {
+                                                if (!ui.rowDividerEnabled) {
+                                                  return const SizedBox();
+                                                }
+
+                                                return Divider(
+                                                  height:
+                                                      sizes.rowDividerHeight,
+                                                  thickness:
+                                                      sizes.rowDividerThickness,
+                                                  color: colors.rowDividerColor,
+                                                  indent:
+                                                      sizes.rowDividerIndent,
+                                                  endIndent:
+                                                      sizes.rowDividerEndIndent,
+                                                );
+                                              },
+                                            ),
                                           );
                                         },
-                                      ).toList(),
-                                      onChanged: (value) {
-                                        if (value != null) {
-                                          _controller.setRowsPerPage(value);
+                                      );
+                                    },
+                                  ),
+                                  ValueListenableBuilder<bool>(
+                                    valueListenable:
+                                        _controller.loadingNotifier,
+                                    builder: (context, loading, _) {
+                                      if (loading) {
+                                        if (_loadingStateBuilder != null) {
+                                          return _loadingStateBuilder
+                                              .call(context);
                                         }
-                                      },
-                                    ),
-                                  ],
-                                )
-                              : const Spacer(),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: <Widget>[
-                              IconButton(
-                                icon: Icon(icons.previousPageIcon),
-                                onPressed: _controller.canGoPrevious
-                                    ? _controller.previousPage
-                                    : null,
-                                splashRadius: 24.0,
+
+                                        return LinearProgressIndicator(
+                                          backgroundColor:
+                                              colors.loadingBackgroundColor,
+                                          valueColor:
+                                              AlwaysStoppedAnimation<Color>(
+                                            colors.loadingProgressColor,
+                                          ),
+                                          minHeight: sizes.loadingHeight,
+                                          borderRadius:
+                                              styles.loadingBorderRadius,
+                                        );
+                                      }
+
+                                      return const SizedBox();
+                                    },
+                                  ),
+                                ],
                               ),
-                              const SizedBox(width: 12.0),
-                              IconButton(
-                                icon: Icon(icons.nextPageIcon),
-                                onPressed: _controller.canGoNext ||
-                                        _controller.canFetchNext
-                                    ? _controller.nextPage
-                                    : null,
-                                splashRadius: 24.0,
-                              ),
-                            ],
+                            ),
                           ),
                         ],
                       ),
                     ),
-                ],
-              ),
+                  ),
+                ),
+                // ------------------------------ Footer ---------------------
+                if (_showFooter && !_infiniteScroll)
+                  Container(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: sizes.footerHorizontalPadding,
+                    ),
+                    decoration: styles.footerDecoration,
+                    height: sizes.footerHeight,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        _showRowsPerPageOptions
+                            ? Row(
+                                children: <Widget>[
+                                  Text(
+                                    ui.rowsPerPageText,
+                                    style: styles.rowsPerPageTextStyle,
+                                  ),
+                                  const SizedBox(width: 8.0),
+                                  DropdownButton<int>(
+                                    value: _rowsPerPage,
+                                    items: ui.rowsPerPageOptions.map(
+                                      (value) {
+                                        return DropdownMenuItem<int>(
+                                          value: value,
+                                          child: Text(value.toString()),
+                                        );
+                                      },
+                                    ).toList(),
+                                    onChanged: (value) {
+                                      if (value != null) {
+                                        _controller.setRowsPerPage(value);
+                                      }
+                                    },
+                                  ),
+                                ],
+                              )
+                            : const Spacer(),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget>[
+                            IconButton(
+                              icon: Icon(icons.previousPageIcon),
+                              onPressed: _controller.canGoPrevious
+                                  ? _controller.previousPage
+                                  : null,
+                              splashRadius: 24.0,
+                            ),
+                            const SizedBox(width: 12.0),
+                            IconButton(
+                              icon: Icon(icons.nextPageIcon),
+                              onPressed: _controller.canGoNext ||
+                                      _controller.canFetchNext
+                                  ? _controller.nextPage
+                                  : null,
+                              splashRadius: 24.0,
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+              ],
             );
           },
         ),
@@ -568,23 +617,11 @@ class OperanceDataTableState<T> extends State<OperanceDataTable<T>> {
   /// Gets the order of the columns.
   List<int> get _columnOrder => _controller.columnOrder;
 
-  /// Gets the current rows being displayed.
-  List<T> get _currentRows => _controller.currentRows;
-
-  /// Gets the rows that match the search criteria.
-  Set<T> get _searchedRows => _controller.searchedRows;
-
   /// Gets the number of rows per page.
   int get _rowsPerPage => _controller.rowsPerPage;
 
   /// Gets the index of the currently hovered row.
   int? get _hoveredRowIndex => _controller.hoveredRowIndex;
-
-  /// Gets the active rows, which are either the searched rows or the current
-  /// rows.
-  List<T> get _activeRows {
-    return _searchedRows.isNotEmpty ? _searchedRows.toList() : _currentRows;
-  }
 
   /// Calculates the maximum available width of the table.
   double _tableMaxWidth(double width) {
@@ -596,6 +633,7 @@ class OperanceDataTableState<T> extends State<OperanceDataTable<T>> {
     return totalColumnWidth + _extrasWidth;
   }
 
+  /// Calculates the width of the extras in the table.
   double get _extrasWidth {
     return (_expandable ? _expansionWidth : 0.0) +
         (_selectable ? _selectionWidth : 0.0) +
@@ -607,32 +645,38 @@ class OperanceDataTableState<T> extends State<OperanceDataTable<T>> {
 
   /// Listener for the search field to update the searched rows.
   void _searchFieldListener() {
-    if (_searchFieldController.text.isEmpty) {
-      _controller.clearSearchedRows();
+    final searchedRowsNotifier = _controller.searchedRowsNotifier;
+    final searchedRows = searchedRowsNotifier.value;
+    final searchText = _searchFieldController.text;
+
+    if (searchText.isEmpty) {
+      searchedRowsNotifier.clear();
     } else {
-      final rows = _controller.allRows
+      final allRows = _controller.pagesNotifier.allRows;
+
+      final rows = allRows
           .where(
             (row) => _columns.any((column) {
               return column.getSearchableValue
                       ?.call(row)
-                      .contains(_searchFieldController.text) ??
+                      .contains(searchText) ??
                   false;
             }),
           )
           .toList();
 
-      if (rows.length == _searchedRows.length &&
-          rows.every(_searchedRows.contains)) {
+      if (rows.length == searchedRows.length &&
+          rows.every(searchedRows.contains)) {
         return;
       }
 
-      _controller.addSearchedRows(
-        _controller.allRows
+      searchedRowsNotifier.addRows(
+        allRows
             .where(
               (row) => _columns.any((column) {
                 return column.getSearchableValue
                         ?.call(row)
-                        .contains(_searchFieldController.text) ??
+                        .contains(searchText) ??
                     false;
               }),
             )
@@ -651,15 +695,15 @@ class OperanceDataTableState<T> extends State<OperanceDataTable<T>> {
   }
 
   /// Handles keyboard events to navigate and interact with the table rows.
-  void _hoverRow(KeyEvent event) {
-    final expandedRowsNotifier = _controller.expandedRows;
+  void _hoverRow({required KeyEvent event, required Set<T> rows}) {
+    final expandedRowsNotifier = _controller.expandedRowsNotifier;
     final currentHoveredIndex = _hoveredRowIndex;
 
     if (event is KeyDownEvent) {
       if (event.logicalKey == LogicalKeyboardKey.arrowDown) {
         if (currentHoveredIndex == null) {
           _controller.setHoveredRowIndex(0);
-        } else if (currentHoveredIndex < _activeRows.length - 1) {
+        } else if (currentHoveredIndex < rows.length - 1) {
           _controller.setHoveredRowIndex(currentHoveredIndex + 1);
         }
       } else if (event.logicalKey == LogicalKeyboardKey.arrowUp) {
@@ -678,7 +722,7 @@ class OperanceDataTableState<T> extends State<OperanceDataTable<T>> {
         }
       } else if (event.logicalKey == LogicalKeyboardKey.enter) {
         if (currentHoveredIndex != null) {
-          _onRowPressed?.call(_activeRows[currentHoveredIndex]);
+          _onRowPressed?.call(rows.elementAt(currentHoveredIndex));
         }
       }
     }

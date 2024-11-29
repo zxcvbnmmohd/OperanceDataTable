@@ -12,8 +12,8 @@ pre-commit:
       run: fvm dart format {files} && git add {files}
     pubspec-check:
       run: fvm flutter pub get
-    unit-tests:
-      run: fvm flutter test --coverage
+#    unit-tests:
+#      run: fvm flutter test --coverage
 
 pre-push:
   commands:

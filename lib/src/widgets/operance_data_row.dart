@@ -78,8 +78,8 @@ class OperanceDataRow<T> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = context.controller<T>();
-    final expandedRowsNotifier = controller.expandedRows;
-    final selectedRowsNotifier = controller.selectedRows;
+    final expandedRowsNotifier = controller.expandedRowsNotifier;
+    final selectedRowsNotifier = controller.selectedRowsNotifier;
     final colors = decoration.colors;
     final icons = decoration.icons;
     final sizes = decoration.sizes;
