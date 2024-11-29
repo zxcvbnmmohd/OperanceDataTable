@@ -13,7 +13,7 @@ class OperanceDataColumnHeader<T> extends StatelessWidget {
   ///
   /// The [columnOrder], [columns] and [tableWidth] parameters are required.
   /// The [trailing], [onChecked], [onColumnDragged], [onSort], [sorts]
-  /// [currentRows], [decoration], [allowColumnReorder],
+  /// [decoration], [allowColumnReorder],
   /// [expandable], and [selectable] parameters are optional.
   const OperanceDataColumnHeader({
     required this.columnOrder,
@@ -24,7 +24,6 @@ class OperanceDataColumnHeader<T> extends StatelessWidget {
     this.onSort,
     this.sorts = const {},
     this.trailing = const [],
-    this.currentRows = const [],
     this.decoration = const OperanceDataDecoration(),
     this.allowColumnReorder = false,
     this.expandable = false,
@@ -55,9 +54,6 @@ class OperanceDataColumnHeader<T> extends StatelessWidget {
 
   /// List of widgets to be displayed at the end of the last column.
   final List<Widget> trailing;
-
-  /// The current rows in the table.
-  final List<T> currentRows;
 
   /// The decoration settings for the data table.
   final OperanceDataDecoration decoration;
@@ -140,8 +136,8 @@ class _SelectableCheckbox<T> extends StatelessWidget {
   Widget build(BuildContext context) {
     final controller = context.controller<T>();
     final decoration = context.decoration();
-    final currentRows = controller.currentRows;
-    final selectedRowsNotifier = controller.selectedRows;
+    final currentRows = <T>[];
+    final selectedRowsNotifier = controller.selectedRowsNotifier;
 
     return Container(
       decoration: decoration.styles.columnHeaderDecoration,

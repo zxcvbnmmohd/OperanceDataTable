@@ -9,61 +9,85 @@ import 'package:operance_datatable/src/values/values.dart';
 /// OperanceDataTable.
 class OperanceDataController<T> extends ChangeNotifier {
   /// Creates an instance of [OperanceDataController].
-  OperanceDataController();
+  OperanceDataController({
+    List<int> columnOrder = const <int>[],
+    Set<int> hiddenColumns = const <int>{},
+    PageData<T> initialPage = (const [], false),
+    int currentPageIndex = 0,
+    int rowsPerPage = 25,
+    OnFetch<T>? onFetch,
+    ValueChanged<int>? onCurrentPageIndexChanged,
+  })  : _columnOrder = columnOrder,
+        _hiddenColumns = hiddenColumns,
+        _currentPageIndex = currentPageIndex,
+        _rowsPerPage = rowsPerPage,
+        _onFetch = onFetch,
+        _onCurrentPageIndexChanged = onCurrentPageIndexChanged,
+        _sorts = <String, SortDirection>{},
+        _hasMore = false,
+        loadingNotifier = ValueNotifier<bool>(false),
+        pagesNotifier = PagesNotifier<T>(
+          pages: <Set<T>>{},
+          rowsPerPage: rowsPerPage,
+        ),
+        expandedRowsNotifier = ExpandedRowsNotifier(rows: <int, bool>{}),
+        searchedRowsNotifier = SearchedRowsNotifier<T>(rows: <T>{}),
+        selectedRowsNotifier = SelectedRowsNotifier<T>(rows: <T>{}) {
+    if (initialPage.$1.isEmpty) {
+      _fetchData(isInitial: true);
+    } else {
+      pagesNotifier.addAll(initialPage.$1);
+      _hasMore = initialPage.$2;
+    }
+  }
 
   /// The order of the columns.
-  final _columnOrder = <int>[];
+  final List<int> _columnOrder;
 
   /// The hidden columns.
-  final _hiddenColumns = <int>{};
-
-  /// The pages of data.
-  final _pages = <List<T>>[<T>[]];
-
-  /// The set of searched rows.
-  final _searchedRows = <T>{};
-
-  /// The map of expanded rows notifier.
-  final expandedRows = ExpandedRowsNotifier(rows: <int, bool>{});
-
-  /// The set of selected rows notifier.
-  final selectedRows = SelectedRowsNotifier<T>(rows: <T>{});
-
-  /// The map of sort directions for columns.
-  final _sorts = <String, SortDirection>{};
-
-  /// Indicates if infinite scroll is enabled.
-  var _infinityScroll = false;
-
-  /// Indicates if there are more rows to fetch.
-  var _hasMore = false;
-
-  /// The number of rows per page.
-  var _rowsPerPage = 25;
+  final Set<int> _hiddenColumns;
 
   /// The current page index.
-  var _currentPageIndex = 0;
+  int _currentPageIndex;
 
-  /// Indicates if data is being loaded.
-  var _isLoading = false;
+  /// The number of rows per page.
+  int _rowsPerPage;
 
   /// The function to fetch data.
-  OnFetch<T>? _onFetch;
+  final OnFetch<T>? _onFetch;
 
   /// The callback to execute when the current page index changes.
-  ValueChanged<int>? _onCurrentPageIndexChanged;
+  final ValueChanged<int>? _onCurrentPageIndexChanged;
+
+  /// The map of sort directions for columns.
+  final Map<String, SortDirection> _sorts;
+
+  /// Indicates if there are more rows to fetch.
+  bool _hasMore;
 
   /// The index of the hovered row.
   int? _hoveredRowIndex;
+
+  /// Indicates if data is being loaded.
+  final ValueNotifier<bool> loadingNotifier;
+
+  /// The notifier for pages of data.
+  final PagesNotifier<T> pagesNotifier;
+
+  /// The notifier for expanded rows.
+  final ExpandedRowsNotifier expandedRowsNotifier;
+
+  /// The notifier for searched rows.
+  final SearchedRowsNotifier<T> searchedRowsNotifier;
+
+  /// The notifier for selected rows.
+  final SelectedRowsNotifier<T> selectedRowsNotifier;
 
   /// Gets the order of the columns.
   List<int> get columnOrder => List<int>.unmodifiable(_columnOrder);
 
   /// Gets the hidden columns.
   Set<int> get hiddenColumns => Set<int>.unmodifiable(_hiddenColumns);
-
-  /// Gets the pages of data.
-  List<List<T>> get pages => List<List<T>>.unmodifiable(_pages);
 
   /// Gets the visible columns.
   Set<int> get visibleColumns {
@@ -74,27 +98,6 @@ class OperanceDataController<T> extends ChangeNotifier {
           .toList(),
     );
   }
-
-  /// Gets all rows across all pages.
-  List<T> get allRows {
-    return List<T>.unmodifiable(_pages.expand((element) => element).toList());
-  }
-
-  /// Gets the rows of the current page.
-  List<T> get currentRows {
-    if (_infinityScroll) {
-      return List<T>.unmodifiable(allRows);
-    } else {
-      if (_currentPageIndex >= _pages.length) {
-        return <T>[];
-      }
-
-      return List<T>.unmodifiable(_pages[_currentPageIndex]);
-    }
-  }
-
-  /// Gets the set of searched rows.
-  Set<T> get searchedRows => Set<T>.unmodifiable(_searchedRows);
 
   /// Gets the map of sort directions for columns.
   Map<String, SortDirection> get sorts {
@@ -107,67 +110,30 @@ class OperanceDataController<T> extends ChangeNotifier {
   /// Gets the current page index.
   int get currentPageIndex => _currentPageIndex;
 
-  /// Gets the loading state.
-  bool get isLoading => _isLoading;
-
   /// Gets the index of the hovered rpw.
   int? get hoveredRowIndex => _hoveredRowIndex;
 
   /// Indicates if the next page can be navigated to.
-  bool get canGoNext => _currentPageIndex < _pages.length - 1;
+  bool get canGoNext => _currentPageIndex < pagesNotifier.value.length - 1;
 
   /// Indicates if the next page can be fetched.
-  bool get canFetchNext => _currentPageIndex == _pages.length - 1 && _hasMore;
+  bool get canFetchNext {
+    return _currentPageIndex == pagesNotifier.value.length - 1 && _hasMore;
+  }
 
   /// Indicates if the previous page can be navigated to.
   bool get canGoPrevious => _currentPageIndex > 0;
 
-  /// Initializes the controller with the given parameters.
-  Future<void> initialize({
-    List<int> columnOrder = const <int>[],
-    PageData<T> initialPage = (const [], false),
-    int currentPageIndex = 0,
-    int rowsPerPage = 25,
-    bool infiniteScroll = false,
-    ValueChanged<int>? onCurrentPageIndexChanged,
-    OnFetch<T>? onFetch,
-  }) async {
-    _columnOrder
-      ..clear()
-      ..addAll(columnOrder);
-    _currentPageIndex = currentPageIndex;
-    _rowsPerPage = rowsPerPage;
-    _infinityScroll = infiniteScroll;
-    _onCurrentPageIndexChanged = onCurrentPageIndexChanged;
-    _onFetch = onFetch;
-
-    if (initialPage.$1.isEmpty) {
-      await _fetchData(isInitial: true);
-    } else {
-      final rows = initialPage.$1;
-
-      _pages
-        ..clear()
-        ..addAll(<List<T>>[
-          for (int i = 0; i < rows.length; i += rowsPerPage)
-            rows.skip(i).take(rowsPerPage).toList()
-        ]);
-      _hasMore = initialPage.$2;
-      notifyListeners();
-    }
-  }
-
   /// Navigates to the next page. If the next page is not available, it fetches
   /// the next page.
   Future<void> nextPage() async {
-    if (_isLoading) {
+    if (loadingNotifier.value) {
       return;
     }
 
     if (canGoNext) {
       _currentPageIndex++;
       _onCurrentPageIndexChanged?.call(_currentPageIndex);
-      notifyListeners();
 
       return;
     }
@@ -179,7 +145,7 @@ class OperanceDataController<T> extends ChangeNotifier {
 
   /// Resets the data and fetches the initial page.
   Future<void> _resetData() async {
-    _pages.clear();
+    pagesNotifier.clear();
     _currentPageIndex = 0;
     _onCurrentPageIndexChanged?.call(_currentPageIndex);
 
@@ -190,14 +156,13 @@ class OperanceDataController<T> extends ChangeNotifier {
   Future<void> _fetchData({
     bool isInitial = false,
   }) async {
-    if (_isLoading || _onFetch == null) {
+    if (loadingNotifier.value || _onFetch == null) {
       return;
     }
 
-    _isLoading = true;
-    notifyListeners();
+    loadingNotifier.value = true;
 
-    final pageData = await _onFetch!(
+    final pageData = await _onFetch(
       _rowsPerPage,
       _sorts,
       isInitial: isInitial,
@@ -208,21 +173,15 @@ class OperanceDataController<T> extends ChangeNotifier {
 
     if (rows.isNotEmpty) {
       if (isInitial) {
-        _pages
-          ..clear()
-          ..addAll(<List<T>>[
-            for (int i = 0; i < rows.length; i += rowsPerPage)
-              rows.skip(i).take(rowsPerPage).toList()
-          ]);
+        pagesNotifier.addAll(rows);
       } else {
-        _pages.add(rows);
+        pagesNotifier.add(rows);
         _currentPageIndex++;
         _onCurrentPageIndexChanged?.call(_currentPageIndex);
       }
     }
 
-    _isLoading = false;
-    notifyListeners();
+    loadingNotifier.value = false;
   }
 
   /// Navigates to the previous page.
@@ -270,20 +229,6 @@ class OperanceDataController<T> extends ChangeNotifier {
     }
   }
 
-  /// Clears the searched rows.
-  void clearSearchedRows() {
-    _searchedRows.clear();
-    notifyListeners();
-  }
-
-  /// Adds the searched rows.
-  void addSearchedRows(List<T> rows) {
-    _searchedRows
-      ..clear()
-      ..addAll(rows);
-    notifyListeners();
-  }
-
   /// Sets the sort direction for a column.
   Future<void> setSort(String columnName, SortDirection? direction) async {
     if (direction == null) {
@@ -315,16 +260,14 @@ class OperanceDataController<T> extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Update row in cache
-  void updateRow(T row) {
-    final index = allRows.indexOf(row);
+  @override
+  void dispose() {
+    loadingNotifier.dispose();
+    pagesNotifier.dispose();
+    expandedRowsNotifier.dispose();
+    searchedRowsNotifier.dispose();
+    selectedRowsNotifier.dispose();
 
-    if (index != -1) {
-      final pageIndex = index ~/ _rowsPerPage;
-      final rowIndex = index % _rowsPerPage;
-
-      _pages[pageIndex][rowIndex] = row;
-      notifyListeners();
-    }
+    super.dispose();
   }
 }
