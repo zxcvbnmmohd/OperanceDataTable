@@ -18,7 +18,6 @@ void main() {
         cellBuilder: (context, item) => Text(item),
       ),
     ];
-    final columnOrder = List.generate(columns.length, (index) => index);
 
     Future<void> pumpOperanceDataRow(
       WidgetTester tester, {
@@ -33,7 +32,6 @@ void main() {
         MaterialApp(
           home: Scaffold(
             body: OperanceDataRow<String>(
-              columnOrder: columnOrder,
               columns: columns,
               row: 'Test Row',
               index: 0,
@@ -60,7 +58,6 @@ void main() {
             MaterialApp(
               home: Scaffold(
                 body: OperanceDataRow<String>(
-                  columnOrder: columnOrder,
                   columns: columns,
                   row: 'Test Row',
                   index: 0,
@@ -150,7 +147,6 @@ void main() {
       test('Then it should throw an assertion error', () {
         expect(
           () => OperanceDataRow<String>(
-            columnOrder: columnOrder,
             columns: columns,
             row: 'Test Row',
             index: 0,
@@ -166,7 +162,6 @@ void main() {
       test('Then it should throw an assertion error', () {
         expect(
           () => OperanceDataRow<String>(
-            columnOrder: columnOrder,
             columns: columns,
             row: 'Test Row',
             index: 0,
@@ -187,7 +182,6 @@ void main() {
               MaterialApp(
                 home: Scaffold(
                   body: OperanceDataRow<String>(
-                    columnOrder: columnOrder,
                     columns: columns,
                     row: '',
                     index: 0,
@@ -210,7 +204,6 @@ void main() {
               MaterialApp(
                 home: Scaffold(
                   body: OperanceDataRow<String>(
-                    columnOrder: columnOrder,
                     columns: columns,
                     row: 'Test Row',
                     index: 0,

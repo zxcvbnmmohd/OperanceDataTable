@@ -10,13 +10,12 @@ import 'package:operance_datatable/src/models/models.dart';
 class OperanceDataRow<T> extends StatelessWidget {
   /// Creates an instance of [OperanceDataRow].
   ///
-  /// The [columnOrder], [columns], [row], [index] and [tableWidth] parameters
+  /// The [columns], [row], [index] and [tableWidth] parameters
   /// are required.
   /// The [onEnter], [onExit], [expansionBuilder], [onChecked],
   /// [onRowPressed], [decoration],
   /// [showExpansionIcon], and [showCheckbox] parameters are optional.
   const OperanceDataRow({
-    required this.columnOrder,
     required this.columns,
     required this.row,
     required this.index,
@@ -31,9 +30,6 @@ class OperanceDataRow<T> extends StatelessWidget {
     this.showCheckbox = false,
     super.key,
   });
-
-  /// The order of the columns.
-  final List<int> columnOrder;
 
   /// The list of columns.
   final List<OperanceDataColumn<T>> columns;
@@ -74,6 +70,7 @@ class OperanceDataRow<T> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = context.controller<T>();
+    final columnOrderNotifier = controller.columnOrderNotifier;
     final expandedRowsNotifier = controller.expandedRowsNotifier;
     final selectedRowsNotifier = controller.selectedRowsNotifier;
     final colors = decoration.colors;
@@ -177,19 +174,28 @@ class OperanceDataRow<T> extends StatelessWidget {
                                   },
                                 ),
                               ),
-                            ...columnOrder.map((index) {
-                              final column = columns[index];
+                            ValueListenableBuilder<Set<int>>(
+                              valueListenable: columnOrderNotifier,
+                              builder: (context, columnOrder, _) {
+                                return Row(
+                                  children: <Widget>[
+                                    ...columnOrder.map((index) {
+                                      final column = columns[index];
 
-                              return Container(
-                                alignment: column.numeric
-                                    ? Alignment.centerRight
-                                    : Alignment.centerLeft,
-                                padding: styles.cellPadding,
-                                width: column.width.value(tableWidth),
-                                height: sizes.rowHeight,
-                                child: column.cellBuilder(context, row),
-                              );
-                            }),
+                                      return Container(
+                                        alignment: column.numeric
+                                            ? Alignment.centerRight
+                                            : Alignment.centerLeft,
+                                        padding: styles.cellPadding,
+                                        width: column.width.value(tableWidth),
+                                        height: sizes.rowHeight,
+                                        child: column.cellBuilder(context, row),
+                                      );
+                                    }),
+                                  ],
+                                );
+                              },
+                            ),
                           ],
                         ),
                       );

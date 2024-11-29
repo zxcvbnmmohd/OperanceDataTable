@@ -236,7 +236,10 @@ class OperanceDataTableState<T> extends State<OperanceDataTable<T>> {
 
     _controller = widget.controller ??
         OperanceDataController<T>(
-          columnOrder: List.generate(widget.columns.length, (index) => index),
+          columnOrder: List.generate(
+            widget.columns.length,
+            (index) => index,
+          ).toSet(),
           initialPage: _initialPage,
           currentPageIndex: _currentPageIndex,
           onCurrentPageIndexChanged: _onCurrentPageIndexChanged,
@@ -370,12 +373,10 @@ class OperanceDataTableState<T> extends State<OperanceDataTable<T>> {
                         children: <Widget>[
                           if (_showColumnHeader)
                             OperanceDataColumnHeader<T>(
-                              columnOrder: _columnOrder,
                               columns: _columns,
                               tableWidth: availableWidth,
                               trailing: _columnHeaderTrailingActions,
                               onChecked: _onSelectionChanged,
-                              onColumnDragged: _controller.reOrderColumn,
                               onSort: _controller.setSort,
                               sorts: _controller.sorts,
                               decoration: _decoration,
@@ -460,7 +461,6 @@ class OperanceDataTableState<T> extends State<OperanceDataTable<T>> {
 
                                                 return OperanceDataRow<T>(
                                                   key: ValueKey(row),
-                                                  columnOrder: _columnOrder,
                                                   columns: _columns,
                                                   row: row,
                                                   index: index,
@@ -619,9 +619,6 @@ class OperanceDataTableState<T> extends State<OperanceDataTable<T>> {
       ),
     );
   }
-
-  /// Gets the order of the columns.
-  List<int> get _columnOrder => _controller.columnOrder;
 
   /// Calculates the maximum available width of the table.
   double _tableMaxWidth(double width) {

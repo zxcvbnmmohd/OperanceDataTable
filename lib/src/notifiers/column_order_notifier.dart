@@ -4,11 +4,11 @@ import 'package:flutter/material.dart';
 class ColumnOrderNotifier extends ValueNotifier<Set<int>> {
   ColumnOrderNotifier({Set<int> columnOrder = const {}}) : super(columnOrder);
 
-  void reorder(int oldIndex, int newIndex) {
+  void reorder({required int fromIndex, required int toIndex}) {
     final newOrder = value.toList();
-    final column = newOrder.removeAt(oldIndex);
+    final column = newOrder.removeAt(fromIndex);
 
-    newOrder.insert(newIndex, column);
+    newOrder.insert(toIndex, column);
     value = newOrder.toSet();
 
     return notifyListeners();

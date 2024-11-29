@@ -10,15 +10,14 @@ import 'package:operance_datatable/src/values/values.dart';
 class OperanceDataController<T> extends ChangeNotifier {
   /// Creates an instance of [OperanceDataController].
   OperanceDataController({
-    List<int> columnOrder = const <int>[],
+    Set<int> columnOrder = const <int>{},
     Set<int> hiddenColumns = const <int>{},
     PageData<T> initialPage = (const [], false),
     int currentPageIndex = 0,
     int rowsPerPage = 25,
     OnFetch<T>? onFetch,
     ValueChanged<int>? onCurrentPageIndexChanged,
-  })  : _columnOrder = columnOrder,
-        _hiddenColumns = hiddenColumns,
+  })  : _hiddenColumns = hiddenColumns,
         _currentPageIndex = currentPageIndex,
         _onFetch = onFetch,
         _onCurrentPageIndexChanged = onCurrentPageIndexChanged,
@@ -27,6 +26,9 @@ class OperanceDataController<T> extends ChangeNotifier {
         loadingNotifier = ValueNotifier<bool>(false),
         rowsPerPageNotifier = ValueNotifier<int>(rowsPerPage),
         hoveredRowNotifier = ValueNotifier<int?>(null),
+        columnOrderNotifier = ColumnOrderNotifier(
+          columnOrder: columnOrder,
+        ),
         pagesNotifier = PagesNotifier<T>(
           pages: <Set<T>>{},
           rowsPerPage: rowsPerPage,
@@ -41,9 +43,6 @@ class OperanceDataController<T> extends ChangeNotifier {
       _hasMore = initialPage.$2;
     }
   }
-
-  /// The order of the columns.
-  final List<int> _columnOrder;
 
   /// The hidden columns.
   final Set<int> _hiddenColumns;
@@ -72,6 +71,9 @@ class OperanceDataController<T> extends ChangeNotifier {
   /// The notifier for the index of the hovered row.
   final ValueNotifier<int?> hoveredRowNotifier;
 
+  /// The notifier for the order of the columns.
+  final ColumnOrderNotifier columnOrderNotifier;
+
   /// The notifier for pages of data.
   final PagesNotifier<T> pagesNotifier;
 
@@ -84,16 +86,13 @@ class OperanceDataController<T> extends ChangeNotifier {
   /// The notifier for selected rows.
   final SelectedRowsNotifier<T> selectedRowsNotifier;
 
-  /// Gets the order of the columns.
-  List<int> get columnOrder => List<int>.unmodifiable(_columnOrder);
-
   /// Gets the hidden columns.
   Set<int> get hiddenColumns => Set<int>.unmodifiable(_hiddenColumns);
 
   /// Gets the visible columns.
   Set<int> get visibleColumns {
     return Set<int>.unmodifiable(
-      _columnOrder
+      columnOrderNotifier.value
           .where((index) => !_hiddenColumns.contains(index))
           .map((index) => index)
           .toList(),
@@ -186,13 +185,6 @@ class OperanceDataController<T> extends ChangeNotifier {
       _onCurrentPageIndexChanged?.call(_currentPageIndex);
       notifyListeners();
     }
-  }
-
-  /// Reorders the columns.
-  void reOrderColumn(int oldIndex, int newIndex) {
-    final column = _columnOrder.removeAt(oldIndex);
-    _columnOrder.insert(newIndex, column);
-    notifyListeners();
   }
 
   /// Hides the column.

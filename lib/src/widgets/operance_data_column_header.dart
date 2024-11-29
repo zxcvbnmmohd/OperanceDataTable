@@ -11,16 +11,14 @@ import 'package:operance_datatable/src/values/values.dart';
 class OperanceDataColumnHeader<T> extends StatelessWidget {
   /// Creates an instance of [OperanceDataColumnHeader].
   ///
-  /// The [columnOrder], [columns] and [tableWidth] parameters are required.
+  /// The [columns] and [tableWidth] parameters are required.
   /// The [trailing], [onChecked], [onColumnDragged], [onSort], [sorts]
   /// [decoration], [allowColumnReorder],
   /// [expandable], and [selectable] parameters are optional.
   const OperanceDataColumnHeader({
-    required this.columnOrder,
     required this.columns,
     required this.tableWidth,
     this.onChecked,
-    this.onColumnDragged,
     this.onSort,
     this.sorts = const {},
     this.trailing = const [],
@@ -31,9 +29,6 @@ class OperanceDataColumnHeader<T> extends StatelessWidget {
     super.key,
   });
 
-  /// The order of the columns.
-  final List<int> columnOrder;
-
   /// The list of columns.
   final List<OperanceDataColumn<T>> columns;
 
@@ -42,9 +37,6 @@ class OperanceDataColumnHeader<T> extends StatelessWidget {
 
   /// Callback when the checkbox is checked or unchecked.
   final ValueChanged<Set<T>>? onChecked;
-
-  /// Callback when a column is dragged.
-  final void Function(int, int)? onColumnDragged;
 
   /// Callback when a column is sorted.
   final void Function(String, SortDirection?)? onSort;
@@ -69,6 +61,8 @@ class OperanceDataColumnHeader<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final controller = context.controller<T>();
+    final columnOrderNotifier = controller.columnOrderNotifier;
     final sizes = decoration.sizes;
     final styles = decoration.styles;
 
@@ -91,21 +85,32 @@ class OperanceDataColumnHeader<T> extends StatelessWidget {
                   onChecked: onChecked,
                 ),
               ),
-            for (final index in columnOrder)
-              _ColumnHeaderCell<T>(
-                key: ValueKey('column_$index'),
-                column: columns[index],
-                tableWidth: tableWidth,
-                decoration: decoration,
-                onSort: onSort,
-                sorts: sorts,
-                allowColumnReorder: allowColumnReorder,
-                onColumnDragged: onColumnDragged != null
-                    ? (fromIndex) => onColumnDragged!(fromIndex, index)
-                    : null,
-                columnOrder: columnOrder,
-                index: index,
-              ),
+            ValueListenableBuilder<Set<int>>(
+              valueListenable: columnOrderNotifier,
+              builder: (context, columnOrder, child) {
+                return Row(
+                  children: <Widget>[
+                    for (final index in columnOrder)
+                      _ColumnHeaderCell<T>(
+                        key: ValueKey('column_$index'),
+                        column: columns[index],
+                        tableWidth: tableWidth,
+                        decoration: decoration,
+                        onSort: onSort,
+                        sorts: sorts,
+                        allowColumnReorder: allowColumnReorder,
+                        onColumnDragged: (fromIndex) {
+                          columnOrderNotifier.reorder(
+                            fromIndex: fromIndex,
+                            toIndex: index,
+                          );
+                        },
+                        index: index,
+                      ),
+                  ],
+                );
+              },
+            ),
             for (final child in trailing)
               Container(
                 decoration: styles.columnHeaderDecoration,
@@ -168,7 +173,7 @@ class _ColumnHeaderCell<T> extends StatelessWidget {
   /// Creates an instance of [_ColumnHeaderCell].
   ///
   /// The [column], [tableWidth], [decoration], [onSort], [sorts],
-  /// [allowColumnReorder], [onColumnDragged], [columnOrder], and [index]
+  /// [allowColumnReorder], [onColumnDragged], and [index]
   /// parameters are required.
   const _ColumnHeaderCell({
     required this.column,
@@ -178,7 +183,6 @@ class _ColumnHeaderCell<T> extends StatelessWidget {
     required this.sorts,
     required this.allowColumnReorder,
     required this.onColumnDragged,
-    required this.columnOrder,
     required this.index,
     super.key,
   });
@@ -203,9 +207,6 @@ class _ColumnHeaderCell<T> extends StatelessWidget {
 
   /// Callback when a column is dragged.
   final void Function(int)? onColumnDragged;
-
-  /// The order of the columns.
-  final List<int> columnOrder;
 
   /// The index of the column.
   final int index;

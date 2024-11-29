@@ -29,7 +29,6 @@ void main() {
         width: OperanceDataColumnWidth(size: 100.0),
       ),
     ];
-    final columnOrder = List.generate(columns.length, (index) => index);
 
     group('When all required parameters are provided', () {
       testWidgets(
@@ -39,7 +38,6 @@ void main() {
             MaterialApp(
               home: Scaffold(
                 body: OperanceDataColumnHeader<String>(
-                  columnOrder: columnOrder,
                   columns: columns,
                   tableWidth: 500.0,
                 ),
@@ -57,22 +55,17 @@ void main() {
         'Then it should create an instance with the provided values',
         (tester) async {
           var checkedCalled = false;
-          var columnDraggedCalled = false;
           var sortCalled = false;
 
           await tester.pumpWidget(
             MaterialApp(
               home: Scaffold(
                 body: OperanceDataColumnHeader<String>(
-                  columnOrder: columnOrder,
                   columns: columns,
                   tableWidth: 500.0,
                   trailing: const <Widget>[Icon(Icons.more_vert)],
                   onChecked: (value) {
                     checkedCalled = true;
-                  },
-                  onColumnDragged: (oldIndex, newIndex) {
-                    columnDraggedCalled = true;
                   },
                   onSort: (columnName, direction) {
                     sortCalled = true;
@@ -112,8 +105,6 @@ void main() {
               tester.getCenter(dropTargetFinder) -
                   tester.getCenter(draggableFinder));
           await tester.pumpAndSettle();
-
-          expect(columnDraggedCalled, isTrue);
         },
       );
     });
@@ -126,7 +117,6 @@ void main() {
             MaterialApp(
               home: Scaffold(
                 body: OperanceDataColumnHeader<String>(
-                  columnOrder: columnOrder,
                   columns: columns,
                   tableWidth: 500.0,
                   allowColumnReorder: false,
@@ -151,7 +141,6 @@ void main() {
             MaterialApp(
               home: Scaffold(
                 body: OperanceDataColumnHeader<String>(
-                  columnOrder: columnOrder,
                   columns: columns,
                   tableWidth: 500.0,
                   expandable: false,
@@ -174,7 +163,6 @@ void main() {
             MaterialApp(
               home: Scaffold(
                 body: OperanceDataColumnHeader<String>(
-                  columnOrder: columnOrder,
                   columns: columns,
                   tableWidth: 500.0,
                   selectable: false,
