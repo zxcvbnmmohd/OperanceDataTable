@@ -44,7 +44,6 @@ void main() {
               onChecked: onChecked,
               onRowPressed: (_) {},
               decoration: const OperanceDataDecoration(),
-              isHovered: true,
               showExpansionIcon: showExpansionIcon,
               showCheckbox: showCheckbox,
             ),

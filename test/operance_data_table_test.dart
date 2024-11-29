@@ -367,7 +367,7 @@ void main() {
         await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
         await tester.pump();
 
-        expect(controller.hoveredRowIndex, equals(0));
+        expect(controller.hoveredRowNotifier.value, equals(0));
       });
     });
 
@@ -438,12 +438,12 @@ void main() {
         await gesture.moveTo(tester.getCenter(firstRow));
         await tester.pumpAndSettle();
 
-        expect(controller.hoveredRowIndex, equals(0));
+        expect(controller.hoveredRowNotifier.value, equals(0));
 
         await gesture.moveTo(Offset.zero);
         await tester.pumpAndSettle();
 
-        expect(controller.hoveredRowIndex, isNull);
+        expect(controller.hoveredRowNotifier.value, isNull);
 
         await gesture.removePointer();
       });
@@ -589,12 +589,12 @@ void main() {
         await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
         await tester.pump();
 
-        expect(controller.hoveredRowIndex, equals(0));
+        expect(controller.hoveredRowNotifier.value, equals(0));
 
         await tester.sendKeyEvent(LogicalKeyboardKey.arrowUp);
         await tester.pump();
 
-        expect(controller.hoveredRowIndex, equals(0));
+        expect(controller.hoveredRowNotifier.value, equals(0));
 
         await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
         await tester.pump();
@@ -629,17 +629,17 @@ void main() {
         await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
         await tester.pump();
 
-        expect(controller.hoveredRowIndex, 0);
+        expect(controller.hoveredRowNotifier.value, 0);
 
         await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
         await tester.pump();
 
-        expect(controller.hoveredRowIndex, 1);
+        expect(controller.hoveredRowNotifier.value, 1);
 
         await tester.sendKeyEvent(LogicalKeyboardKey.arrowUp);
         await tester.pump();
 
-        expect(controller.hoveredRowIndex, 0);
+        expect(controller.hoveredRowNotifier.value, 0);
       });
 
       testWidgets('Then it should expand and collapse rows with arrow keys',
@@ -664,7 +664,7 @@ void main() {
         await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
         await tester.pump();
 
-        expect(controller.hoveredRowIndex, 0);
+        expect(controller.hoveredRowNotifier.value, 0);
 
         await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
         await tester.pump();
@@ -699,7 +699,7 @@ void main() {
         await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
         await tester.pump();
 
-        expect(controller.hoveredRowIndex, 0);
+        expect(controller.hoveredRowNotifier.value, 0);
 
         await tester.sendKeyEvent(LogicalKeyboardKey.enter);
         await tester.pump();
@@ -725,12 +725,12 @@ void main() {
 
         await tester.pump();
 
-        expect(controller.hoveredRowIndex, isNull);
+        expect(controller.hoveredRowNotifier.value, isNull);
 
         await tester.sendKeyEvent(LogicalKeyboardKey.arrowUp);
         await tester.pump();
 
-        expect(controller.hoveredRowIndex, equals(0));
+        expect(controller.hoveredRowNotifier.value, equals(0));
       });
     });
 

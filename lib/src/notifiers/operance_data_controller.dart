@@ -26,6 +26,7 @@ class OperanceDataController<T> extends ChangeNotifier {
         _hasMore = false,
         loadingNotifier = ValueNotifier<bool>(false),
         rowsPerPageNotifier = ValueNotifier<int>(rowsPerPage),
+        hoveredRowNotifier = ValueNotifier<int?>(null),
         pagesNotifier = PagesNotifier<T>(
           pages: <Set<T>>{},
           rowsPerPage: rowsPerPage,
@@ -62,17 +63,17 @@ class OperanceDataController<T> extends ChangeNotifier {
   /// Indicates if there are more rows to fetch.
   bool _hasMore;
 
-  /// The index of the hovered row.
-  int? _hoveredRowIndex;
-
   /// Indicates if data is being loaded.
   final ValueNotifier<bool> loadingNotifier;
 
   /// The notifier for the number of rows per page.
   final ValueNotifier<int> rowsPerPageNotifier;
 
+  /// The notifier for the index of the hovered row.
+  final ValueNotifier<int?> hoveredRowNotifier;
+
   /// The notifier for pages of data.
-  PagesNotifier<T> pagesNotifier;
+  final PagesNotifier<T> pagesNotifier;
 
   /// The notifier for expanded rows.
   final ExpandedRowsNotifier expandedRowsNotifier;
@@ -106,9 +107,6 @@ class OperanceDataController<T> extends ChangeNotifier {
 
   /// Gets the current page index.
   int get currentPageIndex => _currentPageIndex;
-
-  /// Gets the index of the hovered rpw.
-  int? get hoveredRowIndex => _hoveredRowIndex;
 
   /// Indicates if the next page can be navigated to.
   bool get canGoNext => _currentPageIndex < pagesNotifier.value.length - 1;
@@ -244,19 +242,12 @@ class OperanceDataController<T> extends ChangeNotifier {
     rowsPerPageNotifier.value = rowsPerPage;
     pagesNotifier.rowsPerPage = rowsPerPage;
 
+    hoveredRowNotifier.value = null;
+    expandedRowsNotifier.clear();
+    searchedRowsNotifier.clear();
+    selectedRowsNotifier.clear();
+
     _resetData();
-  }
-
-  /// Sets the index of the hovered row.
-  void setHoveredRowIndex(int index) {
-    _hoveredRowIndex = index;
-    notifyListeners();
-  }
-
-  /// Clears the index of the hovered row.
-  void clearHoveredRowIndex() {
-    _hoveredRowIndex = null;
-    notifyListeners();
   }
 
   @override

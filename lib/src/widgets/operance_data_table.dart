@@ -288,6 +288,8 @@ class OperanceDataTableState<T> extends State<OperanceDataTable<T>> {
       _searchFieldFocusNode.dispose();
     }
 
+    _controller.dispose();
+
     super.dispose();
   }
 
@@ -465,13 +467,13 @@ class OperanceDataTableState<T> extends State<OperanceDataTable<T>> {
                                                   tableWidth: availableWidth,
                                                   onEnter: (_) {
                                                     _controller
-                                                        .setHoveredRowIndex(
-                                                      index,
-                                                    );
+                                                        .hoveredRowNotifier
+                                                        .value = index;
                                                   },
                                                   onExit: (_) {
                                                     _controller
-                                                        .clearHoveredRowIndex();
+                                                        .hoveredRowNotifier
+                                                        .value = null;
                                                   },
                                                   expansionBuilder:
                                                       _expansionBuilder,
@@ -479,7 +481,6 @@ class OperanceDataTableState<T> extends State<OperanceDataTable<T>> {
                                                       _onSelectionChanged,
                                                   onRowPressed: _onRowPressed,
                                                   decoration: _decoration,
-                                                  isHovered: _isHovered(index),
                                                   showExpansionIcon:
                                                       _expandable,
                                                   showCheckbox: _selectable,
@@ -622,9 +623,6 @@ class OperanceDataTableState<T> extends State<OperanceDataTable<T>> {
   /// Gets the order of the columns.
   List<int> get _columnOrder => _controller.columnOrder;
 
-  /// Gets the index of the currently hovered row.
-  int? get _hoveredRowIndex => _controller.hoveredRowIndex;
-
   /// Calculates the maximum available width of the table.
   double _tableMaxWidth(double width) {
     final availableWidth = width - _extrasWidth;
@@ -641,9 +639,6 @@ class OperanceDataTableState<T> extends State<OperanceDataTable<T>> {
         (_selectable ? _selectionWidth : 0.0) +
         (_columnHeaderTrailingActions.length * 50.0);
   }
-
-  /// Checks if a row is hovered.
-  bool _isHovered(int index) => _hoveredRowIndex == index;
 
   /// Listener for the search field to update the searched rows.
   void _searchFieldListener() {
@@ -699,20 +694,21 @@ class OperanceDataTableState<T> extends State<OperanceDataTable<T>> {
   /// Handles keyboard events to navigate and interact with the table rows.
   void _hoverRow({required KeyEvent event, required Set<T> rows}) {
     final expandedRowsNotifier = _controller.expandedRowsNotifier;
-    final currentHoveredIndex = _hoveredRowIndex;
+    final hoveredRowNotifier = _controller.hoveredRowNotifier;
+    final currentHoveredIndex = hoveredRowNotifier.value;
 
     if (event is KeyDownEvent) {
       if (event.logicalKey == LogicalKeyboardKey.arrowDown) {
         if (currentHoveredIndex == null) {
-          _controller.setHoveredRowIndex(0);
+          hoveredRowNotifier.value = 0;
         } else if (currentHoveredIndex < rows.length - 1) {
-          _controller.setHoveredRowIndex(currentHoveredIndex + 1);
+          hoveredRowNotifier.value = currentHoveredIndex + 1;
         }
       } else if (event.logicalKey == LogicalKeyboardKey.arrowUp) {
         if (currentHoveredIndex == null) {
-          _controller.setHoveredRowIndex(0);
+          hoveredRowNotifier.value = 0;
         } else if (currentHoveredIndex > 0) {
-          _controller.setHoveredRowIndex(currentHoveredIndex - 1);
+          hoveredRowNotifier.value = currentHoveredIndex - 1;
         }
       } else if (event.logicalKey == LogicalKeyboardKey.arrowLeft) {
         if (currentHoveredIndex != null) {

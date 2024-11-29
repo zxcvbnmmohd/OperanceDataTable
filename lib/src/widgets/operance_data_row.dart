@@ -13,7 +13,7 @@ class OperanceDataRow<T> extends StatelessWidget {
   /// The [columnOrder], [columns], [row], [index] and [tableWidth] parameters
   /// are required.
   /// The [onEnter], [onExit], [expansionBuilder], [onChecked],
-  /// [onRowPressed], [decoration], [isHovered],
+  /// [onRowPressed], [decoration],
   /// [showExpansionIcon], and [showCheckbox] parameters are optional.
   const OperanceDataRow({
     required this.columnOrder,
@@ -27,7 +27,6 @@ class OperanceDataRow<T> extends StatelessWidget {
     this.onRowPressed,
     this.expansionBuilder,
     this.decoration = const OperanceDataDecoration(),
-    this.isHovered = false,
     this.showExpansionIcon = false,
     this.showCheckbox = false,
     super.key,
@@ -66,9 +65,6 @@ class OperanceDataRow<T> extends StatelessWidget {
   /// The decoration settings for the data table.
   final OperanceDataDecoration decoration;
 
-  /// Indicates whether the row is hovered.
-  final bool isHovered;
-
   /// Indicates whether the expansion icon is shown.
   final bool showExpansionIcon;
 
@@ -99,96 +95,105 @@ class OperanceDataRow<T> extends StatelessWidget {
             child: ValueListenableBuilder<Set<T>>(
               valueListenable: selectedRowsNotifier,
               builder: (context, selectedRows, child) {
-                return AnimatedContainer(
-                  duration: Duration(
-                    milliseconds: ui.animationDuration,
-                  ),
-                  color: selectedRows.contains(row)
-                      ? colors.rowSelectedColor.withOpacity(0.3)
-                      : (isHovered ? colors.rowHoverColor : colors.rowColor),
-                  child: Row(
-                    children: <Widget>[
-                      if (showExpansionIcon)
-                        MouseRegion(
-                          cursor: canPress
-                              ? ui.rowCursor
-                              : SystemMouseCursors.basic,
-                          child: GestureDetector(
-                            onTap: () => expandedRowsNotifier.toggle(index),
-                            child: SizedBox(
-                              width: 50.0,
-                              child: AnimatedSwitcher(
-                                duration: Duration(
-                                  milliseconds: ui.animationDuration,
-                                ),
-                                transitionBuilder: (child, animation) {
-                                  return RotationTransition(
-                                    turns:
-                                        child.key == ValueKey('expanded_$index')
-                                            ? Tween<double>(
-                                                begin: 0.5,
-                                                end: 1.0,
-                                              ).animate(animation)
-                                            : Tween<double>(
-                                                begin: 1.0,
-                                                end: 0.5,
-                                              ).animate(animation),
-                                    child: FadeTransition(
-                                      opacity: animation,
-                                      child: child,
-                                    ),
-                                  );
-                                },
-                                child: ValueListenableBuilder(
-                                  valueListenable: expandedRowsNotifier,
-                                  builder: (context, expandedRows, child) {
-                                    final isExpanded =
-                                        expandedRows[index] ?? false;
-
-                                    return Icon(
-                                      isExpanded
-                                          ? icons.rowExpansionIconExpanded
-                                          : icons.rowExpansionIconCollapsed,
-                                      key: ValueKey(
-                                        isExpanded
-                                            ? 'expanded_$index'
-                                            : 'collapsed_$index',
+                return ValueListenableBuilder<int?>(
+                    valueListenable: controller.hoveredRowNotifier,
+                    builder: (context, hoveredRow, child) {
+                      return AnimatedContainer(
+                        duration: Duration(
+                          milliseconds: ui.animationDuration,
+                        ),
+                        color: selectedRows.contains(row)
+                            ? colors.rowSelectedColor.withOpacity(0.3)
+                            : hoveredRow == index
+                                ? colors.rowHoverColor
+                                : colors.rowColor,
+                        child: Row(
+                          children: <Widget>[
+                            if (showExpansionIcon)
+                              MouseRegion(
+                                cursor: canPress
+                                    ? ui.rowCursor
+                                    : SystemMouseCursors.basic,
+                                child: GestureDetector(
+                                  onTap: () =>
+                                      expandedRowsNotifier.toggle(index),
+                                  child: SizedBox(
+                                    width: 50.0,
+                                    child: AnimatedSwitcher(
+                                      duration: Duration(
+                                        milliseconds: ui.animationDuration,
                                       ),
-                                      color: colors.rowExpansionIconColor,
-                                    );
+                                      transitionBuilder: (child, animation) {
+                                        return RotationTransition(
+                                          turns: child.key ==
+                                                  ValueKey('expanded_$index')
+                                              ? Tween<double>(
+                                                  begin: 0.5,
+                                                  end: 1.0,
+                                                ).animate(animation)
+                                              : Tween<double>(
+                                                  begin: 1.0,
+                                                  end: 0.5,
+                                                ).animate(animation),
+                                          child: FadeTransition(
+                                            opacity: animation,
+                                            child: child,
+                                          ),
+                                        );
+                                      },
+                                      child: ValueListenableBuilder(
+                                        valueListenable: expandedRowsNotifier,
+                                        builder:
+                                            (context, expandedRows, child) {
+                                          final isExpanded =
+                                              expandedRows[index] ?? false;
+
+                                          return Icon(
+                                            isExpanded
+                                                ? icons.rowExpansionIconExpanded
+                                                : icons
+                                                    .rowExpansionIconCollapsed,
+                                            key: ValueKey(
+                                              isExpanded
+                                                  ? 'expanded_$index'
+                                                  : 'collapsed_$index',
+                                            ),
+                                            color: colors.rowExpansionIconColor,
+                                          );
+                                        },
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            if (showCheckbox)
+                              SizedBox(
+                                width: 50.0,
+                                child: Checkbox(
+                                  value: selectedRows.contains(row),
+                                  onChanged: (value) {
+                                    selectedRowsNotifier.toggle(row);
+                                    onChecked?.call(selectedRowsNotifier.value);
                                   },
                                 ),
                               ),
-                            ),
-                          ),
-                        ),
-                      if (showCheckbox)
-                        SizedBox(
-                          width: 50.0,
-                          child: Checkbox(
-                            value: selectedRows.contains(row),
-                            onChanged: (value) {
-                              selectedRowsNotifier.toggle(row);
-                              onChecked?.call(selectedRowsNotifier.value);
-                            },
-                          ),
-                        ),
-                      ...columnOrder.map((index) {
-                        final column = columns[index];
+                            ...columnOrder.map((index) {
+                              final column = columns[index];
 
-                        return Container(
-                          alignment: column.numeric
-                              ? Alignment.centerRight
-                              : Alignment.centerLeft,
-                          padding: styles.cellPadding,
-                          width: column.width.value(tableWidth),
-                          height: sizes.rowHeight,
-                          child: column.cellBuilder(context, row),
-                        );
-                      }),
-                    ],
-                  ),
-                );
+                              return Container(
+                                alignment: column.numeric
+                                    ? Alignment.centerRight
+                                    : Alignment.centerLeft,
+                                padding: styles.cellPadding,
+                                width: column.width.value(tableWidth),
+                                height: sizes.rowHeight,
+                                child: column.cellBuilder(context, row),
+                              );
+                            }),
+                          ],
+                        ),
+                      );
+                    });
               },
             ),
           ),
