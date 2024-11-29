@@ -563,22 +563,27 @@ class OperanceDataTableState<T> extends State<OperanceDataTable<T>> {
                                     style: styles.rowsPerPageTextStyle,
                                   ),
                                   const SizedBox(width: 8.0),
-                                  DropdownButton<int>(
-                                    value: _rowsPerPage,
-                                    items: ui.rowsPerPageOptions.map(
-                                      (value) {
-                                        return DropdownMenuItem<int>(
-                                          value: value,
-                                          child: Text(value.toString()),
+                                  ValueListenableBuilder<int>(
+                                      valueListenable:
+                                          _controller.rowsPerPageNotifier,
+                                      builder: (context, rowsPerPage, _) {
+                                        return DropdownButton<int>(
+                                          value: rowsPerPage,
+                                          items: ui.rowsPerPageOptions.map(
+                                            (value) {
+                                              return DropdownMenuItem<int>(
+                                                value: value,
+                                                child: Text(value.toString()),
+                                              );
+                                            },
+                                          ).toList(),
+                                          onChanged: (value) {
+                                            if (value != null) {
+                                              _controller.setRowsPerPage(value);
+                                            }
+                                          },
                                         );
-                                      },
-                                    ).toList(),
-                                    onChanged: (value) {
-                                      if (value != null) {
-                                        _controller.setRowsPerPage(value);
-                                      }
-                                    },
-                                  ),
+                                      }),
                                 ],
                               )
                             : const Spacer(),
@@ -616,9 +621,6 @@ class OperanceDataTableState<T> extends State<OperanceDataTable<T>> {
 
   /// Gets the order of the columns.
   List<int> get _columnOrder => _controller.columnOrder;
-
-  /// Gets the number of rows per page.
-  int get _rowsPerPage => _controller.rowsPerPage;
 
   /// Gets the index of the currently hovered row.
   int? get _hoveredRowIndex => _controller.hoveredRowIndex;

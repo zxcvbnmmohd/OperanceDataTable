@@ -8,9 +8,13 @@ class PagesNotifier<T> extends ValueNotifier<Set<Set<T>>> {
   })  : _rowsPerPage = rowsPerPage,
         super(pages);
 
-  final int _rowsPerPage;
+  int _rowsPerPage;
 
   Set<T> get allRows => value.expand((page) => page).toSet();
+
+  set rowsPerPage(int rowsPerPage) {
+    _rowsPerPage = rowsPerPage;
+  }
 
   void add(List<T> rows) {
     value.add(rows.toSet());
