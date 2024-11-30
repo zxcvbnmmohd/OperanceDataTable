@@ -1,12 +1,10 @@
 // 🐦 Flutter imports:
 import 'package:flutter/material.dart';
 
-class HiddenColumnsNotifier extends ValueNotifier<Set<int>> {
-  HiddenColumnsNotifier({
-    Set<int> hiddeColumns = const {},
-  }) : super(hiddeColumns);
+class HiddenColumnsNotifier extends ValueNotifier<Set<String>> {
+  HiddenColumnsNotifier({Set<String> columns = const {}}) : super(columns);
 
-  void toggle(int column) {
+  void toggle(String column) {
     if (value.contains(column)) {
       value.remove(column);
     } else {
@@ -16,7 +14,7 @@ class HiddenColumnsNotifier extends ValueNotifier<Set<int>> {
     return notifyListeners();
   }
 
-  void hideMany(List<int> columns) {
+  void hideMany(Set<String> columns) {
     value.addAll(columns);
 
     return notifyListeners();

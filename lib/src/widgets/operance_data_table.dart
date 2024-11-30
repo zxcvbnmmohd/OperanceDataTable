@@ -59,10 +59,15 @@ class OperanceDataTable<T> extends StatefulWidget {
     this.showRowsPerPageOptions = false,
     this.infiniteScroll = false,
     this.allowColumnReorder = false,
+    this.allowColumnHiding = false,
     super.key,
   })  : assert(
           columns.isNotEmpty,
           "columns can't be empty",
+        ),
+        assert(
+          columns.where((column) => column.primary).length == 1,
+          'must provide 1 primary column',
         ),
         assert(
           decoration.ui.rowsPerPageOptions.isNotEmpty,
@@ -170,6 +175,9 @@ class OperanceDataTable<T> extends StatefulWidget {
   /// Indicates whether column reordering is allowed.
   final bool allowColumnReorder;
 
+  /// Indicates whether column hiding is allowed.
+  final bool allowColumnHiding;
+
   @override
   OperanceDataTableState<T> createState() => OperanceDataTableState<T>();
 }
@@ -209,6 +217,7 @@ class OperanceDataTableState<T> extends State<OperanceDataTable<T>> {
   late final bool _showRowsPerPageOptions;
   late final bool _infiniteScroll;
   late final bool _allowColumnReorder;
+  late final bool _allowColumnHiding;
 
   final _columnWidths = <double>[];
 
@@ -241,6 +250,7 @@ class OperanceDataTableState<T> extends State<OperanceDataTable<T>> {
     _showRowsPerPageOptions = widget.showRowsPerPageOptions;
     _infiniteScroll = widget.infiniteScroll;
     _allowColumnReorder = widget.allowColumnReorder;
+    _allowColumnHiding = widget.allowColumnHiding;
 
     _controller = widget.controller ??
         OperanceDataController<T>(
@@ -331,11 +341,13 @@ class OperanceDataTableState<T> extends State<OperanceDataTable<T>> {
                 // ------------------------------ Header ---------------------
                 if (_showHeader)
                   _OperanceDataTableHeader(
+                    columns: _columns,
                     searchFieldController: _searchFieldController,
                     searchFieldFocusNode: _searchFieldFocusNode,
                     onSearchFieldChanged: _onSearchFieldChanged,
                     header: _header,
                     searchable: _searchable,
+                    allowColumnHiding: _allowColumnHiding,
                   ),
                 // ------------------------------ Table ----------------------
                 Expanded(
@@ -479,23 +491,30 @@ class OperanceDataTableState<T> extends State<OperanceDataTable<T>> {
   }
 }
 
-class _OperanceDataTableHeader extends StatelessWidget {
+class _OperanceDataTableHeader<T> extends StatelessWidget {
   const _OperanceDataTableHeader({
+    required this.columns,
     this.searchFieldController,
     this.searchFieldFocusNode,
     this.onSearchFieldChanged,
     this.header = const [],
     this.searchable = false,
+    this.allowColumnHiding = false,
   });
 
+  /// The list of columns to be displayed in the table.
+  final List<OperanceDataColumn<T>> columns;
   final TextEditingController? searchFieldController;
   final FocusNode? searchFieldFocusNode;
   final ValueChanged<String?>? onSearchFieldChanged;
   final List<Widget> header;
   final bool searchable;
+  final bool allowColumnHiding;
 
   @override
   Widget build(BuildContext context) {
+    final controller = context.controller<T>();
+    final hiddenColumnsNotifier = controller.hiddenColumnsNotifier;
     final decoration = context.decoration();
     final sizes = decoration.sizes;
     final styles = decoration.styles;
@@ -522,6 +541,54 @@ class _OperanceDataTableHeader extends StatelessWidget {
               focusNode: searchFieldFocusNode,
               onChanged: onSearchFieldChanged,
             ),
+          if (allowColumnHiding) ...<Widget>[
+            const Spacer(),
+            SizedBox(
+              width: sizes.hiddenColumnsDropdownWidth,
+              child: ValueListenableBuilder<Set<String>>(
+                valueListenable: hiddenColumnsNotifier,
+                builder: (context, hiddenColumns, _) {
+                  final decoration = styles.hiddenColumnsDropdownDecoration;
+                  final nonPrimaryColumns = columns.where((column) {
+                    return !column.primary;
+                  }).toList();
+
+                  return DropdownButtonFormField<String>(
+                    decoration: decoration,
+                    items: List<DropdownMenuItem<String>>.generate(
+                      nonPrimaryColumns.length,
+                      (index) {
+                        final name = nonPrimaryColumns[index].name;
+
+                        return DropdownMenuItem<String>(
+                          value: name,
+                          child: Row(
+                            children: <Widget>[
+                              Checkbox(
+                                value: !hiddenColumns.contains(name),
+                                onChanged: (value) {},
+                              ),
+                              nonPrimaryColumns[index].columnHeader,
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+                    selectedItemBuilder: (context) {
+                      return nonPrimaryColumns.map((_) {
+                        return decoration.label ?? Text(decoration.labelText!);
+                      }).toList();
+                    },
+                    onChanged: (index) {
+                      if (index != null) {
+                        hiddenColumnsNotifier.toggle(index);
+                      }
+                    },
+                  );
+                },
+              ),
+            ),
+          ],
         ],
       ),
     );

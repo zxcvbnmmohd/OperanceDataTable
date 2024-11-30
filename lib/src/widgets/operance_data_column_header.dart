@@ -63,6 +63,7 @@ class OperanceDataColumnHeader<T> extends StatelessWidget {
   Widget build(BuildContext context) {
     final controller = context.controller<T>();
     final columnOrderNotifier = controller.columnOrderNotifier;
+    final hiddenColumnsNotifier = controller.hiddenColumnsNotifier;
     final sizes = decoration.sizes;
     final styles = decoration.styles;
 
@@ -85,29 +86,49 @@ class OperanceDataColumnHeader<T> extends StatelessWidget {
                   onChecked: onChecked,
                 ),
               ),
-            ValueListenableBuilder<Set<int>>(
-              valueListenable: columnOrderNotifier,
-              builder: (context, columnOrder, child) {
-                return Row(
-                  children: <Widget>[
-                    for (final index in columnOrder)
-                      _ColumnHeaderCell<T>(
-                        key: ValueKey('column_$index'),
-                        column: columns[index],
-                        tableWidth: tableWidth,
-                        decoration: decoration,
-                        onSort: onSort,
-                        sorts: sorts,
-                        allowColumnReorder: allowColumnReorder,
-                        onColumnDragged: (fromIndex) {
-                          columnOrderNotifier.reorder(
-                            fromIndex: fromIndex,
-                            toIndex: index,
-                          );
-                        },
-                        index: index,
-                      ),
-                  ],
+            ValueListenableBuilder<Set<String>>(
+              valueListenable: hiddenColumnsNotifier,
+              builder: (context, hiddenColumns, _) {
+                return ValueListenableBuilder<Set<int>>(
+                  valueListenable: columnOrderNotifier,
+                  builder: (context, columnOrder, child) {
+                    var totalHiddenWidth = 0.0;
+
+                    for (final index in columnOrder) {
+                      if (hiddenColumns.contains(columns[index].name)) {
+                        totalHiddenWidth += columns[index].width.value(
+                              tableWidth,
+                            );
+                      }
+                    }
+
+                    return Row(
+                      children: <Widget>[
+                        for (final index in columnOrder)
+                          if (!hiddenColumns.contains(columns[index].name))
+                            _ColumnHeaderCell<T>(
+                              key: ValueKey('column_$index'),
+                              column: columns[index],
+                              tableWidth: tableWidth,
+                              columnWidth: columns[index].primary
+                                  ? columns[index].width.value(tableWidth) +
+                                      totalHiddenWidth
+                                  : columns[index].width.value(tableWidth),
+                              decoration: decoration,
+                              onSort: onSort,
+                              sorts: sorts,
+                              allowColumnReorder: allowColumnReorder,
+                              onColumnDragged: (fromIndex) {
+                                columnOrderNotifier.reorder(
+                                  fromIndex: fromIndex,
+                                  toIndex: index,
+                                );
+                              },
+                              index: index,
+                            ),
+                      ],
+                    );
+                  },
                 );
               },
             ),
@@ -184,6 +205,7 @@ class _ColumnHeaderCell<T> extends StatelessWidget {
     required this.allowColumnReorder,
     required this.onColumnDragged,
     required this.index,
+    this.columnWidth,
     super.key,
   });
 
@@ -192,6 +214,9 @@ class _ColumnHeaderCell<T> extends StatelessWidget {
 
   /// The width of the table.
   final double tableWidth;
+
+  /// The width of the column.
+  final double? columnWidth;
 
   /// The decoration settings for the data table.
   final OperanceDataDecoration decoration;
@@ -218,7 +243,7 @@ class _ColumnHeaderCell<T> extends StatelessWidget {
       decoration: decoration,
       column: column,
       tableWidth: tableWidth,
-      columnWidth: column.width.value(tableWidth),
+      columnWidth: columnWidth ?? column.width.value(tableWidth),
       onSort: onSort,
       sorts: sorts,
     );
