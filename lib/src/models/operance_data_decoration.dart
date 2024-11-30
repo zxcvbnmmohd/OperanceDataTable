@@ -87,7 +87,7 @@ class OperanceDataIcons {
   const OperanceDataIcons({
     this.columnHeaderSortAscendingIcon = Icons.arrow_upward,
     this.columnHeaderSortDescendingIcon = Icons.arrow_downward,
-    this.rowExpansionIconCollapsed = Icons.keyboard_arrow_left,
+    this.rowExpansionIconCollapsed = Icons.keyboard_arrow_up,
     this.rowExpansionIconExpanded = Icons.keyboard_arrow_down,
     this.previousPageIcon = Icons.chevron_left,
     this.nextPageIcon = Icons.chevron_right,

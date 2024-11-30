@@ -23,6 +23,7 @@ class OperanceDataController<T> extends ChangeNotifier {
         _sorts = <String, SortDirection>{},
         _hasMore = false,
         loadingNotifier = ValueNotifier<bool>(false),
+        paginateNotifier = ValueNotifier<(bool, bool)>((false, initialPage.$2)),
         currentPageNotifier = ValueNotifier<int>(currentPage),
         rowsPerPageNotifier = ValueNotifier<int>(rowsPerPage),
         hoveredRowNotifier = ValueNotifier<int?>(null),
@@ -62,6 +63,10 @@ class OperanceDataController<T> extends ChangeNotifier {
   /// Indicates if data is being loaded.
   final ValueNotifier<bool> loadingNotifier;
 
+  /// The notifier for pagination to go to the next or previous page.
+  final ValueNotifier<(bool, bool)> paginateNotifier;
+
+  /// The notifier for the current page index.
   final ValueNotifier<int> currentPageNotifier;
 
   /// The notifier for the number of rows per page.
@@ -127,13 +132,11 @@ class OperanceDataController<T> extends ChangeNotifier {
     if (canGoNext) {
       currentPageNotifier.value++;
       _onCurrentPageIndexChanged?.call(currentPageNotifier.value);
-
-      return;
-    }
-
-    if (canFetchNext) {
+    } else if (canFetchNext) {
       await _fetchData(isInitial: false);
     }
+
+    paginateNotifier.value = (canGoPrevious, canGoNext || canFetchNext);
   }
 
   /// Resets the data and fetches the initial page.
@@ -175,6 +178,7 @@ class OperanceDataController<T> extends ChangeNotifier {
     }
 
     loadingNotifier.value = false;
+    paginateNotifier.value = (canGoPrevious, canGoNext || canFetchNext);
   }
 
   /// Navigates to the previous page.
@@ -182,8 +186,9 @@ class OperanceDataController<T> extends ChangeNotifier {
     if (canGoPrevious) {
       currentPageNotifier.value--;
       _onCurrentPageIndexChanged?.call(currentPageNotifier.value);
-      notifyListeners();
     }
+
+    paginateNotifier.value = (canGoPrevious, canGoNext || canFetchNext);
   }
 
   /// Hides the column.
