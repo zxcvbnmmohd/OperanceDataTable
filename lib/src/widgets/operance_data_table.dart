@@ -816,24 +816,43 @@ class _OperanceDataTableFooter<T> extends StatelessWidget {
             )
           else
             const Spacer(),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              IconButton(
-                icon: Icon(icons.previousPageIcon),
-                onPressed:
-                    controller.canGoPrevious ? controller.previousPage : null,
-                splashRadius: 24.0,
-              ),
-              const SizedBox(width: 12.0),
-              IconButton(
-                icon: Icon(icons.nextPageIcon),
-                onPressed: controller.canGoNext || controller.canFetchNext
-                    ? controller.nextPage
-                    : null,
-                splashRadius: 24.0,
-              ),
-            ],
+          ValueListenableBuilder<(bool, bool)>(
+            valueListenable: controller.paginateNotifier,
+            builder: (context, paginate, _) {
+              const dimension = 24.0;
+
+              return RepaintBoundary(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    IconButton(
+                      icon: Icon(icons.previousPageIcon),
+                      onPressed: paginate.$1 ? controller.previousPage : null,
+                      splashRadius: dimension,
+                    ),
+                    const SizedBox(width: 12.0),
+                    ValueListenableBuilder<bool>(
+                        valueListenable: controller.loadingNotifier,
+                        builder: (context, loading, _) {
+                          final nextEnabled = !loading && paginate.$2;
+
+                          return IconButton(
+                            icon: loading
+                                ? SizedBox.square(
+                                    dimension: dimension,
+                                    child: CircularProgressIndicator.adaptive(
+                                      strokeWidth: 2.0,
+                                    ),
+                                  )
+                                : Icon(icons.nextPageIcon),
+                            onPressed: nextEnabled ? controller.nextPage : null,
+                            splashRadius: dimension,
+                          );
+                        }),
+                  ],
+                ),
+              );
+            },
           ),
         ],
       ),
