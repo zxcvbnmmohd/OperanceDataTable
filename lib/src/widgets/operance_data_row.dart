@@ -66,6 +66,7 @@ class OperanceDataRow<T> extends StatelessWidget {
     final controller = context.controller<T>();
     final decoration = context.decoration();
     final columnOrderNotifier = controller.columnOrderNotifier;
+    final hiddenColumnsNotifier = controller.hiddenColumnsNotifier;
     final expandedRowsNotifier = controller.expandedRowsNotifier;
     final selectedRowsNotifier = controller.selectedRowsNotifier;
     final colors = decoration.colors;
@@ -166,27 +167,52 @@ class OperanceDataRow<T> extends StatelessWidget {
                                 },
                               ),
                             ),
-                          ValueListenableBuilder<Set<int>>(
-                            valueListenable: columnOrderNotifier,
-                            builder: (context, columnOrder, _) {
-                              return Row(
-                                children: <Widget>[
-                                  for (final index in columnOrder)
-                                    Container(
-                                      alignment: columns[index].numeric
-                                          ? Alignment.centerRight
-                                          : Alignment.centerLeft,
-                                      padding: styles.cellPadding,
-                                      width: columns[index].width.value(
-                                            tableWidth,
+                          ValueListenableBuilder<Set<String>>(
+                            valueListenable: hiddenColumnsNotifier,
+                            builder: (context, hiddenColumns, _) {
+                              return ValueListenableBuilder<Set<int>>(
+                                valueListenable: columnOrderNotifier,
+                                builder: (context, columnOrder, _) {
+                                  var totalHiddenWidth = 0.0;
+
+                                  for (final index in columnOrder) {
+                                    if (hiddenColumns.contains(
+                                      columns[index].name,
+                                    )) {
+                                      totalHiddenWidth += columns[index]
+                                          .width
+                                          .value(tableWidth);
+                                    }
+                                  }
+
+                                  return Row(
+                                    children: <Widget>[
+                                      for (final index in columnOrder)
+                                        if (!hiddenColumns.contains(
+                                          columns[index].name,
+                                        ))
+                                          Container(
+                                            alignment: columns[index].numeric
+                                                ? Alignment.centerRight
+                                                : Alignment.centerLeft,
+                                            padding: styles.cellPadding,
+                                            width: columns[index].primary
+                                                ? columns[index]
+                                                        .width
+                                                        .value(tableWidth) +
+                                                    totalHiddenWidth
+                                                : columns[index]
+                                                    .width
+                                                    .value(tableWidth),
+                                            height: sizes.rowHeight,
+                                            child: columns[index].cellBuilder(
+                                              context,
+                                              row,
+                                            ),
                                           ),
-                                      height: sizes.rowHeight,
-                                      child: columns[index].cellBuilder(
-                                        context,
-                                        row,
-                                      ),
-                                    ),
-                                ],
+                                    ],
+                                  );
+                                },
                               );
                             },
                           ),

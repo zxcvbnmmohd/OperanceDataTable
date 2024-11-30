@@ -121,6 +121,7 @@ class OperanceDataSizes {
     this.headerHeight = 60.0,
     this.headerHorizontalPadding = 16.0,
     this.searchWidth = 500.0,
+    this.hiddenColumnsDropdownWidth = 200.0,
     this.loadingHeight = 10.0,
     this.columnHeaderHeight = 60.0,
     this.columnHeaderSortIconSize = 14.0,
@@ -141,6 +142,9 @@ class OperanceDataSizes {
 
   /// The width of the search field.
   final double searchWidth;
+
+  /// The width of the hidden columns dropdown.
+  final double hiddenColumnsDropdownWidth;
 
   /// The height of the loading indicator.
   final double loadingHeight;
@@ -204,6 +208,16 @@ class OperanceDataStyles {
         ),
       ),
     ),
+    this.hiddenColumnsDropdownDecoration = const InputDecoration(
+      labelText: 'Columns',
+      prefixIcon: Icon(Icons.view_column_outlined),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.all(
+          Radius.circular(8.0),
+        ),
+      ),
+      floatingLabelBehavior: FloatingLabelBehavior.never,
+    ),
     this.cellPadding = const EdgeInsets.symmetric(horizontal: 8.0),
     this.rowExpandedContainerPadding = const EdgeInsets.all(8.0),
     this.rowsPerPageTextStyle = const TextStyle(
@@ -226,6 +240,8 @@ class OperanceDataStyles {
 
   /// The decoration for the search field.
   final InputDecoration searchDecoration;
+
+  final InputDecoration hiddenColumnsDropdownDecoration;
 
   /// The padding for the cells.
   final EdgeInsets cellPadding;

@@ -17,12 +17,13 @@ class OperanceDataColumn<T> {
     required this.columnHeader,
     required this.cellBuilder,
     this.getSearchableValue,
+    this.primary = false,
     this.numeric = false,
     this.sortable = false,
     this.width = const OperanceDataColumnWidth(),
   });
 
-  /// The name of the column.
+  /// The unique name of the column.
   final String name;
 
   /// The widget to display as the column header.
@@ -39,6 +40,12 @@ class OperanceDataColumn<T> {
   /// The function takes the item of type [T] as a parameter and returns a
   /// string.
   final String Function(T)? getSearchableValue;
+
+  /// The primary column. The primary column is the column that is going to be
+  /// take in the width of the columns that are hidden.
+  ///
+  /// Defaults to `false`.
+  final bool primary;
 
   /// Indicates whether the column contains numeric values.
   ///

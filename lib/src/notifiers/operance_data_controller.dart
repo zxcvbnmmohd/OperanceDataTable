@@ -11,18 +11,20 @@ class OperanceDataController<T> extends ChangeNotifier {
   /// Creates an instance of [OperanceDataController].
   OperanceDataController({
     Set<int> columnOrder = const <int>{},
-    Set<int> hiddenColumns = const <int>{},
+    Set<String> hiddenColumns = const <String>{},
     PageData<T> initialPage = (const [], false),
     int currentPage = 0,
     int rowsPerPage = 25,
     OnFetch<T>? onFetch,
     ValueChanged<int>? onCurrentPageIndexChanged,
-  })  : _hiddenColumns = hiddenColumns,
-        _onFetch = onFetch,
+  })  : _onFetch = onFetch,
         _onCurrentPageIndexChanged = onCurrentPageIndexChanged,
         _sorts = <String, SortDirection>{},
         _hasMore = false,
         loadingNotifier = ValueNotifier<bool>(false),
+        hiddenColumnsNotifier = HiddenColumnsNotifier(
+          columns: Set<String>.from(hiddenColumns),
+        ),
         paginateNotifier = ValueNotifier<(bool, bool)>((false, initialPage.$2)),
         currentPageNotifier = ValueNotifier<int>(currentPage),
         rowsPerPageNotifier = ValueNotifier<int>(rowsPerPage),
@@ -45,9 +47,6 @@ class OperanceDataController<T> extends ChangeNotifier {
     }
   }
 
-  /// The hidden columns.
-  final Set<int> _hiddenColumns;
-
   /// The function to fetch data.
   final OnFetch<T>? _onFetch;
 
@@ -62,6 +61,9 @@ class OperanceDataController<T> extends ChangeNotifier {
 
   /// Indicates if data is being loaded.
   final ValueNotifier<bool> loadingNotifier;
+
+  /// The notifier for hidden columns.
+  final HiddenColumnsNotifier hiddenColumnsNotifier;
 
   /// The notifier for pagination to go to the next or previous page.
   final ValueNotifier<(bool, bool)> paginateNotifier;
@@ -89,19 +91,6 @@ class OperanceDataController<T> extends ChangeNotifier {
 
   /// The notifier for selected rows.
   final SelectedRowsNotifier<T> selectedRowsNotifier;
-
-  /// Gets the hidden columns.
-  Set<int> get hiddenColumns => Set<int>.unmodifiable(_hiddenColumns);
-
-  /// Gets the visible columns.
-  Set<int> get visibleColumns {
-    return Set<int>.unmodifiable(
-      columnOrderNotifier.value
-          .where((index) => !_hiddenColumns.contains(index))
-          .map((index) => index)
-          .toList(),
-    );
-  }
 
   /// Gets the map of sort directions for columns.
   Map<String, SortDirection> get sorts {
@@ -191,35 +180,6 @@ class OperanceDataController<T> extends ChangeNotifier {
     paginateNotifier.value = (canGoPrevious, canGoNext || canFetchNext);
   }
 
-  /// Hides the column.
-  void hideColumn(int index) {
-    _hiddenColumns.add(index);
-    notifyListeners();
-  }
-
-  /// Shows the column.
-  void showColumn(int index) {
-    _hiddenColumns.remove(index);
-    notifyListeners();
-  }
-
-  /// Toggles the visibility of a column.
-  void toggleColumnVisibility(int index) {
-    if (_hiddenColumns.contains(index)) {
-      showColumn(index);
-    } else {
-      hideColumn(index);
-    }
-  }
-
-  /// Clears the hidden columns.
-  void showAllColumns() {
-    if (_hiddenColumns.isNotEmpty) {
-      _hiddenColumns.clear();
-      notifyListeners();
-    }
-  }
-
   /// Sets the sort direction for a column.
   Future<void> setSort(String columnName, SortDirection? direction) async {
     if (direction == null) {
@@ -249,6 +209,7 @@ class OperanceDataController<T> extends ChangeNotifier {
   @override
   void dispose() {
     loadingNotifier.dispose();
+    hiddenColumnsNotifier.dispose();
     currentPageNotifier.dispose();
     rowsPerPageNotifier.dispose();
     hoveredRowNotifier.dispose();

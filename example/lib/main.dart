@@ -73,7 +73,6 @@ class _MyHomePageState extends State<MyHomePage> {
         columns: <OperanceDataColumn<Pokemon>>[
           OperanceDataColumn<Pokemon>(
             name: 'id',
-            sortable: true,
             columnHeader: Text(
               'ID',
               style: columnHeaderStyle,
@@ -82,11 +81,11 @@ class _MyHomePageState extends State<MyHomePage> {
               return Text(item.id.toString());
             },
             numeric: true,
+            sortable: true,
             width: const OperanceDataColumnWidth(factor: 0.1),
           ),
           OperanceDataColumn<Pokemon>(
             name: 'name',
-            sortable: true,
             columnHeader: Text(
               'Name',
               style: columnHeaderStyle,
@@ -95,11 +94,12 @@ class _MyHomePageState extends State<MyHomePage> {
               return Text(item.name);
             },
             getSearchableValue: (item) => item.name,
+            primary: true,
+            sortable: true,
             width: const OperanceDataColumnWidth(factor: 0.2),
           ),
           OperanceDataColumn<Pokemon>(
             name: 'forms',
-            sortable: true,
             columnHeader: Text(
               'Forms',
               style: columnHeaderStyle,
@@ -109,6 +109,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 item.forms.map((form) => form.name).join(', '),
               );
             },
+            sortable: true,
           ),
           OperanceDataColumn<Pokemon>(
             name: 'abilities',
@@ -139,7 +140,6 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
           OperanceDataColumn<Pokemon>(
             name: 'weight',
-            sortable: true,
             columnHeader: Text(
               'Weight',
               style: columnHeaderStyle,
@@ -148,11 +148,11 @@ class _MyHomePageState extends State<MyHomePage> {
               return Text(item.weight.toString());
             },
             numeric: true,
+            sortable: true,
             width: const OperanceDataColumnWidth(factor: 0.1),
           ),
           OperanceDataColumn<Pokemon>(
             name: 'height',
-            sortable: true,
             columnHeader: Text(
               'Height',
               style: columnHeaderStyle,
@@ -161,6 +161,7 @@ class _MyHomePageState extends State<MyHomePage> {
               return Text(item.height.toString());
             },
             numeric: true,
+            sortable: true,
             width: const OperanceDataColumnWidth(factor: 0.1),
           ),
         ],
@@ -198,6 +199,7 @@ class _MyHomePageState extends State<MyHomePage> {
         showEmptyRows: true,
         showRowsPerPageOptions: true,
         allowColumnReorder: true,
+        allowColumnHiding: true,
       ),
     );
   }
