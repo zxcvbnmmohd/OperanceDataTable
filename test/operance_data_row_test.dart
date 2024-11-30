@@ -6,7 +6,6 @@ import 'package:flutter_test/flutter_test.dart';
 
 // 🌎 Project imports:
 import 'package:operance_datatable/src/models/operance_data_column.dart';
-import 'package:operance_datatable/src/models/operance_data_decoration.dart';
 import 'package:operance_datatable/src/widgets/operance_data_row.dart';
 
 void main() {
@@ -22,10 +21,10 @@ void main() {
     Future<void> pumpOperanceDataRow(
       WidgetTester tester, {
       required bool isExpanded,
-      required bool showExpansionIcon,
-      required bool showCheckbox,
+      required bool expandable,
+      required bool selectable,
       void Function(int)? onExpanded,
-      Widget Function(String)? expansionBuilder,
+      Widget Function(BuildContext, String)? expansionBuilder,
       ValueChanged<Set<String>>? onChecked,
     }) async {
       await tester.pumpWidget(
@@ -41,9 +40,8 @@ void main() {
               expansionBuilder: expansionBuilder,
               onChecked: onChecked,
               onRowPressed: (_) {},
-              decoration: const OperanceDataDecoration(),
-              showExpansionIcon: showExpansionIcon,
-              showCheckbox: showCheckbox,
+              expandable: expandable,
+              selectable: selectable,
             ),
           ),
         ),
@@ -82,10 +80,10 @@ void main() {
           await pumpOperanceDataRow(
             tester,
             isExpanded: true,
-            showExpansionIcon: true,
-            showCheckbox: true,
+            expandable: true,
+            selectable: true,
             onExpanded: (_) => expandedCalled = true,
-            expansionBuilder: (item) => Text('Expanded $item'),
+            expansionBuilder: (context, item) => Text('Expanded $item'),
             onChecked: (_, {isSelected}) => checkedCalled = true,
           );
 
@@ -117,10 +115,10 @@ void main() {
           await pumpOperanceDataRow(
             tester,
             isExpanded: false,
-            showExpansionIcon: true,
-            showCheckbox: true,
+            expandable: true,
+            selectable: true,
             onExpanded: (_) => expandedCalled = true,
-            expansionBuilder: (item) => Text('Expanded $item'),
+            expansionBuilder: (context, item) => Text('Expanded $item'),
             onChecked: (_, {isSelected}) => checkedCalled = true,
           );
 
@@ -151,7 +149,7 @@ void main() {
             row: 'Test Row',
             index: 0,
             tableWidth: 500.0,
-            showExpansionIcon: true,
+            expandable: true,
           ),
           throwsAssertionError,
         );
@@ -166,7 +164,7 @@ void main() {
             row: 'Test Row',
             index: 0,
             tableWidth: 500.0,
-            showCheckbox: true,
+            selectable: true,
           ),
           throwsAssertionError,
         );

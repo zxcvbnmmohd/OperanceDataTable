@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 // 🌎 Project imports:
+import 'package:operance_datatable/src/extensions/build_context.dart';
 import 'package:operance_datatable/src/models/models.dart';
 import 'package:operance_datatable/src/notifiers/notifiers.dart';
 import 'package:operance_datatable/src/providers/providers.dart';
@@ -18,12 +19,13 @@ class OperanceDataTable<T> extends StatefulWidget {
   /// The [onFetch], [controller], [keyboardFocusNode],
   /// [horizontalScrollController], [verticalScrollController],
   /// [searchFieldController], [searchFieldFocusNode], [onSearchFieldChanged],
-  /// [loadingStateBuilder], [emptyStateBuilder], [expansionBuilder],
-  /// [onRowPressed], [onSelectionChanged], [onCurrentPageIndexChanged],
-  /// [decoration], [initialPage], [currentPageIndex], [header],
-  /// [columnHeaderTrailingActions], [expandable], [selectable], [searchable],
-  /// [showHeader], [showColumnHeader], [showFooter], [showEmptyRows],
-  /// [showRowsPerPageOptions], [infiniteScroll] and [allowColumnReorder]
+  /// [loadingStateBuilder], [emptyStateBuilder], [emptySearchStateBuilder],
+  /// [expansionBuilder], [onRowPressed], [onSelectionChanged],
+  /// [onCurrentPageIndexChanged], [decoration], [initialPage], [currentPage],
+  /// [header], [columnHeaderTrailingActions], [expandable], [selectable],
+  /// [searchable], [showHeader], [showColumnHeader], [showFooter],
+  /// [showEmptyRows], [showRowsPerPageOptions], [infiniteScroll] and
+  /// [allowColumnReorder]
   /// parameters are optional.
   OperanceDataTable({
     required this.columns,
@@ -37,13 +39,14 @@ class OperanceDataTable<T> extends StatefulWidget {
     this.onSearchFieldChanged,
     this.loadingStateBuilder,
     this.emptyStateBuilder,
+    this.emptySearchStateBuilder,
     this.expansionBuilder,
     this.onRowPressed,
     this.onSelectionChanged,
     this.onCurrentPageIndexChanged,
     this.decoration = const OperanceDataDecoration(),
     this.initialPage = (const [], false),
-    this.currentPageIndex = 0,
+    this.currentPage = 0,
     this.header = const [],
     this.columnHeaderTrailingActions = const [],
     this.expandable = false,
@@ -107,11 +110,14 @@ class OperanceDataTable<T> extends StatefulWidget {
   /// Builder for the empty state of the table.
   final WidgetBuilder? emptyStateBuilder;
 
+  /// Builder for the empty search state of the table.
+  final WidgetBuilder? emptySearchStateBuilder;
+
   /// Builder for the loading state of the table.
   final WidgetBuilder? loadingStateBuilder;
 
   /// Builder for the expanded content of a row.
-  final Widget Function(T)? expansionBuilder;
+  final Widget Function(BuildContext, T)? expansionBuilder;
 
   /// Callback when a row is pressed.
   final void Function(T)? onRowPressed;
@@ -126,7 +132,7 @@ class OperanceDataTable<T> extends StatefulWidget {
   final PageData<T> initialPage;
 
   /// The current page index.
-  final int currentPageIndex;
+  final int currentPage;
 
   /// List of widgets to be displayed in the header.
   final List<Widget> header;
@@ -183,13 +189,14 @@ class OperanceDataTableState<T> extends State<OperanceDataTable<T>> {
   late final ValueChanged<String?>? _onSearchFieldChanged;
   late final ValueChanged<int>? _onCurrentPageIndexChanged;
   late final WidgetBuilder? _emptyStateBuilder;
+  late final WidgetBuilder? _emptySearchStateBuilder;
   late final WidgetBuilder? _loadingStateBuilder;
-  late final Widget Function(T)? _expansionBuilder;
+  late final Widget Function(BuildContext, T)? _expansionBuilder;
   late final void Function(T)? _onRowPressed;
   late final ValueChanged<Set<T>>? _onSelectionChanged;
   late final OperanceDataDecoration _decoration;
   late final PageData<T> _initialPage;
-  late final int _currentPageIndex;
+  late final int _currentPage;
   late final List<Widget> _header;
   late final List<Widget> _columnHeaderTrailingActions;
   late final bool _expandable;
@@ -213,6 +220,7 @@ class OperanceDataTableState<T> extends State<OperanceDataTable<T>> {
     _onFetch = widget.onFetch;
     _onSearchFieldChanged = widget.onSearchFieldChanged;
     _emptyStateBuilder = widget.emptyStateBuilder;
+    _emptySearchStateBuilder = widget.emptySearchStateBuilder;
     _loadingStateBuilder = widget.loadingStateBuilder;
     _expansionBuilder = widget.expansionBuilder;
     _onRowPressed = widget.onRowPressed;
@@ -220,7 +228,7 @@ class OperanceDataTableState<T> extends State<OperanceDataTable<T>> {
     _onCurrentPageIndexChanged = widget.onCurrentPageIndexChanged;
     _decoration = widget.decoration;
     _initialPage = widget.initialPage;
-    _currentPageIndex = widget.currentPageIndex;
+    _currentPage = widget.currentPage;
     _header = widget.header;
     _columnHeaderTrailingActions = widget.columnHeaderTrailingActions;
     _expandable = widget.expandable;
@@ -241,7 +249,7 @@ class OperanceDataTableState<T> extends State<OperanceDataTable<T>> {
             (index) => index,
           ).toSet(),
           initialPage: _initialPage,
-          currentPageIndex: _currentPageIndex,
+          currentPage: _currentPage,
           onCurrentPageIndexChanged: _onCurrentPageIndexChanged,
           rowsPerPage: _decoration.ui.rowsPerPageOptions.first,
           onFetch: _onFetch,
@@ -298,71 +306,42 @@ class OperanceDataTableState<T> extends State<OperanceDataTable<T>> {
 
   @override
   Widget build(BuildContext context) {
-    final colors = _decoration.colors;
-    final icons = _decoration.icons;
-    final sizes = _decoration.sizes;
-    final styles = _decoration.styles;
-    final ui = _decoration.ui;
-    final searchPosition = ui.searchPosition;
-
     return OperanceDataControllerProvider<T>(
       controller: _controller,
       child: OperanceDataDecorationProvider(
         decoration: _decoration,
         child: LayoutBuilder(
           builder: (context, constraints) {
-            final isDesktopPlatform =
-                defaultTargetPlatform == TargetPlatform.macOS ||
-                    defaultTargetPlatform == TargetPlatform.windows ||
-                    defaultTargetPlatform == TargetPlatform.linux;
+            final isDesktopPlatform = <TargetPlatform>[
+              TargetPlatform.macOS,
+              TargetPlatform.windows,
+              TargetPlatform.linux,
+            ].contains(defaultTargetPlatform);
+
             final tableWidth = isDesktopPlatform
                 ? constraints.maxWidth
                 : constraints.maxWidth > constraints.maxHeight
                     ? constraints.maxWidth
                     : constraints.maxHeight;
             final availableWidth = tableWidth - _extrasWidth;
-            final tableHeight = constraints.maxHeight;
 
             return Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: <Widget>[
                 // ------------------------------ Header ---------------------
                 if (_showHeader)
-                  Container(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: sizes.headerHorizontalPadding,
-                    ),
-                    decoration: styles.headerDecoration,
-                    height: sizes.headerHeight,
-                    child: Row(
-                      children: <Widget>[
-                        if (_searchable &&
-                            searchPosition == SearchPosition.left)
-                          OperanceDataSearchField(
-                            decoration: _decoration,
-                            controller: _searchFieldController,
-                            focusNode: _searchFieldFocusNode,
-                            onChanged: _onSearchFieldChanged,
-                          ),
-                        ..._header,
-                        if (_searchable &&
-                            searchPosition == SearchPosition.right) ...<Widget>[
-                          const Spacer(),
-                          OperanceDataSearchField(
-                            decoration: _decoration,
-                            controller: _searchFieldController,
-                            focusNode: _searchFieldFocusNode,
-                            onChanged: _onSearchFieldChanged,
-                          ),
-                        ],
-                      ],
-                    ),
+                  _OperanceDataTableHeader(
+                    searchFieldController: _searchFieldController,
+                    searchFieldFocusNode: _searchFieldFocusNode,
+                    onSearchFieldChanged: _onSearchFieldChanged,
+                    header: _header,
+                    searchable: _searchable,
                   ),
                 // ------------------------------ Table ----------------------
                 Expanded(
                   child: SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
-                    physics: ui.horizontalScrollPhysics,
+                    physics: _decoration.ui.horizontalScrollPhysics,
                     controller: _horizontalScrollController,
                     child: ConstrainedBox(
                       constraints: BoxConstraints(
@@ -391,150 +370,27 @@ class OperanceDataTableState<T> extends State<OperanceDataTable<T>> {
                               ),
                               child: Stack(
                                 children: <Widget>[
-                                  ValueListenableBuilder<Set<Set<T>>>(
-                                    valueListenable: _controller.pagesNotifier,
-                                    builder: (context, pages, _) {
-                                      final index =
-                                          _controller.currentPageIndex;
-                                      final currentRows = Set<T>.unmodifiable(
-                                        _infiniteScroll
-                                            ? pages.expand((element) => element)
-                                            : index >= pages.length
-                                                ? const []
-                                                : pages.elementAt(index),
-                                      );
-
-                                      if (!_controller.loadingNotifier.value &&
-                                          currentRows.isEmpty &&
-                                          _emptyStateBuilder != null) {
-                                        return _emptyStateBuilder.call(context);
-                                      }
-
-                                      return ValueListenableBuilder<Set<T>>(
-                                        valueListenable:
-                                            _controller.searchedRowsNotifier,
-                                        builder: (context, searchedRows, _) {
-                                          final activeRows =
-                                              searchedRows.isNotEmpty
-                                                  ? searchedRows
-                                                  : currentRows;
-
-                                          if (activeRows.isEmpty) {
-                                            return const SizedBox();
-                                          }
-
-                                          var itemCount = activeRows.length;
-                                          final rowHeight = sizes.rowHeight;
-
-                                          if (_showEmptyRows &&
-                                              (itemCount <
-                                                  tableHeight / rowHeight)) {
-                                            final emptyRows =
-                                                tableHeight / rowHeight -
-                                                    itemCount;
-
-                                            itemCount += emptyRows.toInt();
-                                          }
-
-                                          return KeyboardListener(
-                                            focusNode: _keyboardFocusNode,
-                                            onKeyEvent: (event) => _hoverRow(
-                                              event: event,
-                                              rows: activeRows,
-                                            ),
-                                            child: ListView.separated(
-                                              controller:
-                                                  _verticalScrollController,
-                                              shrinkWrap: true,
-                                              itemCount: itemCount,
-                                              itemBuilder: (context, index) {
-                                                if (index >=
-                                                    activeRows.length) {
-                                                  return Container(
-                                                    height: sizes.rowHeight,
-                                                    color: colors.rowColor,
-                                                  );
-                                                }
-
-                                                final row =
-                                                    activeRows.elementAt(index);
-
-                                                return OperanceDataRow<T>(
-                                                  key: ValueKey(row),
-                                                  columns: _columns,
-                                                  row: row,
-                                                  index: index,
-                                                  tableWidth: availableWidth,
-                                                  onEnter: (_) {
-                                                    _controller
-                                                        .hoveredRowNotifier
-                                                        .value = index;
-                                                  },
-                                                  onExit: (_) {
-                                                    _controller
-                                                        .hoveredRowNotifier
-                                                        .value = null;
-                                                  },
-                                                  expansionBuilder:
-                                                      _expansionBuilder,
-                                                  onChecked:
-                                                      _onSelectionChanged,
-                                                  onRowPressed: _onRowPressed,
-                                                  decoration: _decoration,
-                                                  showExpansionIcon:
-                                                      _expandable,
-                                                  showCheckbox: _selectable,
-                                                );
-                                              },
-                                              separatorBuilder:
-                                                  (context, index) {
-                                                if (!ui.rowDividerEnabled) {
-                                                  return const SizedBox();
-                                                }
-
-                                                return Divider(
-                                                  height:
-                                                      sizes.rowDividerHeight,
-                                                  thickness:
-                                                      sizes.rowDividerThickness,
-                                                  color: colors.rowDividerColor,
-                                                  indent:
-                                                      sizes.rowDividerIndent,
-                                                  endIndent:
-                                                      sizes.rowDividerEndIndent,
-                                                );
-                                              },
-                                            ),
-                                          );
-                                        },
-                                      );
-                                    },
+                                  _OperanceDataTableContent<T>(
+                                    columns: _columns,
+                                    availableWidth: availableWidth,
+                                    keyboardFocusNode: _keyboardFocusNode,
+                                    verticalScrollController:
+                                        _verticalScrollController,
+                                    searchFieldController:
+                                        _searchFieldController,
+                                    emptyStateBuilder: _emptyStateBuilder,
+                                    emptySearchStateBuilder:
+                                        _emptySearchStateBuilder,
+                                    expansionBuilder: _expansionBuilder,
+                                    onRowPressed: _onRowPressed,
+                                    onSelectionChanged: _onSelectionChanged,
+                                    expandable: _expandable,
+                                    selectable: _selectable,
+                                    showEmptyRows: _showEmptyRows,
+                                    infiniteScroll: _infiniteScroll,
                                   ),
-                                  ValueListenableBuilder<bool>(
-                                    valueListenable:
-                                        _controller.loadingNotifier,
-                                    builder: (context, loading, _) {
-                                      if (loading) {
-                                        if (_loadingStateBuilder != null) {
-                                          return _loadingStateBuilder
-                                              .call(context);
-                                        }
-
-                                        return LinearProgressIndicator(
-                                          backgroundColor:
-                                              colors.loadingBackgroundColor,
-                                          valueColor:
-                                              AlwaysStoppedAnimation<Color>(
-                                            colors.loadingProgressColor,
-                                          ),
-                                          minHeight: sizes.loadingHeight,
-                                          borderRadius:
-                                              styles.loadingBorderRadius,
-                                        );
-                                      }
-
-                                      return const SizedBox();
-                                    },
+                                  _OperanceDataTableLoadingIndicator<T>(
+                                    loadingStateBuilder: _loadingStateBuilder,
                                   ),
                                 ],
                               ),
@@ -547,70 +403,8 @@ class OperanceDataTableState<T> extends State<OperanceDataTable<T>> {
                 ),
                 // ------------------------------ Footer ---------------------
                 if (_showFooter && !_infiniteScroll)
-                  Container(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: sizes.footerHorizontalPadding,
-                    ),
-                    decoration: styles.footerDecoration,
-                    height: sizes.footerHeight,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: <Widget>[
-                        _showRowsPerPageOptions
-                            ? Row(
-                                children: <Widget>[
-                                  Text(
-                                    ui.rowsPerPageText,
-                                    style: styles.rowsPerPageTextStyle,
-                                  ),
-                                  const SizedBox(width: 8.0),
-                                  ValueListenableBuilder<int>(
-                                      valueListenable:
-                                          _controller.rowsPerPageNotifier,
-                                      builder: (context, rowsPerPage, _) {
-                                        return DropdownButton<int>(
-                                          value: rowsPerPage,
-                                          items: ui.rowsPerPageOptions.map(
-                                            (value) {
-                                              return DropdownMenuItem<int>(
-                                                value: value,
-                                                child: Text(value.toString()),
-                                              );
-                                            },
-                                          ).toList(),
-                                          onChanged: (value) {
-                                            if (value != null) {
-                                              _controller.setRowsPerPage(value);
-                                            }
-                                          },
-                                        );
-                                      }),
-                                ],
-                              )
-                            : const Spacer(),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: <Widget>[
-                            IconButton(
-                              icon: Icon(icons.previousPageIcon),
-                              onPressed: _controller.canGoPrevious
-                                  ? _controller.previousPage
-                                  : null,
-                              splashRadius: 24.0,
-                            ),
-                            const SizedBox(width: 12.0),
-                            IconButton(
-                              icon: Icon(icons.nextPageIcon),
-                              onPressed: _controller.canGoNext ||
-                                      _controller.canFetchNext
-                                  ? _controller.nextPage
-                                  : null,
-                              splashRadius: 24.0,
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
+                  _OperanceDataTableFooter<T>(
+                    showRowsPerPageOptions: _showRowsPerPageOptions,
                   ),
               ],
             );
@@ -622,9 +416,8 @@ class OperanceDataTableState<T> extends State<OperanceDataTable<T>> {
 
   /// Calculates the maximum available width of the table.
   double _tableMaxWidth(double width) {
-    final availableWidth = width - _extrasWidth;
     final totalColumnWidth = _columns.fold(0.0, (acc, column) {
-      return acc + column.width.value(availableWidth);
+      return acc + column.width.value(width - _extrasWidth);
     });
 
     return totalColumnWidth + _extrasWidth;
@@ -640,15 +433,12 @@ class OperanceDataTableState<T> extends State<OperanceDataTable<T>> {
   /// Listener for the search field to update the searched rows.
   void _searchFieldListener() {
     final searchedRowsNotifier = _controller.searchedRowsNotifier;
-    final searchedRows = searchedRowsNotifier.value;
     final searchText = _searchFieldController.text;
 
     if (searchText.isEmpty) {
       searchedRowsNotifier.clear();
     } else {
-      final allRows = _controller.pagesNotifier.allRows;
-
-      final rows = allRows
+      final rows = _controller.pagesNotifier.rows
           .where(
             (row) => _columns.any((column) {
               return column.getSearchableValue
@@ -659,22 +449,22 @@ class OperanceDataTableState<T> extends State<OperanceDataTable<T>> {
           )
           .toList();
 
+      final searchedRows = searchedRowsNotifier.value.$1;
+
       if (rows.length == searchedRows.length &&
           rows.every(searchedRows.contains)) {
         return;
       }
 
       searchedRowsNotifier.addRows(
-        allRows
-            .where(
-              (row) => _columns.any((column) {
-                return column.getSearchableValue
-                        ?.call(row)
-                        .contains(searchText) ??
-                    false;
-              }),
-            )
-            .toList(),
+        rows
+            .where((row) => _columns.any((column) {
+                  return column.getSearchableValue
+                          ?.call(row)
+                          .contains(searchText) ??
+                      false;
+                }))
+            .toSet(),
       );
     }
   }
@@ -687,11 +477,220 @@ class OperanceDataTableState<T> extends State<OperanceDataTable<T>> {
       _controller.nextPage();
     }
   }
+}
+
+class _OperanceDataTableHeader extends StatelessWidget {
+  const _OperanceDataTableHeader({
+    this.searchFieldController,
+    this.searchFieldFocusNode,
+    this.onSearchFieldChanged,
+    this.header = const [],
+    this.searchable = false,
+  });
+
+  final TextEditingController? searchFieldController;
+  final FocusNode? searchFieldFocusNode;
+  final ValueChanged<String?>? onSearchFieldChanged;
+  final List<Widget> header;
+  final bool searchable;
+
+  @override
+  Widget build(BuildContext context) {
+    final decoration = context.decoration();
+    final sizes = decoration.sizes;
+    final styles = decoration.styles;
+    final searchPosition = decoration.ui.searchPosition;
+
+    return Container(
+      padding: EdgeInsets.symmetric(
+        horizontal: sizes.headerHorizontalPadding,
+      ),
+      decoration: styles.headerDecoration,
+      height: sizes.headerHeight,
+      child: Row(
+        children: <Widget>[
+          if (searchable && searchPosition == SearchPosition.left)
+            OperanceDataSearchField(
+              controller: searchFieldController,
+              focusNode: searchFieldFocusNode,
+              onChanged: onSearchFieldChanged,
+            ),
+          ...header,
+          if (searchable && searchPosition == SearchPosition.right)
+            OperanceDataSearchField(
+              controller: searchFieldController,
+              focusNode: searchFieldFocusNode,
+              onChanged: onSearchFieldChanged,
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+class _OperanceDataTableContent<T> extends StatelessWidget {
+  const _OperanceDataTableContent({
+    required this.columns,
+    required this.availableWidth,
+    required this.keyboardFocusNode,
+    this.verticalScrollController,
+    this.searchFieldController,
+    this.emptyStateBuilder,
+    this.emptySearchStateBuilder,
+    this.expansionBuilder,
+    this.onRowPressed,
+    this.onSelectionChanged,
+    this.expandable = false,
+    this.selectable = false,
+    this.showEmptyRows = false,
+    this.infiniteScroll = false,
+  });
+
+  final List<OperanceDataColumn<T>> columns;
+  final double availableWidth;
+  final FocusNode keyboardFocusNode;
+  final ScrollController? verticalScrollController;
+  final TextEditingController? searchFieldController;
+  final WidgetBuilder? emptyStateBuilder;
+  final WidgetBuilder? emptySearchStateBuilder;
+  final Widget Function(BuildContext, T)? expansionBuilder;
+  final void Function(T)? onRowPressed;
+  final ValueChanged<Set<T>>? onSelectionChanged;
+  final bool expandable;
+  final bool selectable;
+  final bool infiniteScroll;
+  final bool showEmptyRows;
+
+  @override
+  Widget build(BuildContext context) {
+    final controller = context.controller<T>();
+    final decoration = context.decoration();
+    final colors = decoration.colors;
+    final sizes = decoration.sizes;
+    final ui = decoration.ui;
+    final rowHeight = sizes.rowHeight;
+
+    return ValueListenableBuilder<int>(
+      valueListenable: controller.currentPageNotifier,
+      builder: (context, currentPage, _) {
+        return ValueListenableBuilder<Set<Set<T>>>(
+          valueListenable: controller.pagesNotifier,
+          builder: (context, pages, _) {
+            final currentRows = Set<T>.unmodifiable(
+              infiniteScroll
+                  ? pages.expand((element) => element)
+                  : currentPage >= pages.length
+                      ? const []
+                      : pages.elementAt(currentPage),
+            );
+
+            if (!controller.loadingNotifier.value &&
+                currentRows.isEmpty &&
+                emptyStateBuilder != null) {
+              return emptyStateBuilder!.call(context);
+            }
+
+            return LayoutBuilder(
+              builder: (context, constraints) {
+                final tableHeight = constraints.maxHeight;
+
+                return ValueListenableBuilder<(Set<T>, bool)>(
+                  valueListenable: controller.searchedRowsNotifier,
+                  builder: (context, searchedRows, _) {
+                    final activeRows =
+                        searchedRows.$2 ? searchedRows.$1 : currentRows;
+
+                    if (activeRows.isEmpty) {
+                      final builder = searchedRows.$2
+                          ? emptySearchStateBuilder
+                          : emptyStateBuilder;
+
+                      return builder?.call(context) ?? const SizedBox();
+                    }
+
+                    var itemCount = activeRows.length;
+
+                    if (showEmptyRows &&
+                        (itemCount < tableHeight / rowHeight)) {
+                      final emptyRows = tableHeight / rowHeight - itemCount;
+
+                      itemCount += emptyRows.ceil();
+                    }
+
+                    return KeyboardListener(
+                      focusNode: keyboardFocusNode,
+                      onKeyEvent: (event) => _hoverRow(
+                        context: context,
+                        event: event,
+                        rows: activeRows,
+                      ),
+                      child: ListView.separated(
+                        controller: verticalScrollController,
+                        shrinkWrap: true,
+                        itemCount: itemCount,
+                        itemBuilder: (context, index) {
+                          if (index >= activeRows.length) {
+                            return Container(
+                              height: sizes.rowHeight,
+                              color: colors.rowColor,
+                            );
+                          }
+
+                          final row = activeRows.elementAt(index);
+
+                          return OperanceDataRow<T>(
+                            key: ValueKey(row),
+                            columns: columns,
+                            row: row,
+                            index: index,
+                            tableWidth: availableWidth,
+                            onEnter: (_) {
+                              controller.hoveredRowNotifier.value = index;
+                            },
+                            onExit: (_) {
+                              controller.hoveredRowNotifier.value = null;
+                            },
+                            expansionBuilder: expansionBuilder,
+                            onChecked: onSelectionChanged,
+                            onRowPressed: onRowPressed,
+                            expandable: expandable,
+                            selectable: selectable,
+                          );
+                        },
+                        separatorBuilder: (context, index) {
+                          if (!ui.rowDividerEnabled) {
+                            return const SizedBox();
+                          }
+
+                          return Divider(
+                            height: sizes.rowDividerHeight,
+                            thickness: sizes.rowDividerThickness,
+                            color: colors.rowDividerColor,
+                            indent: sizes.rowDividerIndent,
+                            endIndent: sizes.rowDividerEndIndent,
+                          );
+                        },
+                      ),
+                    );
+                  },
+                );
+              },
+            );
+          },
+        );
+      },
+    );
+  }
 
   /// Handles keyboard events to navigate and interact with the table rows.
-  void _hoverRow({required KeyEvent event, required Set<T> rows}) {
-    final expandedRowsNotifier = _controller.expandedRowsNotifier;
-    final hoveredRowNotifier = _controller.hoveredRowNotifier;
+  void _hoverRow({
+    required BuildContext context,
+    required KeyEvent event,
+    required Set<T> rows,
+  }) {
+    final controller = context.controller<T>();
+    final expandedRowsNotifier = controller.expandedRowsNotifier;
+    final hoveredRowNotifier = controller.hoveredRowNotifier;
     final currentHoveredIndex = hoveredRowNotifier.value;
 
     if (event is KeyDownEvent) {
@@ -717,9 +716,127 @@ class OperanceDataTableState<T> extends State<OperanceDataTable<T>> {
         }
       } else if (event.logicalKey == LogicalKeyboardKey.enter) {
         if (currentHoveredIndex != null) {
-          _onRowPressed?.call(rows.elementAt(currentHoveredIndex));
+          onRowPressed?.call(rows.elementAt(currentHoveredIndex));
         }
       }
     }
+  }
+}
+
+class _OperanceDataTableLoadingIndicator<T> extends StatelessWidget {
+  const _OperanceDataTableLoadingIndicator({
+    required this.loadingStateBuilder,
+  });
+
+  final WidgetBuilder? loadingStateBuilder;
+
+  @override
+  Widget build(BuildContext context) {
+    final decoration = context.decoration();
+    final colors = decoration.colors;
+    final sizes = decoration.sizes;
+    final styles = decoration.styles;
+
+    return ValueListenableBuilder<bool>(
+      valueListenable: context.controller<T>().loadingNotifier,
+      builder: (context, loading, _) {
+        if (!loading) {
+          return const SizedBox();
+        }
+
+        if (loadingStateBuilder != null) {
+          return loadingStateBuilder!.call(context);
+        }
+
+        return LinearProgressIndicator(
+          backgroundColor: colors.loadingBackgroundColor,
+          valueColor: AlwaysStoppedAnimation<Color>(
+            colors.loadingProgressColor,
+          ),
+          minHeight: sizes.loadingHeight,
+          borderRadius: styles.loadingBorderRadius,
+        );
+      },
+    );
+  }
+}
+
+class _OperanceDataTableFooter<T> extends StatelessWidget {
+  const _OperanceDataTableFooter({
+    this.showRowsPerPageOptions = false,
+    super.key,
+  });
+
+  final bool showRowsPerPageOptions;
+
+  @override
+  Widget build(BuildContext context) {
+    final controller = context.controller<T>();
+    final decoration = context.decoration();
+    final sizes = decoration.sizes;
+    final styles = decoration.styles;
+    final icons = decoration.icons;
+    final ui = decoration.ui;
+
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: sizes.footerHorizontalPadding),
+      decoration: styles.footerDecoration,
+      height: sizes.footerHeight,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: <Widget>[
+          if (showRowsPerPageOptions)
+            Row(
+              children: <Widget>[
+                Text(
+                  ui.rowsPerPageText,
+                  style: styles.rowsPerPageTextStyle,
+                ),
+                const SizedBox(width: 8.0),
+                ValueListenableBuilder<int>(
+                  valueListenable: controller.rowsPerPageNotifier,
+                  builder: (context, rowsPerPage, _) {
+                    return DropdownButton<int>(
+                      value: rowsPerPage,
+                      items: ui.rowsPerPageOptions.map((value) {
+                        return DropdownMenuItem<int>(
+                          value: value,
+                          child: Text(value.toString()),
+                        );
+                      }).toList(),
+                      onChanged: (value) {
+                        if (value != null) {
+                          controller.setRowsPerPage(value);
+                        }
+                      },
+                    );
+                  },
+                ),
+              ],
+            )
+          else
+            const Spacer(),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              IconButton(
+                icon: Icon(icons.previousPageIcon),
+                onPressed:
+                    controller.canGoPrevious ? controller.previousPage : null,
+                splashRadius: 24.0,
+              ),
+              const SizedBox(width: 12.0),
+              IconButton(
+                icon: Icon(icons.nextPageIcon),
+                onPressed: controller.canGoNext || controller.canFetchNext
+                    ? controller.nextPage
+                    : null,
+                splashRadius: 24.0,
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
   }
 }

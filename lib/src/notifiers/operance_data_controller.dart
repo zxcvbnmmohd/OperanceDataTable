@@ -13,17 +13,17 @@ class OperanceDataController<T> extends ChangeNotifier {
     Set<int> columnOrder = const <int>{},
     Set<int> hiddenColumns = const <int>{},
     PageData<T> initialPage = (const [], false),
-    int currentPageIndex = 0,
+    int currentPage = 0,
     int rowsPerPage = 25,
     OnFetch<T>? onFetch,
     ValueChanged<int>? onCurrentPageIndexChanged,
   })  : _hiddenColumns = hiddenColumns,
-        _currentPageIndex = currentPageIndex,
         _onFetch = onFetch,
         _onCurrentPageIndexChanged = onCurrentPageIndexChanged,
         _sorts = <String, SortDirection>{},
         _hasMore = false,
         loadingNotifier = ValueNotifier<bool>(false),
+        currentPageNotifier = ValueNotifier<int>(currentPage),
         rowsPerPageNotifier = ValueNotifier<int>(rowsPerPage),
         hoveredRowNotifier = ValueNotifier<int?>(null),
         columnOrderNotifier = ColumnOrderNotifier(
@@ -47,9 +47,6 @@ class OperanceDataController<T> extends ChangeNotifier {
   /// The hidden columns.
   final Set<int> _hiddenColumns;
 
-  /// The current page index.
-  int _currentPageIndex;
-
   /// The function to fetch data.
   final OnFetch<T>? _onFetch;
 
@@ -64,6 +61,8 @@ class OperanceDataController<T> extends ChangeNotifier {
 
   /// Indicates if data is being loaded.
   final ValueNotifier<bool> loadingNotifier;
+
+  final ValueNotifier<int> currentPageNotifier;
 
   /// The notifier for the number of rows per page.
   final ValueNotifier<int> rowsPerPageNotifier;
@@ -104,19 +103,19 @@ class OperanceDataController<T> extends ChangeNotifier {
     return Map<String, SortDirection>.unmodifiable(_sorts);
   }
 
-  /// Gets the current page index.
-  int get currentPageIndex => _currentPageIndex;
-
   /// Indicates if the next page can be navigated to.
-  bool get canGoNext => _currentPageIndex < pagesNotifier.value.length - 1;
+  bool get canGoNext {
+    return currentPageNotifier.value < pagesNotifier.value.length - 1;
+  }
 
   /// Indicates if the next page can be fetched.
   bool get canFetchNext {
-    return _currentPageIndex == pagesNotifier.value.length - 1 && _hasMore;
+    return currentPageNotifier.value == pagesNotifier.value.length - 1 &&
+        _hasMore;
   }
 
   /// Indicates if the previous page can be navigated to.
-  bool get canGoPrevious => _currentPageIndex > 0;
+  bool get canGoPrevious => currentPageNotifier.value > 0;
 
   /// Navigates to the next page. If the next page is not available, it fetches
   /// the next page.
@@ -126,8 +125,8 @@ class OperanceDataController<T> extends ChangeNotifier {
     }
 
     if (canGoNext) {
-      _currentPageIndex++;
-      _onCurrentPageIndexChanged?.call(_currentPageIndex);
+      currentPageNotifier.value++;
+      _onCurrentPageIndexChanged?.call(currentPageNotifier.value);
 
       return;
     }
@@ -140,8 +139,8 @@ class OperanceDataController<T> extends ChangeNotifier {
   /// Resets the data and fetches the initial page.
   Future<void> _resetData() async {
     pagesNotifier.clear();
-    _currentPageIndex = 0;
-    _onCurrentPageIndexChanged?.call(_currentPageIndex);
+    currentPageNotifier.value = 0;
+    _onCurrentPageIndexChanged?.call(currentPageNotifier.value);
 
     await _fetchData(isInitial: true);
   }
@@ -170,8 +169,8 @@ class OperanceDataController<T> extends ChangeNotifier {
         pagesNotifier.addAll(rows);
       } else {
         pagesNotifier.add(rows);
-        _currentPageIndex++;
-        _onCurrentPageIndexChanged?.call(_currentPageIndex);
+        currentPageNotifier.value++;
+        _onCurrentPageIndexChanged?.call(currentPageNotifier.value);
       }
     }
 
@@ -181,8 +180,8 @@ class OperanceDataController<T> extends ChangeNotifier {
   /// Navigates to the previous page.
   void previousPage() {
     if (canGoPrevious) {
-      _currentPageIndex--;
-      _onCurrentPageIndexChanged?.call(_currentPageIndex);
+      currentPageNotifier.value--;
+      _onCurrentPageIndexChanged?.call(currentPageNotifier.value);
       notifyListeners();
     }
   }
@@ -245,6 +244,10 @@ class OperanceDataController<T> extends ChangeNotifier {
   @override
   void dispose() {
     loadingNotifier.dispose();
+    currentPageNotifier.dispose();
+    rowsPerPageNotifier.dispose();
+    hoveredRowNotifier.dispose();
+    currentPageNotifier.dispose();
     pagesNotifier.dispose();
     expandedRowsNotifier.dispose();
     searchedRowsNotifier.dispose();

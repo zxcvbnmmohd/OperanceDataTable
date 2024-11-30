@@ -10,7 +10,7 @@ class PagesNotifier<T> extends ValueNotifier<Set<Set<T>>> {
 
   int _rowsPerPage;
 
-  Set<T> get allRows => value.expand((page) => page).toSet();
+  Set<T> get rows => value.expand((page) => page).toSet();
 
   set rowsPerPage(int rowsPerPage) {
     _rowsPerPage = rowsPerPage;

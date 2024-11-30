@@ -10,11 +10,9 @@ import 'package:operance_datatable/src/models/models.dart';
 class OperanceDataRow<T> extends StatelessWidget {
   /// Creates an instance of [OperanceDataRow].
   ///
-  /// The [columns], [row], [index] and [tableWidth] parameters
-  /// are required.
-  /// The [onEnter], [onExit], [expansionBuilder], [onChecked],
-  /// [onRowPressed], [decoration],
-  /// [showExpansionIcon], and [showCheckbox] parameters are optional.
+  /// The [columns], [row], [index] and [tableWidth] parameters are required.
+  /// The [onEnter], [onExit], [expansionBuilder], [onChecked], [onRowPressed],
+  /// [expandable], and [selectable] parameters are optional.
   const OperanceDataRow({
     required this.columns,
     required this.row,
@@ -25,9 +23,8 @@ class OperanceDataRow<T> extends StatelessWidget {
     this.onChecked,
     this.onRowPressed,
     this.expansionBuilder,
-    this.decoration = const OperanceDataDecoration(),
-    this.showExpansionIcon = false,
-    this.showCheckbox = false,
+    this.expandable = false,
+    this.selectable = false,
     super.key,
   });
 
@@ -56,20 +53,18 @@ class OperanceDataRow<T> extends StatelessWidget {
   final void Function(T)? onRowPressed;
 
   /// Builder for the expanded content of the row.
-  final Widget Function(T)? expansionBuilder;
-
-  /// The decoration settings for the data table.
-  final OperanceDataDecoration decoration;
+  final Widget Function(BuildContext, T)? expansionBuilder;
 
   /// Indicates whether the expansion icon is shown.
-  final bool showExpansionIcon;
+  final bool expandable;
 
   /// Indicates whether the checkbox is shown.
-  final bool showCheckbox;
+  final bool selectable;
 
   @override
   Widget build(BuildContext context) {
     final controller = context.controller<T>();
+    final decoration = context.decoration();
     final columnOrderNotifier = controller.columnOrderNotifier;
     final expandedRowsNotifier = controller.expandedRowsNotifier;
     final selectedRowsNotifier = controller.selectedRowsNotifier;
@@ -93,113 +88,113 @@ class OperanceDataRow<T> extends StatelessWidget {
               valueListenable: selectedRowsNotifier,
               builder: (context, selectedRows, child) {
                 return ValueListenableBuilder<int?>(
-                    valueListenable: controller.hoveredRowNotifier,
-                    builder: (context, hoveredRow, child) {
-                      return AnimatedContainer(
-                        duration: Duration(
-                          milliseconds: ui.animationDuration,
-                        ),
-                        color: selectedRows.contains(row)
-                            ? colors.rowSelectedColor.withOpacity(0.3)
-                            : hoveredRow == index
-                                ? colors.rowHoverColor
-                                : colors.rowColor,
-                        child: Row(
-                          children: <Widget>[
-                            if (showExpansionIcon)
-                              MouseRegion(
-                                cursor: canPress
-                                    ? ui.rowCursor
-                                    : SystemMouseCursors.basic,
-                                child: GestureDetector(
-                                  onTap: () =>
-                                      expandedRowsNotifier.toggle(index),
-                                  child: SizedBox(
-                                    width: 50.0,
-                                    child: AnimatedSwitcher(
-                                      duration: Duration(
-                                        milliseconds: ui.animationDuration,
-                                      ),
-                                      transitionBuilder: (child, animation) {
-                                        return RotationTransition(
-                                          turns: child.key ==
-                                                  ValueKey('expanded_$index')
-                                              ? Tween<double>(
-                                                  begin: 0.5,
-                                                  end: 1.0,
-                                                ).animate(animation)
-                                              : Tween<double>(
-                                                  begin: 1.0,
-                                                  end: 0.5,
-                                                ).animate(animation),
-                                          child: FadeTransition(
-                                            opacity: animation,
-                                            child: child,
+                  valueListenable: controller.hoveredRowNotifier,
+                  builder: (context, hoveredRow, child) {
+                    return AnimatedContainer(
+                      duration: Duration(
+                        milliseconds: ui.animationDuration,
+                      ),
+                      color: selectedRows.contains(row)
+                          ? colors.rowSelectedColor.withOpacity(0.3)
+                          : hoveredRow == index
+                              ? colors.rowHoverColor
+                              : colors.rowColor,
+                      child: Row(
+                        children: <Widget>[
+                          if (expandable)
+                            MouseRegion(
+                              cursor: canPress
+                                  ? ui.rowCursor
+                                  : SystemMouseCursors.basic,
+                              child: GestureDetector(
+                                onTap: () => expandedRowsNotifier.toggle(index),
+                                child: SizedBox(
+                                  width: 50.0,
+                                  child: AnimatedSwitcher(
+                                    duration: Duration(
+                                      milliseconds: ui.animationDuration,
+                                    ),
+                                    transitionBuilder: (child, animation) {
+                                      return RotationTransition(
+                                        turns: child.key ==
+                                                ValueKey('expanded_$index')
+                                            ? Tween<double>(
+                                                begin: 0.5,
+                                                end: 1.0,
+                                              ).animate(animation)
+                                            : Tween<double>(
+                                                begin: 1.0,
+                                                end: 0.5,
+                                              ).animate(animation),
+                                        child: FadeTransition(
+                                          opacity: animation,
+                                          child: child,
+                                        ),
+                                      );
+                                    },
+                                    child: ValueListenableBuilder(
+                                      valueListenable: expandedRowsNotifier,
+                                      builder: (context, expandedRows, child) {
+                                        final isExpanded =
+                                            expandedRows[index] ?? false;
+
+                                        return Icon(
+                                          isExpanded
+                                              ? icons.rowExpansionIconExpanded
+                                              : icons.rowExpansionIconCollapsed,
+                                          key: ValueKey(
+                                            isExpanded
+                                                ? 'expanded_$index'
+                                                : 'collapsed_$index',
                                           ),
+                                          color: colors.rowExpansionIconColor,
                                         );
                                       },
-                                      child: ValueListenableBuilder(
-                                        valueListenable: expandedRowsNotifier,
-                                        builder:
-                                            (context, expandedRows, child) {
-                                          final isExpanded =
-                                              expandedRows[index] ?? false;
-
-                                          return Icon(
-                                            isExpanded
-                                                ? icons.rowExpansionIconExpanded
-                                                : icons
-                                                    .rowExpansionIconCollapsed,
-                                            key: ValueKey(
-                                              isExpanded
-                                                  ? 'expanded_$index'
-                                                  : 'collapsed_$index',
-                                            ),
-                                            color: colors.rowExpansionIconColor,
-                                          );
-                                        },
-                                      ),
                                     ),
                                   ),
                                 ),
                               ),
-                            if (showCheckbox)
-                              SizedBox(
-                                width: 50.0,
-                                child: Checkbox(
-                                  value: selectedRows.contains(row),
-                                  onChanged: (value) {
-                                    selectedRowsNotifier.toggle(row);
-                                    onChecked?.call(selectedRowsNotifier.value);
-                                  },
-                                ),
-                              ),
-                            ValueListenableBuilder<Set<int>>(
-                              valueListenable: columnOrderNotifier,
-                              builder: (context, columnOrder, _) {
-                                return Row(
-                                  children: <Widget>[
-                                    ...columnOrder.map((index) {
-                                      final column = columns[index];
-
-                                      return Container(
-                                        alignment: column.numeric
-                                            ? Alignment.centerRight
-                                            : Alignment.centerLeft,
-                                        padding: styles.cellPadding,
-                                        width: column.width.value(tableWidth),
-                                        height: sizes.rowHeight,
-                                        child: column.cellBuilder(context, row),
-                                      );
-                                    }),
-                                  ],
-                                );
-                              },
                             ),
-                          ],
-                        ),
-                      );
-                    });
+                          if (selectable)
+                            SizedBox(
+                              width: 50.0,
+                              child: Checkbox(
+                                value: selectedRows.contains(row),
+                                onChanged: (value) {
+                                  selectedRowsNotifier.toggle(row);
+                                  onChecked?.call(selectedRowsNotifier.value);
+                                },
+                              ),
+                            ),
+                          ValueListenableBuilder<Set<int>>(
+                            valueListenable: columnOrderNotifier,
+                            builder: (context, columnOrder, _) {
+                              return Row(
+                                children: <Widget>[
+                                  for (final index in columnOrder)
+                                    Container(
+                                      alignment: columns[index].numeric
+                                          ? Alignment.centerRight
+                                          : Alignment.centerLeft,
+                                      padding: styles.cellPadding,
+                                      width: columns[index].width.value(
+                                            tableWidth,
+                                          ),
+                                      height: sizes.rowHeight,
+                                      child: columns[index].cellBuilder(
+                                        context,
+                                        row,
+                                      ),
+                                    ),
+                                ],
+                              );
+                            },
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                );
               },
             ),
           ),
@@ -215,7 +210,7 @@ class OperanceDataRow<T> extends StatelessWidget {
               return expandedRows[index] ?? false
                   ? Container(
                       padding: styles.rowExpandedContainerPadding,
-                      child: expansionBuilder?.call(row),
+                      child: expansionBuilder?.call(context, row),
                     )
                   : SizedBox.shrink();
             },

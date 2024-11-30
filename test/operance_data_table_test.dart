@@ -49,7 +49,7 @@ void main() {
       ValueChanged<String?>? onSearchFieldChanged,
       WidgetBuilder? emptyStateBuilder,
       WidgetBuilder? loadingStateBuilder,
-      Widget Function(String)? expansionBuilder,
+      Widget Function(BuildContext, String)? expansionBuilder,
       void Function(String)? onRowPressed,
       ValueChanged<Set<String>>? onSelectionChanged,
       ValueChanged<int>? onCurrentPageIndexChanged,
@@ -57,7 +57,7 @@ void main() {
       double? height,
       OperanceDataDecoration decoration = const OperanceDataDecoration(),
       PageData<String> initialPage = const ([], false),
-      int currentPageIndex = 0,
+      int currentPage = 0,
       List<Widget> header = const [],
       List<Widget> columnHeaderTrailingActions = const [],
       bool expandable = false,
@@ -95,7 +95,7 @@ void main() {
                 onCurrentPageIndexChanged: onCurrentPageIndexChanged,
                 decoration: decoration,
                 initialPage: initialPage,
-                currentPageIndex: currentPageIndex,
+                currentPage: currentPage,
                 header: header,
                 columnHeaderTrailingActions: columnHeaderTrailingActions,
                 expandable: expandable,
@@ -498,7 +498,7 @@ void main() {
           initialPage: initialPage,
           showHeader: true,
           expandable: true,
-          expansionBuilder: Text.new,
+          expansionBuilder: (context, item) => Text(item),
         );
 
         expect(find.byKey(ValueKey('collapsed_0')), findsOneWidget);
@@ -582,7 +582,7 @@ void main() {
           columns: columns,
           controller: controller,
           initialPage: initialPage,
-          expansionBuilder: Text.new,
+          expansionBuilder: (context, item) => Text(item),
           expandable: true,
         );
 
@@ -653,7 +653,7 @@ void main() {
           controller: controller,
           keyboardFocusNode: focusNode,
           initialPage: initialPage,
-          expansionBuilder: Text.new,
+          expansionBuilder: (context, item) => Text(item),
           expandable: true,
         );
 
@@ -755,7 +755,7 @@ void main() {
 
         await tester.pump();
 
-        expect(controller.currentPageIndex, greaterThan(0));
+        expect(controller.currentPageNotifier.value, greaterThan(0));
       });
     });
 
@@ -778,7 +778,7 @@ void main() {
 
         expect(controller.searchedRowsNotifier.value, isNotEmpty);
         expect(
-          controller.searchedRowsNotifier.value
+          controller.searchedRowsNotifier.value.$1
               .every((row) => row.contains('Row 1')),
           isTrue,
         );
@@ -808,14 +808,18 @@ void main() {
         await tester.pumpAndSettle();
 
         expect(
-            controller.searchedRowsNotifier.value.length, initialRows.length);
+          controller.searchedRowsNotifier.value.$1.length,
+          initialRows.length,
+        );
 
         searchFieldController.text = 'Row ';
 
         await tester.pumpAndSettle();
 
         expect(
-            controller.searchedRowsNotifier.value.length, initialRows.length);
+          controller.searchedRowsNotifier.value.$1.length,
+          initialRows.length,
+        );
       });
     });
 

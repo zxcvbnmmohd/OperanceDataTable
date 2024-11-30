@@ -95,7 +95,7 @@ class _MyHomePageState extends State<MyHomePage> {
               return Text(item.name);
             },
             getSearchableValue: (item) => item.name,
-            width: const OperanceDataColumnWidth(factor: 0.25),
+            width: const OperanceDataColumnWidth(factor: 0.2),
           ),
           OperanceDataColumn<Pokemon>(
             name: 'forms',
@@ -123,6 +123,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     .join(', '),
               );
             },
+            width: const OperanceDataColumnWidth(factor: 0.2),
           ),
           OperanceDataColumn<Pokemon>(
             name: 'type',
@@ -160,10 +161,10 @@ class _MyHomePageState extends State<MyHomePage> {
               return Text(item.height.toString());
             },
             numeric: true,
-            width: const OperanceDataColumnWidth(size: 400.0),
+            width: const OperanceDataColumnWidth(factor: 0.1),
           ),
         ],
-        expansionBuilder: (pokemon) {
+        expansionBuilder: (context, pokemon) {
           return SizedBox(
             height: 100.0,
             child: Wrap(

@@ -120,7 +120,7 @@ class OperanceDataSizes {
   const OperanceDataSizes({
     this.headerHeight = 60.0,
     this.headerHorizontalPadding = 16.0,
-    this.searchWidth = 300.0,
+    this.searchWidth = 500.0,
     this.loadingHeight = 10.0,
     this.columnHeaderHeight = 60.0,
     this.columnHeaderSortIconSize = 14.0,
@@ -198,6 +198,11 @@ class OperanceDataStyles {
     this.searchDecoration = const InputDecoration(
       hintText: 'Search',
       prefixIcon: Icon(Icons.search),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.all(
+          Radius.circular(8.0),
+        ),
+      ),
     ),
     this.cellPadding = const EdgeInsets.symmetric(horizontal: 8.0),
     this.rowExpandedContainerPadding = const EdgeInsets.all(8.0),
