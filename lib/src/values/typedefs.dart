@@ -1,3 +1,6 @@
+// 🐦 Flutter imports:
+import 'package:flutter/material.dart';
+
 // 🌎 Project imports:
 import 'package:operance_datatable/src/values/enumerations.dart';
 
@@ -25,3 +28,11 @@ typedef OnFetch<T> = Future<PageData<T>> Function(
   Map<String, SortDirection> sort, {
   bool isInitial,
 });
+
+/// A typedef for a function that is called when the current page index changes.
+///
+/// The function takes the following parameter:
+/// - `currentPage` (int): The new current page index.
+///
+/// The function does not return anything.
+typedef OnCurrentPageIndexChanged = ValueChanged<int>;

@@ -64,11 +64,9 @@ class OperanceDataRow<T> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = context.controller<T>();
-    final decoration = context.decoration();
-    final columnOrderNotifier = controller.columnOrderNotifier;
-    final hiddenColumnsNotifier = controller.hiddenColumnsNotifier;
     final expandedRowsNotifier = controller.expandedRowsNotifier;
-    final selectedRowsNotifier = controller.selectedRowsNotifier;
+
+    final decoration = context.decoration();
     final colors = decoration.colors;
     final icons = decoration.icons;
     final sizes = decoration.sizes;
@@ -86,7 +84,7 @@ class OperanceDataRow<T> extends StatelessWidget {
           child: GestureDetector(
             onTap: canPress ? () => onRowPressed!(row) : null,
             child: ValueListenableBuilder<Set<T>>(
-              valueListenable: selectedRowsNotifier,
+              valueListenable: controller.selectedRowsNotifier,
               builder: (context, selectedRows, child) {
                 return ValueListenableBuilder<int?>(
                   valueListenable: controller.hoveredRowNotifier,
@@ -108,7 +106,7 @@ class OperanceDataRow<T> extends StatelessWidget {
                                   ? ui.rowCursor
                                   : SystemMouseCursors.basic,
                               child: GestureDetector(
-                                onTap: () => expandedRowsNotifier.toggle(index),
+                                onTap: () => controller.toggleExpandRow = index,
                                 child: SizedBox(
                                   width: 50.0,
                                   child: AnimatedSwitcher(
@@ -133,11 +131,11 @@ class OperanceDataRow<T> extends StatelessWidget {
                                         ),
                                       );
                                     },
-                                    child: ValueListenableBuilder(
+                                    child: ValueListenableBuilder<Set<int>>(
                                       valueListenable: expandedRowsNotifier,
                                       builder: (context, expandedRows, child) {
                                         final isExpanded =
-                                            expandedRows[index] ?? false;
+                                            expandedRows.contains(index);
 
                                         return Icon(
                                           isExpanded
@@ -162,16 +160,16 @@ class OperanceDataRow<T> extends StatelessWidget {
                               child: Checkbox(
                                 value: selectedRows.contains(row),
                                 onChanged: (value) {
-                                  selectedRowsNotifier.toggle(row);
-                                  onChecked?.call(selectedRowsNotifier.value);
+                                  controller.toggleSelectRow = row;
+                                  onChecked?.call(controller.selectedRows);
                                 },
                               ),
                             ),
                           ValueListenableBuilder<Set<String>>(
-                            valueListenable: hiddenColumnsNotifier,
+                            valueListenable: controller.hiddenColumnsNotifier,
                             builder: (context, hiddenColumns, _) {
                               return ValueListenableBuilder<Set<int>>(
-                                valueListenable: columnOrderNotifier,
+                                valueListenable: controller.columnOrderNotifier,
                                 builder: (context, columnOrder, _) {
                                   var totalHiddenWidth = 0.0;
 
@@ -230,15 +228,17 @@ class OperanceDataRow<T> extends StatelessWidget {
             milliseconds: ui.animationDuration,
           ),
           curve: Curves.easeInOut,
-          child: ValueListenableBuilder<Map<int, bool>>(
+          child: ValueListenableBuilder<Set<int>>(
             valueListenable: expandedRowsNotifier,
             builder: (context, expandedRows, child) {
-              return expandedRows[index] ?? false
-                  ? Container(
-                      padding: styles.rowExpandedContainerPadding,
-                      child: expansionBuilder?.call(context, row),
-                    )
-                  : SizedBox.shrink();
+              if (!expandedRows.contains(index)) {
+                return SizedBox.shrink();
+              }
+
+              return Container(
+                padding: styles.rowExpandedContainerPadding,
+                child: expansionBuilder?.call(context, row),
+              );
             },
           ),
         ),

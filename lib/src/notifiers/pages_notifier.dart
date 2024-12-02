@@ -1,7 +1,12 @@
 // 🐦 Flutter imports:
 import 'package:flutter/material.dart';
 
+/// A notifier for managing the pages of rows. The [T] is the type of the row.
 class PagesNotifier<T> extends ValueNotifier<Set<Set<T>>> {
+  /// Creates an instance of [PagesNotifier].
+  ///
+  /// The [pages] is the set of pages. The default value is an empty set.
+  /// The [rowsPerPage] is the number of rows per page. The default value is 25.
   PagesNotifier({
     Set<Set<T>> pages = const {{}},
     int rowsPerPage = 25,
@@ -10,19 +15,23 @@ class PagesNotifier<T> extends ValueNotifier<Set<Set<T>>> {
 
   int _rowsPerPage;
 
+  /// Returns all the rows across all pages.
   Set<T> get rows => value.expand((page) => page).toSet();
 
+  /// Sets the number of rows per page.
   set rowsPerPage(int rowsPerPage) {
     _rowsPerPage = rowsPerPage;
   }
 
-  void add(List<T> rows) {
+  /// Adds a row. The [row] is the row to add.
+  set add(List<T> rows) {
     value.add(rows.toSet());
 
     return notifyListeners();
   }
 
-  void addAll(List<T> rows) {
+  /// Adds many rows. The [rows] are the rows to add.
+  set addAll(List<T> rows) {
     value
       ..clear()
       ..addAll(<Set<T>>[
@@ -33,7 +42,8 @@ class PagesNotifier<T> extends ValueNotifier<Set<Set<T>>> {
     return notifyListeners();
   }
 
-  void updateRow(T row) {
+  /// Updates a row. The [row] is the row to update.
+  set updateRow(T row) {
     final pages = value.toList();
     final page = pages.firstWhere((page) => page.contains(row)).toList();
     final index = page.indexWhere((r) => r == row);
@@ -47,8 +57,11 @@ class PagesNotifier<T> extends ValueNotifier<Set<Set<T>>> {
     return notifyListeners();
   }
 
-  void clear() {
-    value.clear();
+  /// Resets the pages. Clears all the rows.
+  void reset() {
+    value
+      ..clear()
+      ..add(<T>{});
 
     return notifyListeners();
   }

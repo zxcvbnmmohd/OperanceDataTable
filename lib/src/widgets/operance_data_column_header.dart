@@ -19,8 +19,7 @@ class OperanceDataColumnHeader<T> extends StatelessWidget {
     required this.columns,
     required this.tableWidth,
     this.onChecked,
-    this.trailing = const [],
-    this.decoration = const OperanceDataDecoration(),
+    this.trailing = const <Widget>[],
     this.allowColumnReorder = false,
     this.expandable = false,
     this.selectable = false,
@@ -39,9 +38,6 @@ class OperanceDataColumnHeader<T> extends StatelessWidget {
   /// List of widgets to be displayed at the end of the last column.
   final List<Widget> trailing;
 
-  /// The decoration settings for the data table.
-  final OperanceDataDecoration decoration;
-
   /// Whether column reordering is allowed.
   final bool allowColumnReorder;
 
@@ -54,8 +50,7 @@ class OperanceDataColumnHeader<T> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = context.controller<T>();
-    final columnOrderNotifier = controller.columnOrderNotifier;
-    final hiddenColumnsNotifier = controller.hiddenColumnsNotifier;
+    final decoration = context.decoration();
     final sizes = decoration.sizes;
     final styles = decoration.styles;
 
@@ -79,10 +74,10 @@ class OperanceDataColumnHeader<T> extends StatelessWidget {
                 ),
               ),
             ValueListenableBuilder<Set<String>>(
-              valueListenable: hiddenColumnsNotifier,
+              valueListenable: controller.hiddenColumnsNotifier,
               builder: (context, hiddenColumns, _) {
                 return ValueListenableBuilder<Set<int>>(
-                  valueListenable: columnOrderNotifier,
+                  valueListenable: controller.columnOrderNotifier,
                   builder: (context, columnOrder, child) {
                     var totalHiddenWidth = 0.0;
 
@@ -108,7 +103,7 @@ class OperanceDataColumnHeader<T> extends StatelessWidget {
                                   : columns[index].width.value(tableWidth),
                               allowColumnReorder: allowColumnReorder,
                               onColumnDragged: (fromIndex) {
-                                columnOrderNotifier.reorder(
+                                controller.reorderColumn(
                                   fromIndex: fromIndex,
                                   toIndex: index,
                                 );
@@ -150,23 +145,22 @@ class _SelectableCheckbox<T> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = context.controller<T>();
-    final decoration = context.decoration();
-    final currentRows = <T>[];
-    final selectedRowsNotifier = controller.selectedRowsNotifier;
 
     return Container(
-      decoration: decoration.styles.columnHeaderDecoration,
+      decoration: context.decoration().styles.columnHeaderDecoration,
       child: ValueListenableBuilder(
-        valueListenable: selectedRowsNotifier,
+        valueListenable: controller.selectedRowsNotifier,
         builder: (context, selectedRows, child) {
+          final currentRows = controller.currentRows;
+
           return Checkbox(
             value: selectedRows.isNotEmpty &&
                 selectedRows.length == currentRows.length,
             onChanged: (value) {
               if (value == null || value == false) {
-                selectedRowsNotifier.clear();
+                controller.resetSelectedRows();
               } else {
-                selectedRowsNotifier.selectAll(currentRows.toSet());
+                controller.selectManyRows = currentRows.toSet();
               }
 
               onChecked?.call(selectedRows);
@@ -313,8 +307,7 @@ class _ColumnHeader<T> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final decoration = context.decoration();
-    final colors = decoration.colors;
-    final icons = decoration.icons;
+    final sizes = decoration.sizes;
     final styles = decoration.styles;
 
     return Container(
@@ -322,7 +315,7 @@ class _ColumnHeader<T> extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 8.0),
       decoration: styles.columnHeaderDecoration,
       width: columnWidth,
-      height: decoration.sizes.columnHeaderHeight,
+      height: sizes.columnHeaderHeight,
       child: Row(
         children: <Widget>[
           Expanded(child: column.columnHeader),
@@ -330,9 +323,6 @@ class _ColumnHeader<T> extends StatelessWidget {
             _SortIcon<T>(
               key: ValueKey('sort_${column.name}'),
               columnName: column.name,
-              icons: icons,
-              colors: colors,
-              size: decoration.sizes.columnHeaderSortIconSize,
             ),
         ],
       ),
@@ -345,62 +335,55 @@ class _ColumnHeader<T> extends StatelessWidget {
 class _SortIcon<T> extends StatelessWidget {
   /// Creates an instance of [_SortIcon].
   ///
-  /// The [columnName], [icons], [colors], and [size]
-  /// parameters are required.
+  /// The [columnName] parameter is required.
   const _SortIcon({
     required this.columnName,
-    required this.icons,
-    required this.colors,
-    required this.size,
     super.key,
   });
 
   /// The name of the column.
   final String columnName;
 
-  /// The icons used in the data table.
-  final OperanceDataIcons icons;
-
-  /// The colors used in the data table.
-  final OperanceDataColors colors;
-
-  /// The size of the sort icon.
-  final double size;
-
   @override
   Widget build(BuildContext context) {
     final controller = context.controller<T>();
-    final sortsNotifier = controller.sortsNotifier;
+    final decoration = context.decoration();
+    final colors = decoration.colors;
+    final icons = decoration.icons;
+    final sizes = decoration.sizes;
 
     return MouseRegion(
       cursor: SystemMouseCursors.click,
       child: ValueListenableBuilder<Map<String, SortDirection>>(
-          valueListenable: sortsNotifier,
-          builder: (context, sorts, child) {
-            final sortIndex = sorts.keys.toList().indexOf(columnName);
-            final direction =
-                sortIndex != -1 ? sorts.values.toList()[sortIndex] : null;
+        valueListenable: controller.sortsNotifier,
+        builder: (context, sorts, child) {
+          final sortIndex = sorts.keys.toList().indexOf(columnName);
+          final direction =
+              sortIndex != -1 ? sorts.values.toList()[sortIndex] : null;
 
-            return GestureDetector(
-              onTap: () => controller.setSort(
+          return GestureDetector(
+            onTap: () {
+              controller.toggleSort(
                 column: columnName,
                 direction: sortIndex == -1
                     ? SortDirection.ascending
                     : direction == SortDirection.ascending
                         ? SortDirection.descending
                         : null,
-              ),
-              child: Icon(
-                direction == SortDirection.ascending
-                    ? icons.columnHeaderSortAscendingIcon
-                    : icons.columnHeaderSortDescendingIcon,
-                color: sortIndex != -1
-                    ? colors.columnHeaderSortIconEnabledColor
-                    : colors.columnHeaderSortIconDisabledColor,
-                size: size,
-              ),
-            );
-          }),
+              );
+            },
+            child: Icon(
+              direction == SortDirection.ascending
+                  ? icons.columnHeaderSortAscendingIcon
+                  : icons.columnHeaderSortDescendingIcon,
+              color: sortIndex != -1
+                  ? colors.columnHeaderSortIconEnabledColor
+                  : colors.columnHeaderSortIconDisabledColor,
+              size: sizes.columnHeaderSortIconSize,
+            ),
+          );
+        },
+      ),
     );
   }
 }
