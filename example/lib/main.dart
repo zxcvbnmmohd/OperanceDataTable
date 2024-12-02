@@ -70,6 +70,12 @@ class _MyHomePageState extends State<MyHomePage> {
 
           return await _pokeApi.fetchMore(limit: limit);
         },
+        header: <Widget>[
+          Text(
+            'Pokémon',
+            style: textTheme.titleLarge,
+          ),
+        ],
         columns: <OperanceDataColumn<Pokemon>>[
           OperanceDataColumn<Pokemon>(
             name: 'id',

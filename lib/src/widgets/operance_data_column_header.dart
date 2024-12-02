@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 // 🌎 Project imports:
 import 'package:operance_datatable/src/extensions/extensions.dart';
 import 'package:operance_datatable/src/models/models.dart';
+import 'package:operance_datatable/src/providers/providers.dart';
 import 'package:operance_datatable/src/values/values.dart';
 
 /// A widget that represents the header of a data column in the Operance data
@@ -12,15 +13,12 @@ class OperanceDataColumnHeader<T> extends StatelessWidget {
   /// Creates an instance of [OperanceDataColumnHeader].
   ///
   /// The [columns] and [tableWidth] parameters are required.
-  /// The [trailing], [onChecked], [onColumnDragged], [onSort], [sorts]
-  /// [decoration], [allowColumnReorder],
+  /// The [trailing], [onChecked], [decoration], [allowColumnReorder],
   /// [expandable], and [selectable] parameters are optional.
   const OperanceDataColumnHeader({
     required this.columns,
     required this.tableWidth,
     this.onChecked,
-    this.onSort,
-    this.sorts = const {},
     this.trailing = const [],
     this.decoration = const OperanceDataDecoration(),
     this.allowColumnReorder = false,
@@ -37,12 +35,6 @@ class OperanceDataColumnHeader<T> extends StatelessWidget {
 
   /// Callback when the checkbox is checked or unchecked.
   final ValueChanged<Set<T>>? onChecked;
-
-  /// Callback when a column is sorted.
-  final void Function(String, SortDirection?)? onSort;
-
-  /// The current sort directions for the columns.
-  final Map<String, SortDirection> sorts;
 
   /// List of widgets to be displayed at the end of the last column.
   final List<Widget> trailing;
@@ -114,9 +106,6 @@ class OperanceDataColumnHeader<T> extends StatelessWidget {
                                   ? columns[index].width.value(tableWidth) +
                                       totalHiddenWidth
                                   : columns[index].width.value(tableWidth),
-                              decoration: decoration,
-                              onSort: onSort,
-                              sorts: sorts,
                               allowColumnReorder: allowColumnReorder,
                               onColumnDragged: (fromIndex) {
                                 columnOrderNotifier.reorder(
@@ -193,15 +182,13 @@ class _SelectableCheckbox<T> extends StatelessWidget {
 class _ColumnHeaderCell<T> extends StatelessWidget {
   /// Creates an instance of [_ColumnHeaderCell].
   ///
-  /// The [column], [tableWidth], [decoration], [onSort], [sorts],
-  /// [allowColumnReorder], [onColumnDragged], and [index]
+  /// The [column], [tableWidth], [allowColumnReorder], [onColumnDragged]
+  /// and [index]
   /// parameters are required.
+  /// The [columnWidth] parameter is optional.
   const _ColumnHeaderCell({
     required this.column,
     required this.tableWidth,
-    required this.decoration,
-    required this.onSort,
-    required this.sorts,
     required this.allowColumnReorder,
     required this.onColumnDragged,
     required this.index,
@@ -218,15 +205,6 @@ class _ColumnHeaderCell<T> extends StatelessWidget {
   /// The width of the column.
   final double? columnWidth;
 
-  /// The decoration settings for the data table.
-  final OperanceDataDecoration decoration;
-
-  /// Callback when a column is sorted.
-  final void Function(String, SortDirection?)? onSort;
-
-  /// The current sort directions for the columns.
-  final Map<String, SortDirection> sorts;
-
   /// Whether column reordering is allowed.
   final bool allowColumnReorder;
 
@@ -238,18 +216,21 @@ class _ColumnHeaderCell<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final headerContent = _ColumnHeader<T>(
-      key: ValueKey('header_${column.name}'),
-      decoration: decoration,
-      column: column,
-      tableWidth: tableWidth,
-      columnWidth: columnWidth ?? column.width.value(tableWidth),
-      onSort: onSort,
-      sorts: sorts,
+    final headerContent = OperanceDataControllerProvider<T>(
+      controller: context.controller<T>(),
+      child: OperanceDataDecorationProvider(
+        decoration: context.decoration(),
+        child: _ColumnHeader<T>(
+          key: ValueKey('header_${column.name}'),
+          column: column,
+          tableWidth: tableWidth,
+          columnWidth: columnWidth ?? column.width.value(tableWidth),
+        ),
+      ),
     );
 
     return allowColumnReorder
-        ? _Draggable<T>(
+        ? _Draggable(
             key: ValueKey('draggable_${column.name}'),
             columnName: column.name,
             index: index,
@@ -262,7 +243,7 @@ class _ColumnHeaderCell<T> extends StatelessWidget {
 
 /// A widget that represents a draggable column header cell in the
 /// OperanceDataTable.
-class _Draggable<T> extends StatelessWidget {
+class _Draggable extends StatelessWidget {
   /// Creates an instance of [_Draggable].
   ///
   /// The [child], [columnName], [index], and [onColumnDragged] parameters are
@@ -312,20 +293,13 @@ class _Draggable<T> extends StatelessWidget {
 class _ColumnHeader<T> extends StatelessWidget {
   /// Creates an instance of [_ColumnHeader].
   ///
-  /// The [decoration], [column], [tableWidth], [columnWidth], [onSort], and
-  /// [sorts] parameters are required.
+  /// The [column], [tableWidth] and [columnWidth] parameters are required.
   const _ColumnHeader({
-    required this.decoration,
     required this.column,
     required this.tableWidth,
     required this.columnWidth,
-    required this.onSort,
-    required this.sorts,
     super.key,
   });
-
-  /// The decoration settings for the data table.
-  final OperanceDataDecoration decoration;
 
   /// The column data.
   final OperanceDataColumn<T> column;
@@ -336,14 +310,9 @@ class _ColumnHeader<T> extends StatelessWidget {
   /// The width of the column.
   final double columnWidth;
 
-  /// Callback when a column is sorted.
-  final void Function(String, SortDirection?)? onSort;
-
-  /// The current sort directions for the columns.
-  final Map<String, SortDirection> sorts;
-
   @override
   Widget build(BuildContext context) {
+    final decoration = context.decoration();
     final colors = decoration.colors;
     final icons = decoration.icons;
     final styles = decoration.styles;
@@ -358,11 +327,9 @@ class _ColumnHeader<T> extends StatelessWidget {
         children: <Widget>[
           Expanded(child: column.columnHeader),
           if (column.sortable)
-            _SortIcon(
+            _SortIcon<T>(
               key: ValueKey('sort_${column.name}'),
               columnName: column.name,
-              sorts: sorts,
-              onSort: onSort,
               icons: icons,
               colors: colors,
               size: decoration.sizes.columnHeaderSortIconSize,
@@ -375,15 +342,13 @@ class _ColumnHeader<T> extends StatelessWidget {
 
 /// A widget that represents the sort icon in a column header in the
 /// OperanceDataTable.
-class _SortIcon extends StatelessWidget {
+class _SortIcon<T> extends StatelessWidget {
   /// Creates an instance of [_SortIcon].
   ///
-  /// The [columnName], [sorts], [onSort], [icons], [colors], and [size]
+  /// The [columnName], [icons], [colors], and [size]
   /// parameters are required.
   const _SortIcon({
     required this.columnName,
-    required this.sorts,
-    required this.onSort,
     required this.icons,
     required this.colors,
     required this.size,
@@ -392,12 +357,6 @@ class _SortIcon extends StatelessWidget {
 
   /// The name of the column.
   final String columnName;
-
-  /// The current sort directions for the columns.
-  final Map<String, SortDirection> sorts;
-
-  /// Callback when a column is sorted.
-  final void Function(String, SortDirection?)? onSort;
 
   /// The icons used in the data table.
   final OperanceDataIcons icons;
@@ -410,34 +369,38 @@ class _SortIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final sortIndex = sorts.keys.toList().indexOf(columnName);
-    final direction = sortIndex != -1 ? sorts.values.toList()[sortIndex] : null;
+    final controller = context.controller<T>();
+    final sortsNotifier = controller.sortsNotifier;
 
     return MouseRegion(
       cursor: SystemMouseCursors.click,
-      child: GestureDetector(
-        onTap: onSort != null
-            ? () {
-                onSort!(
-                  columnName,
-                  sortIndex == -1
-                      ? SortDirection.ascending
-                      : direction == SortDirection.ascending
-                          ? SortDirection.descending
-                          : null,
-                );
-              }
-            : null,
-        child: Icon(
-          direction == SortDirection.ascending
-              ? icons.columnHeaderSortAscendingIcon
-              : icons.columnHeaderSortDescendingIcon,
-          color: sortIndex != -1
-              ? colors.columnHeaderSortIconEnabledColor
-              : colors.columnHeaderSortIconDisabledColor,
-          size: size,
-        ),
-      ),
+      child: ValueListenableBuilder<Map<String, SortDirection>>(
+          valueListenable: sortsNotifier,
+          builder: (context, sorts, child) {
+            final sortIndex = sorts.keys.toList().indexOf(columnName);
+            final direction =
+                sortIndex != -1 ? sorts.values.toList()[sortIndex] : null;
+
+            return GestureDetector(
+              onTap: () => controller.setSort(
+                column: columnName,
+                direction: sortIndex == -1
+                    ? SortDirection.ascending
+                    : direction == SortDirection.ascending
+                        ? SortDirection.descending
+                        : null,
+              ),
+              child: Icon(
+                direction == SortDirection.ascending
+                    ? icons.columnHeaderSortAscendingIcon
+                    : icons.columnHeaderSortDescendingIcon,
+                color: sortIndex != -1
+                    ? colors.columnHeaderSortIconEnabledColor
+                    : colors.columnHeaderSortIconDisabledColor,
+                size: size,
+              ),
+            );
+          }),
     );
   }
 }

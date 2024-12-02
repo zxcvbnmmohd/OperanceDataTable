@@ -8,7 +8,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:operance_datatable/src/models/operance_data_column.dart';
 import 'package:operance_datatable/src/models/operance_data_column_width.dart';
 import 'package:operance_datatable/src/models/operance_data_decoration.dart';
-import 'package:operance_datatable/src/values/values.dart';
 import 'package:operance_datatable/src/widgets/operance_data_column_header.dart';
 
 void main() {
@@ -55,7 +54,6 @@ void main() {
         'Then it should create an instance with the provided values',
         (tester) async {
           var checkedCalled = false;
-          var sortCalled = false;
 
           await tester.pumpWidget(
             MaterialApp(
@@ -66,12 +64,6 @@ void main() {
                   trailing: const <Widget>[Icon(Icons.more_vert)],
                   onChecked: (value) {
                     checkedCalled = true;
-                  },
-                  onSort: (columnName, direction) {
-                    sortCalled = true;
-                  },
-                  sorts: const <String, SortDirection>{
-                    'name': SortDirection.ascending,
                   },
                   decoration: const OperanceDataDecoration(),
                   allowColumnReorder: true,
@@ -94,8 +86,6 @@ void main() {
           final sortIconFinder = find.byKey(const ValueKey('sort_name'));
           await tester.tap(sortIconFinder);
           await tester.pumpAndSettle();
-
-          expect(sortCalled, isTrue);
 
           final draggableFinder = find.byKey(const ValueKey('draggable_name'));
           final dropTargetFinder = find.byKey(const ValueKey('draggable_age'));
