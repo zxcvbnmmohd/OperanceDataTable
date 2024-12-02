@@ -85,6 +85,7 @@ class OperanceDataIcons {
   ///
   /// All parameters are optional and have default values.
   const OperanceDataIcons({
+    this.hiddenColumnsDropdownClearIcon = Icons.clear,
     this.columnHeaderSortAscendingIcon = Icons.arrow_upward,
     this.columnHeaderSortDescendingIcon = Icons.arrow_downward,
     this.rowExpansionIconCollapsed = Icons.keyboard_arrow_up,
@@ -92,6 +93,9 @@ class OperanceDataIcons {
     this.previousPageIcon = Icons.chevron_left,
     this.nextPageIcon = Icons.chevron_right,
   });
+
+  /// The icon for clearing the hidden columns dropdown.
+  final IconData hiddenColumnsDropdownClearIcon;
 
   /// The icon for sorting the column in ascending order.
   final IconData columnHeaderSortAscendingIcon;

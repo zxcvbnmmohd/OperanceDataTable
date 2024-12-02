@@ -110,7 +110,7 @@ class OperanceDataTable<T> extends StatefulWidget {
   final ValueChanged<String?>? onSearchFieldChanged;
 
   /// Callback when the current page index changes.
-  final ValueChanged<int>? onCurrentPageIndexChanged;
+  final OnCurrentPageIndexChanged? onCurrentPageIndexChanged;
 
   /// Builder for the empty state of the table.
   final WidgetBuilder? emptyStateBuilder;
@@ -195,7 +195,7 @@ class OperanceDataTableState<T> extends State<OperanceDataTable<T>> {
   late final TextEditingController _searchFieldController;
   late final FocusNode _searchFieldFocusNode;
   late final ValueChanged<String?>? _onSearchFieldChanged;
-  late final ValueChanged<int>? _onCurrentPageIndexChanged;
+  late final OnCurrentPageIndexChanged? _onCurrentPageIndexChanged;
   late final WidgetBuilder? _emptyStateBuilder;
   late final WidgetBuilder? _emptySearchStateBuilder;
   late final WidgetBuilder? _loadingStateBuilder;
@@ -368,7 +368,6 @@ class OperanceDataTableState<T> extends State<OperanceDataTable<T>> {
                               tableWidth: availableWidth,
                               trailing: _columnHeaderTrailingActions,
                               onChecked: _onSelectionChanged,
-                              decoration: _decoration,
                               allowColumnReorder: _allowColumnReorder,
                               expandable: _expandable,
                               selectable: _selectable,
@@ -442,13 +441,12 @@ class OperanceDataTableState<T> extends State<OperanceDataTable<T>> {
 
   /// Listener for the search field to update the searched rows.
   void _searchFieldListener() {
-    final searchedRowsNotifier = _controller.searchedRowsNotifier;
     final searchText = _searchFieldController.text;
 
     if (searchText.isEmpty) {
-      searchedRowsNotifier.clear();
+      _controller.resetSearchedRows();
     } else {
-      final rows = _controller.pagesNotifier.rows
+      final rows = _controller.rows
           .where(
             (row) => _columns.any((column) {
               return column.getSearchableValue
@@ -459,23 +457,21 @@ class OperanceDataTableState<T> extends State<OperanceDataTable<T>> {
           )
           .toList();
 
-      final searchedRows = searchedRowsNotifier.value.$1;
+      final searchedRows = _controller.searchedRows;
 
       if (rows.length == searchedRows.length &&
           rows.every(searchedRows.contains)) {
         return;
       }
 
-      searchedRowsNotifier.addRows(
-        rows
-            .where((row) => _columns.any((column) {
-                  return column.getSearchableValue
-                          ?.call(row)
-                          .contains(searchText) ??
-                      false;
-                }))
-            .toSet(),
-      );
+      _controller.addSearchedRows = rows
+          .where((row) => _columns.any((column) {
+                return column.getSearchableValue
+                        ?.call(row)
+                        .contains(searchText) ??
+                    false;
+              }))
+          .toSet();
     }
   }
 
@@ -489,13 +485,14 @@ class OperanceDataTableState<T> extends State<OperanceDataTable<T>> {
   }
 }
 
+/// The OperanceDataColumnHeader widget
 class _OperanceDataTableHeader<T> extends StatelessWidget {
   const _OperanceDataTableHeader({
     required this.columns,
     this.searchFieldController,
     this.searchFieldFocusNode,
     this.onSearchFieldChanged,
-    this.header = const [],
+    this.header = const <Widget>[],
     this.searchable = false,
     this.allowColumnHiding = false,
   });
@@ -512,8 +509,8 @@ class _OperanceDataTableHeader<T> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = context.controller<T>();
-    final hiddenColumnsNotifier = controller.hiddenColumnsNotifier;
     final decoration = context.decoration();
+    final icons = decoration.icons;
     final sizes = decoration.sizes;
     final styles = decoration.styles;
     final searchPosition = decoration.ui.searchPosition;
@@ -551,7 +548,7 @@ class _OperanceDataTableHeader<T> extends StatelessWidget {
             SizedBox(
               width: sizes.hiddenColumnsDropdownWidth,
               child: ValueListenableBuilder<Set<String>>(
-                valueListenable: hiddenColumnsNotifier,
+                valueListenable: controller.hiddenColumnsNotifier,
                 builder: (context, hiddenColumns, _) {
                   final decoration = styles.hiddenColumnsDropdownDecoration;
                   final nonPrimaryColumns = columns.where((column) {
@@ -559,7 +556,14 @@ class _OperanceDataTableHeader<T> extends StatelessWidget {
                   }).toList();
 
                   return DropdownButtonFormField<String>(
-                    decoration: decoration,
+                    decoration: decoration.copyWith(
+                      suffixIcon: hiddenColumns.isNotEmpty
+                          ? IconButton(
+                              icon: Icon(icons.hiddenColumnsDropdownClearIcon),
+                              onPressed: controller.resetHiddenColumns,
+                            )
+                          : null,
+                    ),
                     items: List<DropdownMenuItem<String>>.generate(
                       nonPrimaryColumns.length,
                       (index) {
@@ -586,7 +590,7 @@ class _OperanceDataTableHeader<T> extends StatelessWidget {
                     },
                     onChanged: (index) {
                       if (index != null) {
-                        hiddenColumnsNotifier.toggle(index);
+                        controller.toggleHideColumn = index;
                       }
                     },
                   );
@@ -761,7 +765,6 @@ class _OperanceDataTableContent<T> extends StatelessWidget {
     required Set<T> rows,
   }) {
     final controller = context.controller<T>();
-    final expandedRowsNotifier = controller.expandedRowsNotifier;
     final hoveredRowNotifier = controller.hoveredRowNotifier;
     final currentHoveredIndex = hoveredRowNotifier.value;
 
@@ -780,11 +783,11 @@ class _OperanceDataTableContent<T> extends StatelessWidget {
         }
       } else if (event.logicalKey == LogicalKeyboardKey.arrowLeft) {
         if (currentHoveredIndex != null) {
-          expandedRowsNotifier.toggle(currentHoveredIndex);
+          controller.toggleExpandRow = currentHoveredIndex;
         }
       } else if (event.logicalKey == LogicalKeyboardKey.arrowRight) {
         if (currentHoveredIndex != null) {
-          expandedRowsNotifier.toggle(currentHoveredIndex);
+          controller.toggleExpandRow = currentHoveredIndex;
         }
       } else if (event.logicalKey == LogicalKeyboardKey.enter) {
         if (currentHoveredIndex != null) {
@@ -878,7 +881,7 @@ class _OperanceDataTableFooter<T> extends StatelessWidget {
                       }).toList(),
                       onChanged: (value) {
                         if (value != null) {
-                          controller.setRowsPerPage(value);
+                          controller.setRowsPerPage = value;
                         }
                       },
                     );
