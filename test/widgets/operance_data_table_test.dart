@@ -52,12 +52,12 @@ void main() {
       Widget Function(BuildContext, String)? expansionBuilder,
       void Function(String)? onRowPressed,
       ValueChanged<Set<String>>? onSelectionChanged,
-      ValueChanged<int>? onCurrentPageIndexChanged,
+      OnCurrentPageIndexChanged? onCurrentPageIndexChanged,
       double? width,
       double? height,
       OperanceDataDecoration decoration = const OperanceDataDecoration(),
       PageData<String> initialPage = const ([], false),
-      int currentPage = 0,
+      int currentPageIndex = 0,
       List<Widget> header = const [],
       List<Widget> columnHeaderTrailingActions = const [],
       bool expandable = false,
@@ -95,7 +95,6 @@ void main() {
                 onCurrentPageIndexChanged: onCurrentPageIndexChanged,
                 decoration: decoration,
                 initialPage: initialPage,
-                currentPage: currentPage,
                 header: header,
                 columnHeaderTrailingActions: columnHeaderTrailingActions,
                 expandable: expandable,
@@ -328,12 +327,12 @@ void main() {
         await tester.tap(firstCheckbox);
         await tester.pump();
 
-        expect(controller.selectedRowsNotifier, contains('Row 0'));
+        expect(controller.selectedRows, contains('Row 0'));
 
         await tester.tap(firstCheckbox);
         await tester.pump();
 
-        expect(controller.selectedRowsNotifier, isNot(contains('Row 0')));
+        expect(controller.selectedRows, isNot(contains('Row 0')));
       });
     });
 
@@ -408,12 +407,12 @@ void main() {
         await tester.tap(firstCheckbox);
         await tester.pumpAndSettle();
 
-        expect(controller.selectedRowsNotifier, contains('Row 0'));
+        expect(controller.selectedRows, contains('Row 0'));
 
         await tester.tap(firstCheckbox);
         await tester.pump();
 
-        expect(controller.selectedRowsNotifier, isNot(contains('Row 0')));
+        expect(controller.selectedRows, isNot(contains('Row 0')));
         expect(checkedCalled, isTrue);
       });
 
@@ -482,13 +481,13 @@ void main() {
         await tester.tap(firstRowCheckbox);
         await tester.pumpAndSettle();
 
-        expect(controller.selectedRowsNotifier, contains('Row 0'));
+        expect(controller.selectedRows, contains('Row 0'));
         expect(selectionChangedCalled, isTrue);
 
         await tester.tap(firstRowCheckbox);
         await tester.pumpAndSettle();
 
-        expect(controller.selectedRowsNotifier, isNot(contains('Row 0')));
+        expect(controller.selectedRows, isNot(contains('Row 0')));
       });
 
       testWidgets('Then it should expand rows', (tester) async {
@@ -541,12 +540,12 @@ void main() {
         await tester.enterText(find.byType(TextField), 'R');
         await tester.pumpAndSettle();
 
-        expect(controller.searchedRowsNotifier, isNotEmpty);
+        expect(controller.searchedRows, isNotEmpty);
 
         await tester.enterText(find.byType(TextField), '');
         await tester.pumpAndSettle();
 
-        expect(controller.searchedRowsNotifier, isEmpty);
+        expect(controller.searchedRows, isEmpty);
       });
 
       testWidgets('Then it should navigate pages', (tester) async {
@@ -599,12 +598,12 @@ void main() {
         await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
         await tester.pump();
 
-        expect(controller.expandedRowsNotifier.value, isTrue);
+        expect(controller.expandedRowsNotifier.value.elementAt(0), isTrue);
 
         await tester.sendKeyEvent(LogicalKeyboardKey.arrowLeft);
         await tester.pump();
 
-        expect(controller.expandedRowsNotifier.value, isFalse);
+        expect(controller.expandedRowsNotifier.value.elementAt(0), isFalse);
 
         await tester.sendKeyEvent(LogicalKeyboardKey.enter);
         await tester.pump();
@@ -629,17 +628,17 @@ void main() {
         await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
         await tester.pump();
 
-        expect(controller.hoveredRowNotifier.value, 0);
+        expect(controller.hoveredRowNotifier.value, equals(0));
 
         await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
         await tester.pump();
 
-        expect(controller.hoveredRowNotifier.value, 1);
+        expect(controller.hoveredRowNotifier.value, equals(1));
 
         await tester.sendKeyEvent(LogicalKeyboardKey.arrowUp);
         await tester.pump();
 
-        expect(controller.hoveredRowNotifier.value, 0);
+        expect(controller.hoveredRowNotifier.value, equals(0));
       });
 
       testWidgets('Then it should expand and collapse rows with arrow keys',
@@ -664,17 +663,18 @@ void main() {
         await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
         await tester.pump();
 
-        expect(controller.hoveredRowNotifier.value, 0);
+        expect(controller.hoveredRowNotifier.value, equals(0));
 
         await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
         await tester.pump();
 
-        expect(controller.expandedRowsNotifier.value, true);
+        expect(controller.expandedRowsNotifier.value.contains(9), equals(true));
 
         await tester.sendKeyEvent(LogicalKeyboardKey.arrowLeft);
         await tester.pump();
 
-        expect(controller.expandedRowsNotifier.value, false);
+        expect(
+            controller.expandedRowsNotifier.value.contains(9), equals(false));
       });
 
       testWidgets('Then it should trigger row press with enter key',
@@ -699,7 +699,7 @@ void main() {
         await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
         await tester.pump();
 
-        expect(controller.hoveredRowNotifier.value, 0);
+        expect(controller.hoveredRowNotifier.value, equals(0));
 
         await tester.sendKeyEvent(LogicalKeyboardKey.enter);
         await tester.pump();
@@ -776,10 +776,9 @@ void main() {
         await tester.enterText(find.byType(TextField), 'Row 1');
         await tester.pump();
 
-        expect(controller.searchedRowsNotifier.value, isNotEmpty);
+        expect(controller.searchedRows, isNotEmpty);
         expect(
-          controller.searchedRowsNotifier.value.$1
-              .every((row) => row.contains('Row 1')),
+          controller.searchedRows.every((row) => row.contains('Row 1')),
           isTrue,
         );
       });
@@ -807,19 +806,13 @@ void main() {
 
         await tester.pumpAndSettle();
 
-        expect(
-          controller.searchedRowsNotifier.value.$1.length,
-          initialRows.length,
-        );
+        expect(controller.searchedRows.length, initialRows.length);
 
         searchFieldController.text = 'Row ';
 
         await tester.pumpAndSettle();
 
-        expect(
-          controller.searchedRowsNotifier.value.$1.length,
-          initialRows.length,
-        );
+        expect(controller.searchedRows.length, initialRows.length);
       });
     });
 

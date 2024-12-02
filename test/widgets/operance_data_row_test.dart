@@ -8,6 +8,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:operance_datatable/src/models/operance_data_column.dart';
 import 'package:operance_datatable/src/widgets/operance_data_row.dart';
 
+// 🌎 Project imports:
+
 void main() {
   group('Given an OperanceDataRow instance', () {
     final columns = <OperanceDataColumn<String>>[
@@ -21,8 +23,8 @@ void main() {
     Future<void> pumpOperanceDataRow(
       WidgetTester tester, {
       required bool isExpanded,
-      required bool expandable,
-      required bool selectable,
+      required bool showExpansionIcon,
+      required bool showCheckbox,
       void Function(int)? onExpanded,
       Widget Function(BuildContext, String)? expansionBuilder,
       ValueChanged<Set<String>>? onChecked,
@@ -40,8 +42,6 @@ void main() {
               expansionBuilder: expansionBuilder,
               onChecked: onChecked,
               onRowPressed: (_) {},
-              expandable: expandable,
-              selectable: selectable,
             ),
           ),
         ),
@@ -80,8 +80,8 @@ void main() {
           await pumpOperanceDataRow(
             tester,
             isExpanded: true,
-            expandable: true,
-            selectable: true,
+            showExpansionIcon: true,
+            showCheckbox: true,
             onExpanded: (_) => expandedCalled = true,
             expansionBuilder: (context, item) => Text('Expanded $item'),
             onChecked: (_, {isSelected}) => checkedCalled = true,
@@ -115,8 +115,8 @@ void main() {
           await pumpOperanceDataRow(
             tester,
             isExpanded: false,
-            expandable: true,
-            selectable: true,
+            showExpansionIcon: true,
+            showCheckbox: true,
             onExpanded: (_) => expandedCalled = true,
             expansionBuilder: (context, item) => Text('Expanded $item'),
             onChecked: (_, {isSelected}) => checkedCalled = true,
@@ -149,7 +149,6 @@ void main() {
             row: 'Test Row',
             index: 0,
             tableWidth: 500.0,
-            expandable: true,
           ),
           throwsAssertionError,
         );
@@ -164,7 +163,6 @@ void main() {
             row: 'Test Row',
             index: 0,
             tableWidth: 500.0,
-            selectable: true,
           ),
           throwsAssertionError,
         );

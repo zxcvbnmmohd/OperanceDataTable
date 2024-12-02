@@ -9,6 +9,8 @@ import 'package:operance_datatable/src/models/operance_data_column.dart';
 import 'package:operance_datatable/src/models/operance_data_column_width.dart';
 import 'package:operance_datatable/src/widgets/operance_data_column_header.dart';
 
+// 🌎 Project imports:
+
 void main() {
   group('Given an OperanceDataColumnHeader instance', () {
     final columns = <OperanceDataColumn<String>>[
@@ -85,6 +87,8 @@ void main() {
           await tester.tap(sortIconFinder);
           await tester.pumpAndSettle();
 
+          // expect(sortCalled, isTrue);
+
           final draggableFinder = find.byKey(const ValueKey('draggable_name'));
           final dropTargetFinder = find.byKey(const ValueKey('draggable_age'));
 
@@ -93,6 +97,8 @@ void main() {
               tester.getCenter(dropTargetFinder) -
                   tester.getCenter(draggableFinder));
           await tester.pumpAndSettle();
+
+          // expect(columnDraggedCalled, isTrue);
         },
       );
     });
