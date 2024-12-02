@@ -9,7 +9,7 @@ class SortsNotifier extends ValueNotifier<Map<String, SortDirection>> {
     Map<String, SortDirection> sorts = const {},
   }) : super(sorts);
 
-  void setSort(String column, SortDirection? direction) {
+  void toggle({required String column, required SortDirection? direction}) {
     if (direction == null) {
       value.remove(column);
     } else {

@@ -19,13 +19,13 @@ class OperanceDataController<T> extends ChangeNotifier {
     ValueChanged<int>? onCurrentPageIndexChanged,
   })  : _onFetch = onFetch,
         _onCurrentPageIndexChanged = onCurrentPageIndexChanged,
-        _sorts = <String, SortDirection>{},
         _hasMore = false,
         loadingNotifier = ValueNotifier<bool>(false),
         hiddenColumnsNotifier = HiddenColumnsNotifier(
           columns: Set<String>.from(hiddenColumns),
         ),
         paginateNotifier = ValueNotifier<(bool, bool)>((false, initialPage.$2)),
+        sortsNotifier = SortsNotifier(sorts: <String, SortDirection>{}),
         currentPageNotifier = ValueNotifier<int>(currentPage),
         rowsPerPageNotifier = ValueNotifier<int>(rowsPerPage),
         hoveredRowNotifier = ValueNotifier<int?>(null),
@@ -53,9 +53,6 @@ class OperanceDataController<T> extends ChangeNotifier {
   /// The callback to execute when the current page index changes.
   final ValueChanged<int>? _onCurrentPageIndexChanged;
 
-  /// The map of sort directions for columns.
-  final Map<String, SortDirection> _sorts;
-
   /// Indicates if there are more rows to fetch.
   bool _hasMore;
 
@@ -67,6 +64,9 @@ class OperanceDataController<T> extends ChangeNotifier {
 
   /// The notifier for pagination to go to the next or previous page.
   final ValueNotifier<(bool, bool)> paginateNotifier;
+
+  /// The notifier for the sort directions of columns.
+  final SortsNotifier sortsNotifier;
 
   /// The notifier for the current page index.
   final ValueNotifier<int> currentPageNotifier;
@@ -91,11 +91,6 @@ class OperanceDataController<T> extends ChangeNotifier {
 
   /// The notifier for selected rows.
   final SelectedRowsNotifier<T> selectedRowsNotifier;
-
-  /// Gets the map of sort directions for columns.
-  Map<String, SortDirection> get sorts {
-    return Map<String, SortDirection>.unmodifiable(_sorts);
-  }
 
   /// Indicates if the next page can be navigated to.
   bool get canGoNext {
@@ -149,7 +144,7 @@ class OperanceDataController<T> extends ChangeNotifier {
 
     final pageData = await _onFetch(
       rowsPerPageNotifier.value,
-      _sorts,
+      sortsNotifier.value,
       isInitial: isInitial,
     );
 
@@ -181,14 +176,11 @@ class OperanceDataController<T> extends ChangeNotifier {
   }
 
   /// Sets the sort direction for a column.
-  Future<void> setSort(String columnName, SortDirection? direction) async {
-    if (direction == null) {
-      _sorts.remove(columnName);
-    } else {
-      _sorts[columnName] = direction;
-    }
-
-    notifyListeners();
+  Future<void> setSort({
+    required String column,
+    required SortDirection? direction,
+  }) async {
+    sortsNotifier.toggle(column: column, direction: direction);
 
     await _resetData();
   }

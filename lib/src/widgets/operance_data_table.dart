@@ -368,8 +368,6 @@ class OperanceDataTableState<T> extends State<OperanceDataTable<T>> {
                               tableWidth: availableWidth,
                               trailing: _columnHeaderTrailingActions,
                               onChecked: _onSelectionChanged,
-                              onSort: _controller.setSort,
-                              sorts: _controller.sorts,
                               decoration: _decoration,
                               allowColumnReorder: _allowColumnReorder,
                               expandable: _expandable,
@@ -528,21 +526,28 @@ class _OperanceDataTableHeader<T> extends StatelessWidget {
       height: sizes.headerHeight,
       child: Row(
         children: <Widget>[
-          if (searchable && searchPosition == SearchPosition.left)
+          if (searchable && searchPosition == SearchPosition.left) ...<Widget>[
             OperanceDataSearchField(
               controller: searchFieldController,
               focusNode: searchFieldFocusNode,
               onChanged: onSearchFieldChanged,
             ),
+            const SizedBox(width: 8.0),
+            if (header.isEmpty) const Spacer(),
+          ],
           ...header,
-          if (searchable && searchPosition == SearchPosition.right)
+          if (header.isNotEmpty && searchable) const Spacer(),
+          if (searchable && searchPosition == SearchPosition.right) ...<Widget>[
+            if (header.isNotEmpty) const Spacer(),
+            const SizedBox(width: 8.0),
             OperanceDataSearchField(
               controller: searchFieldController,
               focusNode: searchFieldFocusNode,
               onChanged: onSearchFieldChanged,
             ),
+          ],
           if (allowColumnHiding) ...<Widget>[
-            const Spacer(),
+            const SizedBox(width: 8.0),
             SizedBox(
               width: sizes.hiddenColumnsDropdownWidth,
               child: ValueListenableBuilder<Set<String>>(
