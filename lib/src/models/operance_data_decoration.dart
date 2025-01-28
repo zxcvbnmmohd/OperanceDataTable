@@ -8,8 +8,12 @@ import 'package:operance_datatable/src/values/values.dart';
 class OperanceDataDecoration {
   /// Creates an instance of [OperanceDataDecoration].
   ///
-  /// The [colors], [icons], [sizes], [styles], and [ui] parameters are
-  /// optional.
+  /// Optional parameters:
+  ///   - [colors]: The color settings for the data table.
+  ///   - [icons]: The icon settings for the data table.
+  ///   - [sizes]: The size settings for the data table.
+  ///   - [styles]: The style settings for the data table.
+  ///   - [ui]: The UI settings for the data table.
   const OperanceDataDecoration({
     this.colors = const OperanceDataColors(),
     this.icons = const OperanceDataIcons(),

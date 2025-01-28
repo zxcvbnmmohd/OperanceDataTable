@@ -12,11 +12,17 @@ dependencies:
     sdk: flutter
 
 dev_dependencies:
+  build_runner: ^2.4.13
+
   flutter_lints: ^5.0.0
   flutter_test:
     sdk: flutter
 
   import_sorter: ^4.6.0
+
+  lints: ^5.1.1
+
+  monarch: ^3.8.1
 
 import_sorter:
   comments: true

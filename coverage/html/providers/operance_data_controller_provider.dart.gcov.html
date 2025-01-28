@@ -31,13 +31,13 @@
             <td class="headerValue">lcov.info</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">66.7&nbsp;%</td>
+            <td class="headerCovTableEntryHi">100.0&nbsp;%</td>
             <td class="headerCovTableEntry">6</td>
-            <td class="headerCovTableEntry">4</td>
+            <td class="headerCovTableEntry">6</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2024-11-23 17:28:53</td>
+            <td class="headerValue">2025-01-28 18:05:42</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -67,7 +67,7 @@
 <span id="L5"><span class="lineNum">       5</span>              : import 'package:operance_datatable/src/notifiers/notifiers.dart';</span>
 <span id="L6"><span class="lineNum">       6</span>              : </span>
 <span id="L7"><span class="lineNum">       7</span>              : class OperanceDataControllerProvider&lt;T&gt; extends InheritedWidget {</span>
-<span id="L8"><span class="lineNum">       8</span> <span class="tlaGNC">           1 :   const OperanceDataControllerProvider({</span></span>
+<span id="L8"><span class="lineNum">       8</span> <span class="tlaGNC">           5 :   const OperanceDataControllerProvider({</span></span>
 <span id="L9"><span class="lineNum">       9</span>              :     required this.controller,</span>
 <span id="L10"><span class="lineNum">      10</span>              :     required super.child,</span>
 <span id="L11"><span class="lineNum">      11</span>              :     super.key,</span>
@@ -75,16 +75,16 @@
 <span id="L13"><span class="lineNum">      13</span>              : </span>
 <span id="L14"><span class="lineNum">      14</span>              :   final OperanceDataController&lt;T&gt; controller;</span>
 <span id="L15"><span class="lineNum">      15</span>              : </span>
-<span id="L16"><span class="lineNum">      16</span> <span class="tlaGNC">           3 :   static OperanceDataController&lt;T&gt; of&lt;T&gt;(BuildContext context) {</span></span>
+<span id="L16"><span class="lineNum">      16</span> <span class="tlaGNC">           5 :   static OperanceDataController&lt;T&gt; of&lt;T&gt;(BuildContext context) {</span></span>
 <span id="L17"><span class="lineNum">      17</span>              :     return context</span>
-<span id="L18"><span class="lineNum">      18</span> <span class="tlaGNC">           3 :         .dependOnInheritedWidgetOfExactType&lt;</span></span>
+<span id="L18"><span class="lineNum">      18</span> <span class="tlaGNC">           5 :         .dependOnInheritedWidgetOfExactType&lt;</span></span>
 <span id="L19"><span class="lineNum">      19</span>              :             OperanceDataControllerProvider&lt;T&gt;&gt;()!</span>
-<span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">           1 :         .controller;</span></span>
+<span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">           5 :         .controller;</span></span>
 <span id="L21"><span class="lineNum">      21</span>              :   }</span>
 <span id="L22"><span class="lineNum">      22</span>              : </span>
-<span id="L23"><span class="lineNum">      23</span> <span class="tlaUNC">           0 :   @override</span></span>
+<span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">           2 :   @override</span></span>
 <span id="L24"><span class="lineNum">      24</span>              :   bool updateShouldNotify(OperanceDataControllerProvider&lt;T&gt; oldWidget) {</span>
-<span id="L25"><span class="lineNum">      25</span> <span class="tlaUNC">           0 :     return controller != oldWidget.controller;</span></span>
+<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           6 :     return controller != oldWidget.controller;</span></span>
 <span id="L26"><span class="lineNum">      26</span>              :   }</span>
 <span id="L27"><span class="lineNum">      27</span>              : }</span>
         </pre>

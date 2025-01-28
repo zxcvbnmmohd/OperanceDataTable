@@ -67,13 +67,13 @@ class OperanceDataController<T> extends ChangeNotifier {
           pages: <Set<T>>{},
           rowsPerPage: rowsPerPage,
         ),
-        expandedRowsNotifier = ExpandedRowsNotifier(rows: <int>{}),
+        expandedRowsNotifier = ExpandedRowsNotifier(rows: <T>{}),
         searchedRowsNotifier = SearchedRowsNotifier<T>(rows: <T>{}),
         selectedRowsNotifier = SelectedRowsNotifier<T>(rows: <T>{}) {
     if (initialPage.$1.isEmpty) {
       _fetchData(isInitial: true);
     } else {
-      pagesNotifier.addAll = initialPage.$1;
+      pagesNotifier.addAll = initialPage.$1.toSet();
       _hasMore = initialPage.$2;
     }
   }
@@ -94,7 +94,7 @@ class OperanceDataController<T> extends ChangeNotifier {
   final ValueNotifier<int> currentPageNotifier;
 
   /// The notifier for expanded rows.
-  final ExpandedRowsNotifier expandedRowsNotifier;
+  final ExpandedRowsNotifier<T> expandedRowsNotifier;
 
   /// The notifier for hidden columns.
   final HiddenColumnsNotifier hiddenColumnsNotifier;
@@ -123,6 +123,9 @@ class OperanceDataController<T> extends ChangeNotifier {
   /// The notifier for the sort directions of columns.
   final SortsNotifier sortsNotifier;
 
+  /// Indicates if there are more rows to fetch.
+  bool get hasMore => _hasMore;
+
   /// Indicates if the next page can be navigated to.
   bool get _canGoNext {
     return currentPageNotifier.value < pagesNotifier.value.length - 1;
@@ -140,6 +143,8 @@ class OperanceDataController<T> extends ChangeNotifier {
   /// Returns all the rows across all pages.
   Set<T> get rows => pagesNotifier.rows;
 
+  /// Returns the current rows. The rows are the rows of the current page.
+  /// If there are no pages, an empty set is returned.
   Set<T> get currentRows {
     if (pagesNotifier.value.isEmpty) {
       return <T>{};
@@ -147,6 +152,9 @@ class OperanceDataController<T> extends ChangeNotifier {
 
     return pagesNotifier.value.elementAt(currentPageNotifier.value);
   }
+
+  /// Returns the expanded rows.
+  Set<T> get expandedRows => expandedRowsNotifier.value;
 
   /// Returns the searched rows.
   Set<T> get searchedRows => searchedRowsNotifier.value.$1;
@@ -188,10 +196,10 @@ class OperanceDataController<T> extends ChangeNotifier {
 
       if (rows.isNotEmpty) {
         if (isInitial) {
-          pagesNotifier.addAll = rows;
+          pagesNotifier.addAll = rows.toSet();
         } else {
           currentPageNotifier.value++;
-          pagesNotifier.add = rows;
+          pagesNotifier.add = rows.toSet();
           _onCurrentPageIndexChanged?.call(currentPageNotifier.value);
         }
       }
@@ -258,7 +266,7 @@ class OperanceDataController<T> extends ChangeNotifier {
   /// Toggles the expansion of the row. The [index] is the index of the row to
   /// toggle. If the row is already expanded, it will be collapsed. If the row
   /// is not expanded, it will be expanded.
-  set toggleExpandRow(int index) => expandedRowsNotifier.toggle = index;
+  set toggleExpandRow(T row) => expandedRowsNotifier.toggle = row;
 
   /// Toggles the visibility of the column. The [column] is the column to
   /// toggle. If the column is already hidden, it will be shown. If the column
@@ -271,8 +279,8 @@ class OperanceDataController<T> extends ChangeNotifier {
   set toggleSelectRow(T row) => selectedRowsNotifier.toggle = row;
 
   /// Expands many rows. The [indexes] are the indexes of the rows to expand.
-  set expandManyRows(List<int> indexes) {
-    expandedRowsNotifier.expandMany = indexes;
+  set expandManyRows(Set<T> rows) {
+    expandedRowsNotifier.expandMany = rows;
   }
 
   /// Hides many columns. The [columns] are the columns to hide.
@@ -284,13 +292,20 @@ class OperanceDataController<T> extends ChangeNotifier {
   set selectManyRows(Set<T> rows) => selectedRowsNotifier.selectMany = rows;
 
   /// Adds a set of rows. The [rows] are the rows to add.
-  /// The [isSearching] is set to `true`.
   set addSearchedRows(Set<T> rows) {
     searchedRowsNotifier.addRows = rows;
   }
 
+  /// Toggles the search mode. If [searching] is `true`, the rows are being
+  /// searched. If [searching] is `false`, the rows are not being searched.
+  void toggleSearchMode({bool searching = false}) {
+    searchedRowsNotifier.toggleSearchMode(searching: searching);
+  }
+
   /// Sets the number of rows per page.
   set setRowsPerPage(int rowsPerPage) {
+    assert(rowsPerPage > 0, 'rowsPerPage must be greater than 0');
+
     rowsPerPageNotifier.value = rowsPerPage;
     pagesNotifier.rowsPerPage = rowsPerPage;
 

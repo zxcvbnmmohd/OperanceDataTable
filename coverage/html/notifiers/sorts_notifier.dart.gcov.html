@@ -31,13 +31,13 @@
             <td class="headerValue">lcov.info</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">0.0&nbsp;%</td>
+            <td class="headerCovTableEntryHi">100.0&nbsp;%</td>
             <td class="headerCovTableEntry">9</td>
-            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">9</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2024-11-23 17:28:53</td>
+            <td class="headerValue">2025-01-28 18:05:42</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -66,27 +66,37 @@
 <span id="L4"><span class="lineNum">       4</span>              : // 🌎 Project imports:</span>
 <span id="L5"><span class="lineNum">       5</span>              : import 'package:operance_datatable/src/values/values.dart';</span>
 <span id="L6"><span class="lineNum">       6</span>              : </span>
-<span id="L7"><span class="lineNum">       7</span>              : class SortsNotifier extends ValueNotifier&lt;Map&lt;String, SortDirection&gt;&gt; {</span>
-<span id="L8"><span class="lineNum">       8</span> <span class="tlaUNC">           0 :   SortsNotifier({</span></span>
-<span id="L9"><span class="lineNum">       9</span>              :     Map&lt;String, SortDirection&gt; sorts = const {},</span>
-<span id="L10"><span class="lineNum">      10</span> <span class="tlaUNC">           0 :   }) : super(sorts);</span></span>
-<span id="L11"><span class="lineNum">      11</span>              : </span>
-<span id="L12"><span class="lineNum">      12</span> <span class="tlaUNC">           0 :   void setSort(String column, SortDirection? direction) {</span></span>
-<span id="L13"><span class="lineNum">      13</span>              :     if (direction == null) {</span>
-<span id="L14"><span class="lineNum">      14</span> <span class="tlaUNC">           0 :       value.remove(column);</span></span>
-<span id="L15"><span class="lineNum">      15</span>              :     } else {</span>
-<span id="L16"><span class="lineNum">      16</span> <span class="tlaUNC">           0 :       value[column] = direction;</span></span>
-<span id="L17"><span class="lineNum">      17</span>              :     }</span>
-<span id="L18"><span class="lineNum">      18</span>              : </span>
-<span id="L19"><span class="lineNum">      19</span> <span class="tlaUNC">           0 :     return notifyListeners();</span></span>
-<span id="L20"><span class="lineNum">      20</span>              :   }</span>
-<span id="L21"><span class="lineNum">      21</span>              : </span>
-<span id="L22"><span class="lineNum">      22</span> <span class="tlaUNC">           0 :   void clear() {</span></span>
-<span id="L23"><span class="lineNum">      23</span> <span class="tlaUNC">           0 :     value.clear();</span></span>
-<span id="L24"><span class="lineNum">      24</span>              : </span>
-<span id="L25"><span class="lineNum">      25</span> <span class="tlaUNC">           0 :     return notifyListeners();</span></span>
-<span id="L26"><span class="lineNum">      26</span>              :   }</span>
-<span id="L27"><span class="lineNum">      27</span>              : }</span>
+<span id="L7"><span class="lineNum">       7</span>              : /// A [ValueNotifier] that holds a map of column names and their sort</span>
+<span id="L8"><span class="lineNum">       8</span>              : /// directions.</span>
+<span id="L9"><span class="lineNum">       9</span>              : class SortsNotifier extends ValueNotifier&lt;Map&lt;String, SortDirection&gt;&gt; {</span>
+<span id="L10"><span class="lineNum">      10</span>              :   /// Creates a [SortsNotifier] with an optional initial value.</span>
+<span id="L11"><span class="lineNum">      11</span>              :   ///</span>
+<span id="L12"><span class="lineNum">      12</span>              :   /// The [sorts] are the initial sort directions. The default value is an empty</span>
+<span id="L13"><span class="lineNum">      13</span>              :   /// map. For example, `{'id': SortDirection.ascending}`.</span>
+<span id="L14"><span class="lineNum">      14</span> <span class="tlaGNC">           7 :   SortsNotifier({</span></span>
+<span id="L15"><span class="lineNum">      15</span>              :     Map&lt;String, SortDirection&gt; sorts = const &lt;String, SortDirection&gt;{},</span>
+<span id="L16"><span class="lineNum">      16</span> <span class="tlaGNC">           7 :   }) : super(sorts);</span></span>
+<span id="L17"><span class="lineNum">      17</span>              : </span>
+<span id="L18"><span class="lineNum">      18</span>              :   /// Toggles the sort direction of the column. The [column] is the column to</span>
+<span id="L19"><span class="lineNum">      19</span>              :   /// toggle. If the column is already sorted, it will be unsorted. If the</span>
+<span id="L20"><span class="lineNum">      20</span>              :   /// column is not sorted, it will be sorted in the [direction].</span>
+<span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">           3 :   void toggle({required String column, required SortDirection? direction}) {</span></span>
+<span id="L22"><span class="lineNum">      22</span>              :     if (direction == null) {</span>
+<span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">           2 :       value.remove(column);</span></span>
+<span id="L24"><span class="lineNum">      24</span>              :     } else {</span>
+<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           6 :       value[column] = direction;</span></span>
+<span id="L26"><span class="lineNum">      26</span>              :     }</span>
+<span id="L27"><span class="lineNum">      27</span>              : </span>
+<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">           3 :     return notifyListeners();</span></span>
+<span id="L29"><span class="lineNum">      29</span>              :   }</span>
+<span id="L30"><span class="lineNum">      30</span>              : </span>
+<span id="L31"><span class="lineNum">      31</span>              :   /// Clears the sort directions. Makes all columns unsorted.</span>
+<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           2 :   void reset() {</span></span>
+<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           4 :     value.clear();</span></span>
+<span id="L34"><span class="lineNum">      34</span>              : </span>
+<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           2 :     return notifyListeners();</span></span>
+<span id="L36"><span class="lineNum">      36</span>              :   }</span>
+<span id="L37"><span class="lineNum">      37</span>              : }</span>
         </pre>
               </td>
             </tr>

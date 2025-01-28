@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 // 🌎 Project imports:
 import 'package:operance_datatable/src/models/models.dart';
 
-class OperanceDataDecorationProvider<T> extends InheritedWidget {
+class OperanceDataDecorationProvider extends InheritedWidget {
   const OperanceDataDecorationProvider({
     required this.decoration,
     required super.child,
@@ -20,7 +20,7 @@ class OperanceDataDecorationProvider<T> extends InheritedWidget {
   }
 
   @override
-  bool updateShouldNotify(OperanceDataDecorationProvider<T> oldWidget) {
+  bool updateShouldNotify(OperanceDataDecorationProvider oldWidget) {
     return decoration != oldWidget.decoration;
   }
 }

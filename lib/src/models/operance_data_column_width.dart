@@ -2,10 +2,11 @@
 class OperanceDataColumnWidth {
   /// Creates an instance of [OperanceDataColumnWidth].
   ///
-  /// The [size] parameter is optional and takes precedence over [factor].
-  /// If [size] is provided, it will be used as the fixed column width.
-  /// If [size] is not provided, the width will be calculated based on the
-  /// [factor], which defaults to 0.15 (15% of the available width).
+  /// Optional parameters:
+  ///   - [size]: The fixed size of the column. If not provided, the width will
+  ///     be calculated based on the [factor].
+  ///   - [factor]: The factor of the total table width to be used for the
+  ///     column width. Must be between 0 and 1. Defaults to 0.15.
   const OperanceDataColumnWidth({
     this.size,
     this.factor = 0.15,
@@ -14,20 +15,15 @@ class OperanceDataColumnWidth {
           'factor must be between 0 and 1',
         );
 
-  /// The factor to calculate the column width if [size] is not provided.
-  ///
-  /// Must be a value between 0 and 1, representing a percentage of the
-  /// available width.
+  /// The factor of the total table width to be used for the column width.
   final double factor;
 
-  /// If provided, this value will be used as the column width,
-  /// ignoring [factor].
+  /// The fixed size of the column.
   final double? size;
 
-  /// Returns the width of the column based on the available [width].
+  /// Returns the width of the column based on the total table width.
   ///
-  /// If [size] is provided, it returns the [size].
-  /// Otherwise, it calculates the width based on the [factor] and the
-  /// available [width].
+  /// If [size] is provided, it returns the [size]. Otherwise, it calculates the
+  /// width based on the [factor] and the total table width.
   double value(double width) => size ?? width * factor;
 }

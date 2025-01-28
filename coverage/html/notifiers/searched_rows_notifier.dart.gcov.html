@@ -31,13 +31,13 @@
             <td class="headerValue">lcov.info</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">0.0&nbsp;%</td>
-            <td class="headerCovTableEntry">9</td>
-            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntryHi">100.0&nbsp;%</td>
+            <td class="headerCovTableEntry">12</td>
+            <td class="headerCovTableEntry">12</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2024-11-23 17:28:53</td>
+            <td class="headerValue">2025-01-28 18:05:42</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -63,23 +63,49 @@
 <span id="L1"><span class="lineNum">       1</span>              : // 🐦 Flutter imports:</span>
 <span id="L2"><span class="lineNum">       2</span>              : import 'package:flutter/material.dart';</span>
 <span id="L3"><span class="lineNum">       3</span>              : </span>
-<span id="L4"><span class="lineNum">       4</span>              : class SearchedRowsNotifier&lt;T&gt; extends ValueNotifier&lt;Set&lt;T&gt;&gt; {</span>
-<span id="L5"><span class="lineNum">       5</span> <span class="tlaUNC">           0 :   SearchedRowsNotifier({Set&lt;T&gt; rows = const {}}) : super(rows);</span></span>
-<span id="L6"><span class="lineNum">       6</span>              : </span>
-<span id="L7"><span class="lineNum">       7</span> <span class="tlaUNC">           0 :   void addRows(List&lt;T&gt; rows) {</span></span>
-<span id="L8"><span class="lineNum">       8</span> <span class="tlaUNC">           0 :     value</span></span>
-<span id="L9"><span class="lineNum">       9</span> <span class="tlaUNC">           0 :       ..clear()</span></span>
-<span id="L10"><span class="lineNum">      10</span> <span class="tlaUNC">           0 :       ..addAll(rows);</span></span>
-<span id="L11"><span class="lineNum">      11</span>              : </span>
-<span id="L12"><span class="lineNum">      12</span> <span class="tlaUNC">           0 :     return notifyListeners();</span></span>
-<span id="L13"><span class="lineNum">      13</span>              :   }</span>
-<span id="L14"><span class="lineNum">      14</span>              : </span>
-<span id="L15"><span class="lineNum">      15</span> <span class="tlaUNC">           0 :   void clear() {</span></span>
-<span id="L16"><span class="lineNum">      16</span> <span class="tlaUNC">           0 :     value.clear();</span></span>
+<span id="L4"><span class="lineNum">       4</span>              : /// A 2-tuple of a set of rows and a boolean.</span>
+<span id="L5"><span class="lineNum">       5</span>              : /// The first element is the set of rows.</span>
+<span id="L6"><span class="lineNum">       6</span>              : /// The second element is the indicator if the rows are being searched.</span>
+<span id="L7"><span class="lineNum">       7</span>              : typedef SearchResult&lt;T&gt; = (Set&lt;T&gt;, bool);</span>
+<span id="L8"><span class="lineNum">       8</span>              : </span>
+<span id="L9"><span class="lineNum">       9</span>              : /// A notifier for managing the searched rows. The [T] is the type of the row.</span>
+<span id="L10"><span class="lineNum">      10</span>              : class SearchedRowsNotifier&lt;T&gt; extends ValueNotifier&lt;SearchResult&lt;T&gt;&gt; {</span>
+<span id="L11"><span class="lineNum">      11</span>              :   /// Creates an instance of [SearchedRowsNotifier].</span>
+<span id="L12"><span class="lineNum">      12</span>              :   ///</span>
+<span id="L13"><span class="lineNum">      13</span>              :   /// The [rows] is the set of rows. The default value is an empty set.</span>
+<span id="L14"><span class="lineNum">      14</span>              :   /// The second element of the tuple is the indicator if the rows are being</span>
+<span id="L15"><span class="lineNum">      15</span>              :   /// searched. The default value is `false`.</span>
+<span id="L16"><span class="lineNum">      16</span> <span class="tlaGNC">          14 :   SearchedRowsNotifier({Set&lt;T&gt; rows = const {}}) : super((rows, false));</span></span>
 <span id="L17"><span class="lineNum">      17</span>              : </span>
-<span id="L18"><span class="lineNum">      18</span> <span class="tlaUNC">           0 :     return notifyListeners();</span></span>
-<span id="L19"><span class="lineNum">      19</span>              :   }</span>
-<span id="L20"><span class="lineNum">      20</span>              : }</span>
+<span id="L18"><span class="lineNum">      18</span>              :   /// Adds a set of rows. The [rows] are the rows to add.</span>
+<span id="L19"><span class="lineNum">      19</span>              :   /// The second element of the tuple is set to `true`.</span>
+<span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">           3 :   set addRows(Set&lt;T&gt; rows) {</span></span>
+<span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">           3 :     value = (</span></span>
+<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           3 :       &lt;T&gt;{...rows},</span></span>
+<span id="L23"><span class="lineNum">      23</span>              :       true,</span>
+<span id="L24"><span class="lineNum">      24</span>              :     );</span>
+<span id="L25"><span class="lineNum">      25</span>              : </span>
+<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           3 :     return notifyListeners();</span></span>
+<span id="L27"><span class="lineNum">      27</span>              :   }</span>
+<span id="L28"><span class="lineNum">      28</span>              : </span>
+<span id="L29"><span class="lineNum">      29</span>              :   /// Sets the second element of the tuple to `true`.</span>
+<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           3 :   void toggleSearchMode({bool searching = false}) {</span></span>
+<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           6 :     value = (value.$1, searching);</span></span>
+<span id="L32"><span class="lineNum">      32</span>              : </span>
+<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           3 :     return notifyListeners();</span></span>
+<span id="L34"><span class="lineNum">      34</span>              :   }</span>
+<span id="L35"><span class="lineNum">      35</span>              : </span>
+<span id="L36"><span class="lineNum">      36</span>              :   /// Clears the rows.</span>
+<span id="L37"><span class="lineNum">      37</span>              :   /// The second element of the tuple is set to `false`.</span>
+<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           3 :   void reset() {</span></span>
+<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           3 :     value = (</span></span>
+<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           6 :       value.$1..clear(),</span></span>
+<span id="L41"><span class="lineNum">      41</span>              :       false,</span>
+<span id="L42"><span class="lineNum">      42</span>              :     );</span>
+<span id="L43"><span class="lineNum">      43</span>              : </span>
+<span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">           3 :     return notifyListeners();</span></span>
+<span id="L45"><span class="lineNum">      45</span>              :   }</span>
+<span id="L46"><span class="lineNum">      46</span>              : }</span>
         </pre>
               </td>
             </tr>

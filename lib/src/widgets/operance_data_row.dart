@@ -11,8 +11,8 @@ class OperanceDataRow<T> extends StatelessWidget {
   /// Creates an instance of [OperanceDataRow].
   ///
   /// The [columns], [row], [index] and [tableWidth] parameters are required.
-  /// The [onEnter], [onExit], [expansionBuilder], [onChecked], [onRowPressed],
-  /// [expandable], and [selectable] parameters are optional.
+  /// The [onEnter], [onExit], [expansionBuilder], [onChecked], [onExpanded],
+  /// [onRowPressed], [expandable], and [selectable] parameters are optional.
   const OperanceDataRow({
     required this.columns,
     required this.row,
@@ -21,6 +21,7 @@ class OperanceDataRow<T> extends StatelessWidget {
     this.onEnter,
     this.onExit,
     this.onChecked,
+    this.onExpanded,
     this.onRowPressed,
     this.expansionBuilder,
     this.expandable = false,
@@ -48,6 +49,9 @@ class OperanceDataRow<T> extends StatelessWidget {
 
   /// Callback when the checkbox is checked or unchecked.
   final ValueChanged<Set<T>>? onChecked;
+
+  /// Callback when the row is expanded or collapsed.
+  final ValueChanged<Set<T>>? onExpanded;
 
   /// Callback when the row is pressed.
   final void Function(T)? onRowPressed;
@@ -94,7 +98,7 @@ class OperanceDataRow<T> extends StatelessWidget {
                         milliseconds: ui.animationDuration,
                       ),
                       color: selectedRows.contains(row)
-                          ? colors.rowSelectedColor.withOpacity(0.3)
+                          ? colors.rowSelectedColor.withValues(alpha: 0.3)
                           : hoveredRow == index
                               ? colors.rowHoverColor
                               : colors.rowColor,
@@ -106,7 +110,10 @@ class OperanceDataRow<T> extends StatelessWidget {
                                   ? ui.rowCursor
                                   : SystemMouseCursors.basic,
                               child: GestureDetector(
-                                onTap: () => controller.toggleExpandRow = index,
+                                onTap: () {
+                                  controller.toggleExpandRow = row;
+                                  onExpanded?.call(controller.expandedRows);
+                                },
                                 child: SizedBox(
                                   width: 50.0,
                                   child: AnimatedSwitcher(
@@ -131,11 +138,11 @@ class OperanceDataRow<T> extends StatelessWidget {
                                         ),
                                       );
                                     },
-                                    child: ValueListenableBuilder<Set<int>>(
+                                    child: ValueListenableBuilder<Set<T>>(
                                       valueListenable: expandedRowsNotifier,
                                       builder: (context, expandedRows, child) {
                                         final isExpanded =
-                                            expandedRows.contains(index);
+                                            expandedRows.contains(row);
 
                                         return Icon(
                                           isExpanded
@@ -228,10 +235,10 @@ class OperanceDataRow<T> extends StatelessWidget {
             milliseconds: ui.animationDuration,
           ),
           curve: Curves.easeInOut,
-          child: ValueListenableBuilder<Set<int>>(
+          child: ValueListenableBuilder<Set<T>>(
             valueListenable: expandedRowsNotifier,
             builder: (context, expandedRows, child) {
-              if (!expandedRows.contains(index)) {
+              if (!expandedRows.contains(row)) {
                 return SizedBox.shrink();
               }
 

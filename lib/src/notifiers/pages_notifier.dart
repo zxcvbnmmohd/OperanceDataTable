@@ -9,52 +9,52 @@ class PagesNotifier<T> extends ValueNotifier<Set<Set<T>>> {
   /// The [rowsPerPage] is the number of rows per page. The default value is 25.
   PagesNotifier({
     Set<Set<T>> pages = const {{}},
-    int rowsPerPage = 25,
-  })  : _rowsPerPage = rowsPerPage,
-        super(pages);
+    this.rowsPerPage = 25,
+  }) : super(pages);
 
-  int _rowsPerPage;
+  /// The number of rows per page.
+  int rowsPerPage;
 
   /// Returns all the rows across all pages.
   Set<T> get rows => value.expand((page) => page).toSet();
 
-  /// Sets the number of rows per page.
-  set rowsPerPage(int rowsPerPage) {
-    _rowsPerPage = rowsPerPage;
-  }
-
   /// Adds a row. The [row] is the row to add.
-  set add(List<T> rows) {
+  set add(Set<T> rows) {
     value.add(rows.toSet());
 
     return notifyListeners();
   }
 
   /// Adds many rows. The [rows] are the rows to add.
-  set addAll(List<T> rows) {
+  set addAll(Set<T> rows) {
     value
       ..clear()
       ..addAll(<Set<T>>[
-        for (int i = 0; i < rows.length; i += _rowsPerPage)
-          rows.skip(i).take(_rowsPerPage).toSet()
+        for (int i = 0; i < rows.length; i += rowsPerPage)
+          rows.skip(i).take(rowsPerPage).toSet()
       ]);
 
     return notifyListeners();
   }
 
-  /// Updates a row. The [row] is the row to update.
-  set updateRow(T row) {
-    final pages = value.toList();
-    final page = pages.firstWhere((page) => page.contains(row)).toList();
-    final index = page.indexWhere((r) => r == row);
+  /// Updates a row. The [oldItem] is the row to update. The [newItem] is the
+  /// new row. The [oldItem] is removed and the [newItem] is added in its place
+  /// in the same page in the same position.
+  void updateRow(T oldItem, T newItem) {
+    for (final page in value) {
+      if (page.contains(oldItem)) {
+        final items = page.toList();
+        final index = items.indexOf(oldItem);
 
-    page
-      ..remove(row)
-      ..insert(index, row);
+        items[index] = newItem;
 
-    value = pages.toSet();
+        page
+          ..clear()
+          ..addAll(items);
 
-    return notifyListeners();
+        return notifyListeners();
+      }
+    }
   }
 
   /// Resets the pages. Clears all the rows.

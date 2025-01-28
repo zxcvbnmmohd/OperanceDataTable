@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2024-11-23 17:28:53</td>
+            <td class="headerValue">2025-01-28 18:05:42</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -66,57 +66,70 @@
 <span id="L4"><span class="lineNum">       4</span>              : // 🌎 Project imports:</span>
 <span id="L5"><span class="lineNum">       5</span>              : import 'package:operance_datatable/src/models/models.dart';</span>
 <span id="L6"><span class="lineNum">       6</span>              : </span>
-<span id="L7"><span class="lineNum">       7</span>              : /// A class representing a column in the OperanceDataTable.</span>
-<span id="L8"><span class="lineNum">       8</span>              : class OperanceDataColumn&lt;T&gt; {</span>
-<span id="L9"><span class="lineNum">       9</span>              :   /// Creates an instance of [OperanceDataColumn].</span>
-<span id="L10"><span class="lineNum">      10</span>              :   ///</span>
-<span id="L11"><span class="lineNum">      11</span>              :   /// The [name], [columnHeader], [cellBuilder], and [getValue] parameters are</span>
-<span id="L12"><span class="lineNum">      12</span>              :   /// required.</span>
-<span id="L13"><span class="lineNum">      13</span>              :   /// The [getSearchableValue], [numeric], [sortable], [filterable], and [width]</span>
-<span id="L14"><span class="lineNum">      14</span>              :   /// parameters are optional.</span>
-<span id="L15"><span class="lineNum">      15</span> <span class="tlaGNC">           4 :   const OperanceDataColumn({</span></span>
-<span id="L16"><span class="lineNum">      16</span>              :     required this.name,</span>
-<span id="L17"><span class="lineNum">      17</span>              :     required this.columnHeader,</span>
-<span id="L18"><span class="lineNum">      18</span>              :     required this.cellBuilder,</span>
-<span id="L19"><span class="lineNum">      19</span>              :     this.getSearchableValue,</span>
-<span id="L20"><span class="lineNum">      20</span>              :     this.numeric = false,</span>
-<span id="L21"><span class="lineNum">      21</span>              :     this.sortable = false,</span>
-<span id="L22"><span class="lineNum">      22</span>              :     this.width = const OperanceDataColumnWidth(),</span>
-<span id="L23"><span class="lineNum">      23</span>              :   });</span>
-<span id="L24"><span class="lineNum">      24</span>              : </span>
-<span id="L25"><span class="lineNum">      25</span>              :   /// The name of the column.</span>
-<span id="L26"><span class="lineNum">      26</span>              :   final String name;</span>
-<span id="L27"><span class="lineNum">      27</span>              : </span>
-<span id="L28"><span class="lineNum">      28</span>              :   /// The widget to display as the column header.</span>
-<span id="L29"><span class="lineNum">      29</span>              :   final Widget columnHeader;</span>
-<span id="L30"><span class="lineNum">      30</span>              : </span>
-<span id="L31"><span class="lineNum">      31</span>              :   /// A function that builds the cell widget for a given item.</span>
-<span id="L32"><span class="lineNum">      32</span>              :   ///</span>
-<span id="L33"><span class="lineNum">      33</span>              :   /// The function takes the build context and the item of type [T] as</span>
-<span id="L34"><span class="lineNum">      34</span>              :   /// parameters.</span>
-<span id="L35"><span class="lineNum">      35</span>              :   final Widget Function(BuildContext, T) cellBuilder;</span>
-<span id="L36"><span class="lineNum">      36</span>              : </span>
-<span id="L37"><span class="lineNum">      37</span>              :   /// An optional function that retrieves a searchable value for a given item.</span>
-<span id="L38"><span class="lineNum">      38</span>              :   ///</span>
-<span id="L39"><span class="lineNum">      39</span>              :   /// The function takes the item of type [T] as a parameter and returns a</span>
-<span id="L40"><span class="lineNum">      40</span>              :   /// string.</span>
-<span id="L41"><span class="lineNum">      41</span>              :   final String Function(T)? getSearchableValue;</span>
+<span id="L7"><span class="lineNum">       7</span>              : /// The default width of a column.</span>
+<span id="L8"><span class="lineNum">       8</span>              : const defaultWidth = OperanceDataColumnWidth();</span>
+<span id="L9"><span class="lineNum">       9</span>              : </span>
+<span id="L10"><span class="lineNum">      10</span>              : /// A class representing a column in the OperanceDataTable.</span>
+<span id="L11"><span class="lineNum">      11</span>              : class OperanceDataColumn&lt;T&gt; {</span>
+<span id="L12"><span class="lineNum">      12</span>              :   /// Creates an instance of [OperanceDataColumn].</span>
+<span id="L13"><span class="lineNum">      13</span>              :   ///</span>
+<span id="L14"><span class="lineNum">      14</span>              :   /// Required parameters:</span>
+<span id="L15"><span class="lineNum">      15</span>              :   ///   - [name]: The unique name of the column.</span>
+<span id="L16"><span class="lineNum">      16</span>              :   ///   - [columnHeader]: The widget to display as the column header.</span>
+<span id="L17"><span class="lineNum">      17</span>              :   ///   - [cellBuilder]: A function that builds the cell widget for a given</span>
+<span id="L18"><span class="lineNum">      18</span>              :   ///     item.</span>
+<span id="L19"><span class="lineNum">      19</span>              :   ///</span>
+<span id="L20"><span class="lineNum">      20</span>              :   /// Optional parameters:</span>
+<span id="L21"><span class="lineNum">      21</span>              :   ///   - [getSearchableValue]: A function that retrieves a searchable value for</span>
+<span id="L22"><span class="lineNum">      22</span>              :   ///     a given item.</span>
+<span id="L23"><span class="lineNum">      23</span>              :   ///   - [primary]: The primary column. The primary column is the column that</span>
+<span id="L24"><span class="lineNum">      24</span>              :   ///     is going to be take in the width of the columns that are hidden.</span>
+<span id="L25"><span class="lineNum">      25</span>              :   ///     Defaults to `false`.</span>
+<span id="L26"><span class="lineNum">      26</span>              :   ///   - [numeric]: Indicates whether the column contains numeric values.</span>
+<span id="L27"><span class="lineNum">      27</span>              :   ///     Defaults to `false`.</span>
+<span id="L28"><span class="lineNum">      28</span>              :   ///   - [sortable]: Indicates whether the column is sortable.</span>
+<span id="L29"><span class="lineNum">      29</span>              :   ///     Defaults to `false`.</span>
+<span id="L30"><span class="lineNum">      30</span>              :   ///   - [width]: The width of the column.</span>
+<span id="L31"><span class="lineNum">      31</span>              :   ///     Defaults to an instance of [OperanceDataColumnWidth].</span>
+<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           5 :   const OperanceDataColumn({</span></span>
+<span id="L33"><span class="lineNum">      33</span>              :     required this.name,</span>
+<span id="L34"><span class="lineNum">      34</span>              :     required this.columnHeader,</span>
+<span id="L35"><span class="lineNum">      35</span>              :     required this.cellBuilder,</span>
+<span id="L36"><span class="lineNum">      36</span>              :     this.getSearchableValue,</span>
+<span id="L37"><span class="lineNum">      37</span>              :     this.primary = false,</span>
+<span id="L38"><span class="lineNum">      38</span>              :     this.numeric = false,</span>
+<span id="L39"><span class="lineNum">      39</span>              :     this.sortable = false,</span>
+<span id="L40"><span class="lineNum">      40</span>              :     this.width = defaultWidth,</span>
+<span id="L41"><span class="lineNum">      41</span>              :   });</span>
 <span id="L42"><span class="lineNum">      42</span>              : </span>
-<span id="L43"><span class="lineNum">      43</span>              :   /// Indicates whether the column contains numeric values.</span>
-<span id="L44"><span class="lineNum">      44</span>              :   ///</span>
-<span id="L45"><span class="lineNum">      45</span>              :   /// Defaults to `false`.</span>
-<span id="L46"><span class="lineNum">      46</span>              :   final bool numeric;</span>
-<span id="L47"><span class="lineNum">      47</span>              : </span>
-<span id="L48"><span class="lineNum">      48</span>              :   /// Indicates whether the column is sortable.</span>
-<span id="L49"><span class="lineNum">      49</span>              :   ///</span>
-<span id="L50"><span class="lineNum">      50</span>              :   /// Defaults to `false`.</span>
-<span id="L51"><span class="lineNum">      51</span>              :   final bool sortable;</span>
+<span id="L43"><span class="lineNum">      43</span>              :   /// The unique name of the column.</span>
+<span id="L44"><span class="lineNum">      44</span>              :   final String name;</span>
+<span id="L45"><span class="lineNum">      45</span>              : </span>
+<span id="L46"><span class="lineNum">      46</span>              :   /// The widget to display as the column header.</span>
+<span id="L47"><span class="lineNum">      47</span>              :   final Widget columnHeader;</span>
+<span id="L48"><span class="lineNum">      48</span>              : </span>
+<span id="L49"><span class="lineNum">      49</span>              :   /// A function that builds the cell widget for a given item. The function</span>
+<span id="L50"><span class="lineNum">      50</span>              :   /// takes the build context and the item of type [T] as parameters.</span>
+<span id="L51"><span class="lineNum">      51</span>              :   final Widget Function(BuildContext, T) cellBuilder;</span>
 <span id="L52"><span class="lineNum">      52</span>              : </span>
-<span id="L53"><span class="lineNum">      53</span>              :   /// The width of the column.</span>
-<span id="L54"><span class="lineNum">      54</span>              :   ///</span>
-<span id="L55"><span class="lineNum">      55</span>              :   /// Defaults to an instance of [OperanceDataColumnWidth].</span>
-<span id="L56"><span class="lineNum">      56</span>              :   final OperanceDataColumnWidth width;</span>
-<span id="L57"><span class="lineNum">      57</span>              : }</span>
+<span id="L53"><span class="lineNum">      53</span>              :   /// An optional function that retrieves a searchable value for a given item.</span>
+<span id="L54"><span class="lineNum">      54</span>              :   /// The function takes the item of type [T] as a parameter and returns a</span>
+<span id="L55"><span class="lineNum">      55</span>              :   /// string.</span>
+<span id="L56"><span class="lineNum">      56</span>              :   final String Function(T)? getSearchableValue;</span>
+<span id="L57"><span class="lineNum">      57</span>              : </span>
+<span id="L58"><span class="lineNum">      58</span>              :   /// The primary column. The primary column is the column that is going to be</span>
+<span id="L59"><span class="lineNum">      59</span>              :   /// take in the width of the columns that are hidden.</span>
+<span id="L60"><span class="lineNum">      60</span>              :   final bool primary;</span>
+<span id="L61"><span class="lineNum">      61</span>              : </span>
+<span id="L62"><span class="lineNum">      62</span>              :   /// Indicates whether the column contains numeric values.</span>
+<span id="L63"><span class="lineNum">      63</span>              :   final bool numeric;</span>
+<span id="L64"><span class="lineNum">      64</span>              : </span>
+<span id="L65"><span class="lineNum">      65</span>              :   /// Indicates whether the column is sortable.</span>
+<span id="L66"><span class="lineNum">      66</span>              :   final bool sortable;</span>
+<span id="L67"><span class="lineNum">      67</span>              : </span>
+<span id="L68"><span class="lineNum">      68</span>              :   /// The width of the column.</span>
+<span id="L69"><span class="lineNum">      69</span>              :   final OperanceDataColumnWidth width;</span>
+<span id="L70"><span class="lineNum">      70</span>              : }</span>
         </pre>
               </td>
             </tr>

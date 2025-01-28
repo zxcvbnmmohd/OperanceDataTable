@@ -1,36 +1,35 @@
 // 🐦 Flutter imports:
 import 'package:flutter/material.dart';
 
-/// A notifier for managing the expanded rows.
-class ExpandedRowsNotifier extends ValueNotifier<Set<int>> {
+/// A notifier class for managing the state and behavior of the selected rows.
+class ExpandedRowsNotifier<T> extends ValueNotifier<Set<T>> {
   /// Creates an instance of [ExpandedRowsNotifier].
   ///
-  /// The [rows] are the indexes of the expanded rows. The default value is an
-  /// empty set.
-  /// For example, `{0, 1, 2}`.
-  ExpandedRowsNotifier({Set<int> rows = const <int>{}}) : super(rows);
+  /// The [rows] are the expanded rows.
+  ExpandedRowsNotifier({Set<T> rows = const {}}) : super(rows);
 
-  /// Toggles the expansion of the row. The [index] is the index of the row to
-  /// toggle. If the row is already expanded, it will be collapsed. If the row
-  /// is not expanded, it will be expanded.
-  set toggle(int index) {
-    if (value.contains(index)) {
-      value.remove(index);
+  /// Toggles the expanded or collapse of the row. The [row] is the row to
+  /// toggle. If the row is already expanded, it will be collapsed.
+  set toggle(T row) {
+    if (value.contains(row)) {
+      value.remove(row);
     } else {
-      value.add(index);
+      value.add(row);
     }
 
     return notifyListeners();
   }
 
-  /// Expands many rows. The [indexes] are the indexes of the rows to expand.
-  set expandMany(List<int> indexes) {
-    value.addAll(indexes);
+  /// Expands many rows. The [rows] are the rows to expand.
+  set expandMany(Set<T> rows) {
+    value
+      ..clear()
+      ..addAll(rows);
 
     return notifyListeners();
   }
 
-  /// Collapses all rows.
+  /// Collapse all rows.
   void reset() {
     value.clear();
 

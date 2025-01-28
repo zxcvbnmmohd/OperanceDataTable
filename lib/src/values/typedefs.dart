@@ -15,7 +15,7 @@ typedef PageData<T> = (List<T>, bool);
 ///
 /// The function takes the following parameters:
 /// - `limit` (int): The maximum number of items to fetch.
-/// - `sort` (Map<String, SortDirection>?): An optional map specifying the sort
+/// - `sort` (Map`<`String, SortDirection`>`?): An optional map for the sort
 ///    direction for each field.
 /// - `isInitial` (bool): An optional named parameter indicating if this is the
 ///    initial fetch.

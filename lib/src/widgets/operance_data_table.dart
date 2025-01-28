@@ -9,6 +9,7 @@ import 'package:operance_datatable/src/models/models.dart';
 import 'package:operance_datatable/src/notifiers/notifiers.dart';
 import 'package:operance_datatable/src/providers/providers.dart';
 import 'package:operance_datatable/src/values/values.dart';
+import 'package:operance_datatable/src/widgets/operance_data_column_dropdown.dart';
 import 'package:operance_datatable/src/widgets/widgets.dart';
 
 /// The OperanceDataTable widget
@@ -42,6 +43,7 @@ class OperanceDataTable<T> extends StatefulWidget {
     this.emptySearchStateBuilder,
     this.expansionBuilder,
     this.onRowPressed,
+    this.onExpandedChanged,
     this.onSelectionChanged,
     this.onCurrentPageIndexChanged,
     this.decoration = const OperanceDataDecoration(),
@@ -127,7 +129,10 @@ class OperanceDataTable<T> extends StatefulWidget {
   /// Callback when a row is pressed.
   final void Function(T)? onRowPressed;
 
-  /// Callback when the selection changes.
+  /// Callback when a row is expanded.
+  final ValueChanged<Set<T>>? onExpandedChanged;
+
+  /// Callback when a row is selected.
   final ValueChanged<Set<T>>? onSelectionChanged;
 
   /// Decoration settings for the table.
@@ -201,6 +206,7 @@ class OperanceDataTableState<T> extends State<OperanceDataTable<T>> {
   late final WidgetBuilder? _loadingStateBuilder;
   late final Widget Function(BuildContext, T)? _expansionBuilder;
   late final void Function(T)? _onRowPressed;
+  late final ValueChanged<Set<T>>? _onExpandedChanged;
   late final ValueChanged<Set<T>>? _onSelectionChanged;
   late final OperanceDataDecoration _decoration;
   late final PageData<T> _initialPage;
@@ -233,6 +239,7 @@ class OperanceDataTableState<T> extends State<OperanceDataTable<T>> {
     _loadingStateBuilder = widget.loadingStateBuilder;
     _expansionBuilder = widget.expansionBuilder;
     _onRowPressed = widget.onRowPressed;
+    _onExpandedChanged = widget.onExpandedChanged;
     _onSelectionChanged = widget.onSelectionChanged;
     _onCurrentPageIndexChanged = widget.onCurrentPageIndexChanged;
     _decoration = widget.decoration;
@@ -308,8 +315,6 @@ class OperanceDataTableState<T> extends State<OperanceDataTable<T>> {
     if (widget.searchFieldFocusNode == null) {
       _searchFieldFocusNode.dispose();
     }
-
-    _controller.dispose();
 
     super.dispose();
   }
@@ -392,6 +397,7 @@ class OperanceDataTableState<T> extends State<OperanceDataTable<T>> {
                                         _emptySearchStateBuilder,
                                     expansionBuilder: _expansionBuilder,
                                     onRowPressed: _onRowPressed,
+                                    onExpandedChanged: _onExpandedChanged,
                                     onSelectionChanged: _onSelectionChanged,
                                     expandable: _expandable,
                                     selectable: _selectable,
@@ -447,20 +453,20 @@ class OperanceDataTableState<T> extends State<OperanceDataTable<T>> {
       _controller.resetSearchedRows();
     } else {
       final rows = _controller.rows
-          .where(
-            (row) => _columns.any((column) {
-              return column.getSearchableValue
-                      ?.call(row)
-                      .contains(searchText) ??
-                  false;
-            }),
-          )
+          .where((row) => _columns.any((column) {
+                return column.getSearchableValue
+                        ?.call(row)
+                        .contains(searchText) ??
+                    false;
+              }))
           .toList();
 
       final searchedRows = _controller.searchedRows;
 
       if (rows.length == searchedRows.length &&
           rows.every(searchedRows.contains)) {
+        _controller.toggleSearchMode(searching: true);
+
         return;
       }
 
@@ -508,36 +514,37 @@ class _OperanceDataTableHeader<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final controller = context.controller<T>();
     final decoration = context.decoration();
-    final icons = decoration.icons;
     final sizes = decoration.sizes;
-    final styles = decoration.styles;
     final searchPosition = decoration.ui.searchPosition;
 
     return Container(
       padding: EdgeInsets.symmetric(
         horizontal: sizes.headerHorizontalPadding,
       ),
-      decoration: styles.headerDecoration,
+      decoration: decoration.styles.headerDecoration,
       height: sizes.headerHeight,
       child: Row(
         children: <Widget>[
           if (searchable && searchPosition == SearchPosition.left) ...<Widget>[
             OperanceDataSearchField(
+              key: const Key('search-field-left'),
               controller: searchFieldController,
               focusNode: searchFieldFocusNode,
               onChanged: onSearchFieldChanged,
             ),
-            const SizedBox(width: 8.0),
-            if (header.isEmpty) const Spacer(),
+            const SizedBox(
+              width: 8.0,
+            ),
           ],
           ...header,
-          if (header.isNotEmpty && searchable) const Spacer(),
           if (searchable && searchPosition == SearchPosition.right) ...<Widget>[
             if (header.isNotEmpty) const Spacer(),
-            const SizedBox(width: 8.0),
+            const SizedBox(
+              width: 8.0,
+            ),
             OperanceDataSearchField(
+              key: const Key('search-field-right'),
               controller: searchFieldController,
               focusNode: searchFieldFocusNode,
               onChanged: onSearchFieldChanged,
@@ -545,57 +552,8 @@ class _OperanceDataTableHeader<T> extends StatelessWidget {
           ],
           if (allowColumnHiding) ...<Widget>[
             const SizedBox(width: 8.0),
-            SizedBox(
-              width: sizes.hiddenColumnsDropdownWidth,
-              child: ValueListenableBuilder<Set<String>>(
-                valueListenable: controller.hiddenColumnsNotifier,
-                builder: (context, hiddenColumns, _) {
-                  final decoration = styles.hiddenColumnsDropdownDecoration;
-                  final nonPrimaryColumns = columns.where((column) {
-                    return !column.primary;
-                  }).toList();
-
-                  return DropdownButtonFormField<String>(
-                    decoration: decoration.copyWith(
-                      suffixIcon: hiddenColumns.isNotEmpty
-                          ? IconButton(
-                              icon: Icon(icons.hiddenColumnsDropdownClearIcon),
-                              onPressed: controller.resetHiddenColumns,
-                            )
-                          : null,
-                    ),
-                    items: List<DropdownMenuItem<String>>.generate(
-                      nonPrimaryColumns.length,
-                      (index) {
-                        final name = nonPrimaryColumns[index].name;
-
-                        return DropdownMenuItem<String>(
-                          value: name,
-                          child: Row(
-                            children: <Widget>[
-                              Checkbox(
-                                value: !hiddenColumns.contains(name),
-                                onChanged: (value) {},
-                              ),
-                              nonPrimaryColumns[index].columnHeader,
-                            ],
-                          ),
-                        );
-                      },
-                    ),
-                    selectedItemBuilder: (context) {
-                      return nonPrimaryColumns.map((_) {
-                        return decoration.label ?? Text(decoration.labelText!);
-                      }).toList();
-                    },
-                    onChanged: (index) {
-                      if (index != null) {
-                        controller.toggleHideColumn = index;
-                      }
-                    },
-                  );
-                },
-              ),
+            OperanceDataColumnDropdown<T>(
+              columns: columns,
             ),
           ],
         ],
@@ -615,6 +573,7 @@ class _OperanceDataTableContent<T> extends StatelessWidget {
     this.emptySearchStateBuilder,
     this.expansionBuilder,
     this.onRowPressed,
+    this.onExpandedChanged,
     this.onSelectionChanged,
     this.expandable = false,
     this.selectable = false,
@@ -631,6 +590,7 @@ class _OperanceDataTableContent<T> extends StatelessWidget {
   final WidgetBuilder? emptySearchStateBuilder;
   final Widget Function(BuildContext, T)? expansionBuilder;
   final void Function(T)? onRowPressed;
+  final ValueChanged<Set<T>>? onExpandedChanged;
   final ValueChanged<Set<T>>? onSelectionChanged;
   final bool expandable;
   final bool selectable;
@@ -667,6 +627,7 @@ class _OperanceDataTableContent<T> extends StatelessWidget {
             }
 
             return LayoutBuilder(
+              key: const Key('table-content'),
               builder: (context, constraints) {
                 final tableHeight = constraints.maxHeight;
 
@@ -707,6 +668,7 @@ class _OperanceDataTableContent<T> extends StatelessWidget {
                         itemBuilder: (context, index) {
                           if (index >= activeRows.length) {
                             return Container(
+                              key: const Key('empty-row'),
                               height: sizes.rowHeight,
                               color: colors.rowColor,
                             );
@@ -727,6 +689,7 @@ class _OperanceDataTableContent<T> extends StatelessWidget {
                               controller.hoveredRowNotifier.value = null;
                             },
                             expansionBuilder: expansionBuilder,
+                            onExpanded: onExpandedChanged,
                             onChecked: onSelectionChanged,
                             onRowPressed: onRowPressed,
                             expandable: expandable,
@@ -783,11 +746,11 @@ class _OperanceDataTableContent<T> extends StatelessWidget {
         }
       } else if (event.logicalKey == LogicalKeyboardKey.arrowLeft) {
         if (currentHoveredIndex != null) {
-          controller.toggleExpandRow = currentHoveredIndex;
+          controller.toggleExpandRow = rows.elementAt(currentHoveredIndex);
         }
       } else if (event.logicalKey == LogicalKeyboardKey.arrowRight) {
         if (currentHoveredIndex != null) {
-          controller.toggleExpandRow = currentHoveredIndex;
+          controller.toggleExpandRow = rows.elementAt(currentHoveredIndex);
         }
       } else if (event.logicalKey == LogicalKeyboardKey.enter) {
         if (currentHoveredIndex != null) {

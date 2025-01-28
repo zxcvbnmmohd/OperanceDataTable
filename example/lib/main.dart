@@ -171,6 +171,25 @@ class _MyHomePageState extends State<MyHomePage> {
             width: const OperanceDataColumnWidth(factor: 0.1),
           ),
         ],
+        emptySearchStateBuilder: (context) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Icon(
+                  Icons.search,
+                  size: 64.0,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+                const SizedBox(height: 16.0),
+                Text(
+                  'No results found',
+                  style: textTheme.titleMedium,
+                ),
+              ],
+            ),
+          );
+        },
         expansionBuilder: (context, pokemon) {
           return SizedBox(
             height: 100.0,

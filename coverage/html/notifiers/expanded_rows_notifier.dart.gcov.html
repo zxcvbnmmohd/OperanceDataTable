@@ -31,13 +31,13 @@
             <td class="headerValue">lcov.info</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">41.7&nbsp;%</td>
-            <td class="headerCovTableEntry">12</td>
-            <td class="headerCovTableEntry">5</td>
+            <td class="headerCovTableEntryHi">100.0&nbsp;%</td>
+            <td class="headerCovTableEntry">14</td>
+            <td class="headerCovTableEntry">14</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2024-11-23 17:28:53</td>
+            <td class="headerValue">2025-01-28 18:05:42</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -63,31 +63,41 @@
 <span id="L1"><span class="lineNum">       1</span>              : // 🐦 Flutter imports:</span>
 <span id="L2"><span class="lineNum">       2</span>              : import 'package:flutter/material.dart';</span>
 <span id="L3"><span class="lineNum">       3</span>              : </span>
-<span id="L4"><span class="lineNum">       4</span>              : class ExpandedRowsNotifier extends ValueNotifier&lt;Map&lt;int, bool&gt;&gt; {</span>
-<span id="L5"><span class="lineNum">       5</span> <span class="tlaGNC">           2 :   ExpandedRowsNotifier({</span></span>
-<span id="L6"><span class="lineNum">       6</span>              :     Map&lt;int, bool&gt; rows = const &lt;int, bool&gt;{},</span>
-<span id="L7"><span class="lineNum">       7</span> <span class="tlaGNC">           2 :   }) : super(rows);</span></span>
-<span id="L8"><span class="lineNum">       8</span>              : </span>
-<span id="L9"><span class="lineNum">       9</span> <span class="tlaGNC">           1 :   void toggle(int index) {</span></span>
-<span id="L10"><span class="lineNum">      10</span> <span class="tlaGNC">           4 :     value[index] = !(value[index] ?? false);</span></span>
-<span id="L11"><span class="lineNum">      11</span>              : </span>
-<span id="L12"><span class="lineNum">      12</span> <span class="tlaGNC">           1 :     return notifyListeners();</span></span>
-<span id="L13"><span class="lineNum">      13</span>              :   }</span>
-<span id="L14"><span class="lineNum">      14</span>              : </span>
-<span id="L15"><span class="lineNum">      15</span> <span class="tlaUNC">           0 :   void expandMany(List&lt;int&gt; indexes) {</span></span>
-<span id="L16"><span class="lineNum">      16</span> <span class="tlaUNC">           0 :     for (final index in indexes) {</span></span>
-<span id="L17"><span class="lineNum">      17</span> <span class="tlaUNC">           0 :       value[index] = true;</span></span>
+<span id="L4"><span class="lineNum">       4</span>              : /// A notifier class for managing the state and behavior of the selected rows.</span>
+<span id="L5"><span class="lineNum">       5</span>              : class ExpandedRowsNotifier&lt;T&gt; extends ValueNotifier&lt;Set&lt;T&gt;&gt; {</span>
+<span id="L6"><span class="lineNum">       6</span>              :   /// Creates an instance of [ExpandedRowsNotifier].</span>
+<span id="L7"><span class="lineNum">       7</span>              :   ///</span>
+<span id="L8"><span class="lineNum">       8</span>              :   /// The [rows] are the expanded rows.</span>
+<span id="L9"><span class="lineNum">       9</span> <span class="tlaGNC">          14 :   ExpandedRowsNotifier({Set&lt;T&gt; rows = const {}}) : super(rows);</span></span>
+<span id="L10"><span class="lineNum">      10</span>              : </span>
+<span id="L11"><span class="lineNum">      11</span>              :   /// Toggles the expanded or collapse of the row. The [row] is the row to</span>
+<span id="L12"><span class="lineNum">      12</span>              :   /// toggle. If the row is already expanded, it will be collapsed.</span>
+<span id="L13"><span class="lineNum">      13</span> <span class="tlaGNC">           4 :   set toggle(T row) {</span></span>
+<span id="L14"><span class="lineNum">      14</span> <span class="tlaGNC">           8 :     if (value.contains(row)) {</span></span>
+<span id="L15"><span class="lineNum">      15</span> <span class="tlaGNC">           4 :       value.remove(row);</span></span>
+<span id="L16"><span class="lineNum">      16</span>              :     } else {</span>
+<span id="L17"><span class="lineNum">      17</span> <span class="tlaGNC">           8 :       value.add(row);</span></span>
 <span id="L18"><span class="lineNum">      18</span>              :     }</span>
 <span id="L19"><span class="lineNum">      19</span>              : </span>
-<span id="L20"><span class="lineNum">      20</span> <span class="tlaUNC">           0 :     return notifyListeners();</span></span>
+<span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">           4 :     return notifyListeners();</span></span>
 <span id="L21"><span class="lineNum">      21</span>              :   }</span>
 <span id="L22"><span class="lineNum">      22</span>              : </span>
-<span id="L23"><span class="lineNum">      23</span> <span class="tlaUNC">           0 :   void clear() {</span></span>
-<span id="L24"><span class="lineNum">      24</span> <span class="tlaUNC">           0 :     value.clear();</span></span>
-<span id="L25"><span class="lineNum">      25</span>              : </span>
-<span id="L26"><span class="lineNum">      26</span> <span class="tlaUNC">           0 :     return notifyListeners();</span></span>
-<span id="L27"><span class="lineNum">      27</span>              :   }</span>
-<span id="L28"><span class="lineNum">      28</span>              : }</span>
+<span id="L23"><span class="lineNum">      23</span>              :   /// Expands many rows. The [rows] are the rows to expand.</span>
+<span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">           2 :   set expandMany(Set&lt;T&gt; rows) {</span></span>
+<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           2 :     value</span></span>
+<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           2 :       ..clear()</span></span>
+<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           2 :       ..addAll(rows);</span></span>
+<span id="L28"><span class="lineNum">      28</span>              : </span>
+<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">           2 :     return notifyListeners();</span></span>
+<span id="L30"><span class="lineNum">      30</span>              :   }</span>
+<span id="L31"><span class="lineNum">      31</span>              : </span>
+<span id="L32"><span class="lineNum">      32</span>              :   /// Collapse all rows.</span>
+<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           3 :   void reset() {</span></span>
+<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           6 :     value.clear();</span></span>
+<span id="L35"><span class="lineNum">      35</span>              : </span>
+<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           3 :     return notifyListeners();</span></span>
+<span id="L37"><span class="lineNum">      37</span>              :   }</span>
+<span id="L38"><span class="lineNum">      38</span>              : }</span>
         </pre>
               </td>
             </tr>
